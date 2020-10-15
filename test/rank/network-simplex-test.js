@@ -1,15 +1,14 @@
 var _ = require("lodash");
 var expect = require("../chai").expect;
-var Graph = require("../../lib/graphlib").Graph;
-var networkSimplex = require("../../lib/rank/network-simplex");
-var longestPath = require("../../lib/rank/util").longestPath;
+var Graph = require("graphlib").Graph;
+var { networkSimplex, longestPath } = require("../..").rank;
+var { normalizeRanks } = require("../..").util;
 var initLowLimValues = networkSimplex.initLowLimValues;
 var initCutValues = networkSimplex.initCutValues;
 var calcCutValue = networkSimplex.calcCutValue;
 var leaveEdge = networkSimplex.leaveEdge;
 var enterEdge = networkSimplex.enterEdge;
 var exchangeEdges = networkSimplex.exchangeEdges;
-var normalizeRanks = require("../../lib/util").normalizeRanks;
 
 describe("network simplex", function() {
   var g, t, gansnerGraph, gansnerTree;

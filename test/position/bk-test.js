@@ -1,7 +1,7 @@
 var _ = require("lodash");
 var expect = require("../chai").expect;
-var buildLayerMatrix = require("../../lib/util").buildLayerMatrix;
-var bk = require("../../lib/position/bk");
+var {buildLayerMatrix} = require("../..").util;
+var {bk} = require("../..").position;
 var findType1Conflicts = bk.findType1Conflicts;
 var findType2Conflicts = bk.findType2Conflicts;
 var addConflict = bk.addConflict;
@@ -12,7 +12,7 @@ var alignCoordinates = bk.alignCoordinates;
 var balance = bk.balance;
 var findSmallestWidthAlignment = bk.findSmallestWidthAlignment;
 var positionX = bk.positionX;
-var Graph = require("../../lib/graphlib").Graph;
+var Graph = require("graphlib").Graph;
 
 describe("position/bk", function() {
   var g;

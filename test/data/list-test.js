@@ -1,5 +1,5 @@
 var expect = require("../chai").expect;
-var List = require("../../lib/data/list");
+var { List } = require("../..").data;
 
 describe("data.List", function() {
   var list;

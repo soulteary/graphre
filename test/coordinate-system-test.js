@@ -1,5 +1,5 @@
-var Graph = require("../lib/graphlib").Graph;
-var coordinateSystem = require("../lib/coordinate-system");
+var Graph = require("graphlib").Graph;
+var {coordinateSystem} = require("..");
 var expect = require("./chai").expect;
 
 describe("coordinateSystem", function() {

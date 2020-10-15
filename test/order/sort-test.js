@@ -1,5 +1,5 @@
 var expect = require("../chai").expect;
-var sort = require("../../lib/order/sort");
+var { sort } = require("../..").order;
 
 describe("sort", function() {
   it("sorts nodes by barycenter", function() {

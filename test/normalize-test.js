@@ -1,7 +1,7 @@
 var _ = require("lodash");
 var expect = require("./chai").expect;
-var normalize = require("../lib/normalize");
-var Graph = require("../lib/graphlib").Graph;
+var {normalize} = require("..");
+var Graph = require("graphlib").Graph;
 
 describe("normalize", function() {
   var g;

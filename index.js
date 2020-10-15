@@ -20,14 +20,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-module.exports = {
-  graphlib: require("./lib/graphlib"),
-
-  layout: require("./lib/layout"),
-  debug: require("./lib/debug"),
-  util: {
-    time: require("./lib/util").time,
-    notime: require("./lib/util").notime
-  },
-  version: require("./lib/version")
-};
+module.exports = require('./dist/dagre');

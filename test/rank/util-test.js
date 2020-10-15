@@ -1,8 +1,7 @@
 var expect = require("../chai").expect;
-var Graph = require("../../lib/graphlib").Graph;
-var normalizeRanks = require("../../lib/util").normalizeRanks;
-var rankUtil = require("../../lib/rank/util");
-var longestPath = rankUtil.longestPath;
+var Graph = require("graphlib").Graph;
+var {normalizeRanks} = require("../..").util;
+var { longestPath } = require("../..").rank;
 
 describe("rank/util", function() {
   describe("longestPath", function() {

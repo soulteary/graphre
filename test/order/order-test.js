@@ -1,9 +1,9 @@
 var _ = require("lodash");
 var expect = require("../chai").expect;
-var Graph = require("../../lib/graphlib").Graph;
-var order = require("../../lib/order");
-var crossCount = require("../../lib/order/cross-count");
-var util = require("../../lib/util");
+var Graph = require("graphlib").Graph;
+var { order } = require("../..").order;
+var { crossCount } = require("../..").order;
+var { util, buildLayerMatrix } = require("../..").util;
 
 describe("order", function() {
   var g;
@@ -21,7 +21,7 @@ describe("order", function() {
     g.setEdge("b", "d");
     g.setPath(["a", "e", "f"]);
     order(g);
-    var layering = util.buildLayerMatrix(g);
+    var layering = buildLayerMatrix(g);
     expect(crossCount(g, layering)).to.equal(0);
   });
 
@@ -31,7 +31,7 @@ describe("order", function() {
     _.forEach(["b", "f", "e"], function(v) { g.setNode(v, { rank: 2 }); });
     _.forEach(["c", "g"], function(v) { g.setNode(v, { rank: 3 }); });
     order(g);
-    var layering = util.buildLayerMatrix(g);
+    var layering = buildLayerMatrix(g);
     expect(crossCount(g, layering)).to.equal(0);
   });
 
@@ -41,7 +41,7 @@ describe("order", function() {
     _.forEach(["c", "f", "h"], function(v) { g.setNode(v, { rank: 3 }); });
     g.setNode("d", { rank: 4 });
     order(g);
-    var layering = util.buildLayerMatrix(g);
+    var layering = buildLayerMatrix(g);
     expect(crossCount(g, layering)).to.be.lte(1);
   });
 });
