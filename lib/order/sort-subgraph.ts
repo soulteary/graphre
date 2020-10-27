@@ -12,13 +12,11 @@ export function sortSubgraph(g: Graph<GraphNode, EdgeLabel>, v, cg, biasRight) {
   var subgraphs = {};
 
   if (bl) {
-    movable = _.filter(movable, function(w) {
-      return w !== bl && w !== br;
-    });
+    movable = movable.filter((w) => w !== bl && w !== br);
   }
 
   var barycenters = barycenter(g, movable);
-  _.forEach(barycenters, function(entry) {
+  for (var entry of barycenters) {
     if (g.children(entry.v).length) {
       var subgraphResult = sortSubgraph(g, entry.v, cg, biasRight);
       subgraphs[entry.v] = subgraphResult;
@@ -26,7 +24,7 @@ export function sortSubgraph(g: Graph<GraphNode, EdgeLabel>, v, cg, biasRight) {
         mergeBarycenters(entry, subgraphResult);
       }
     }
-  });
+  }
 
   var entries = resolveConflicts(barycenters, cg);
   expandSubgraphs(entries, subgraphs);
@@ -52,14 +50,14 @@ export function sortSubgraph(g: Graph<GraphNode, EdgeLabel>, v, cg, biasRight) {
 }
 
 export function expandSubgraphs(entries, subgraphs) {
-  _.forEach(entries, function(entry) {
+  for (var entry of entries) {
     entry.vs = _.flatten(entry.vs.map(function(v) {
       if (subgraphs[v]) {
         return subgraphs[v].vs;
       }
       return v;
     }), true);
-  });
+  }
 }
 
 export function mergeBarycenters(target, other) {

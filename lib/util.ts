@@ -21,48 +21,48 @@ export function addDummyNode(g: Graph<GraphNode, EdgeLabel>, type: string, attrs
 */
 export function simplify(g: Graph<GraphNode, EdgeLabel>) {
   var simplified = new Graph<GraphNode, EdgeLabel>().setGraph(g.graph());
-  _.forEach(g.nodes(), function(v) { simplified.setNode(v, g.node(v)); });
-  _.forEach(g.edges(), function(e) {
+  for (var v of g.nodes()) { simplified.setNode(v, g.node(v)); }
+  for (var e of g.edges()) {
     var simpleLabel = simplified.edge(e.v, e.w) || { weight: 0, minlen: 1 };
     var label = g.edge(e);
     simplified.setEdge(e.v, e.w, {
       weight: simpleLabel.weight + label.weight,
       minlen: Math.max(simpleLabel.minlen, label.minlen)
     });
-  });
+  }
   return simplified;
 }
 
 export function asNonCompoundGraph(g: Graph<GraphNode, EdgeLabel>) {
   var simplified = new Graph<GraphNode, EdgeLabel>({ multigraph: g.isMultigraph() }).setGraph(g.graph());
-  _.forEach(g.nodes(), function(v) {
+  for (var v of g.nodes()) {
     if (!g.children(v).length) {
       simplified.setNode(v, g.node(v));
     }
-  });
-  _.forEach(g.edges(), function(e) {
+  }
+  for (var e of g.edges()) {
     simplified.setEdge(e, g.edge(e));
-  });
+  }
   return simplified;
 }
 
 export function successorWeights(g: Graph<GraphNode, EdgeLabel>) {
-  var weightMap = _.map(g.nodes(), function(v) {
+  var weightMap = g.nodes().map(function(v) {
     var sucs = {};
-    _.forEach(g.outEdges(v), function(e) {
+    for (var e of g.outEdges(v)) {
       sucs[e.w] = (sucs[e.w] || 0) + g.edge(e).weight;
-    });
+    }
     return sucs;
   });
   return _.zipObject(g.nodes(), weightMap);
 }
 
 export function predecessorWeights(g: Graph<GraphNode, EdgeLabel>) {
-  var weightMap = _.map(g.nodes(), function(v) {
+  var weightMap = g.nodes().map(function(v) {
     var preds = {};
-    _.forEach(g.inEdges(v), function(e) {
+    for (var e of g.inEdges(v)) {
       preds[e.v] = (preds[e.v] || 0) + g.edge(e).weight;
-    });
+    }
     return preds;
   });
   return _.zipObject(g.nodes(), weightMap);
@@ -111,8 +111,8 @@ export function intersectRect(rect, point) {
  * Given a DAG with each node assigned "rank" and "order" properties, this
  * function will produce a matrix with the ids of each node.
 */
-export function buildLayerMatrix(g: Graph<GraphNode, EdgeLabel>): number[][] {
-  var layering: number[][] = _.map(_.range(maxRank(g) + 1), function() { return []; });
+export function buildLayerMatrix(g: Graph<GraphNode, EdgeLabel>): string[][] {
+  var layering: string[][] = _.range(maxRank(g) + 1).map(function() { return []; });
   for (var v of g.nodes()) {
     var node = g.node(v);
     var rank = node.rank;
@@ -128,7 +128,7 @@ export function buildLayerMatrix(g: Graph<GraphNode, EdgeLabel>): number[][] {
  * rank(v) >= 0 and at least one node w has rank(w) = 0.
 */
 export function normalizeRanks(g: Graph<GraphNode, EdgeLabel>) {
-  var min = _.min(_.map(g.nodes(), function(v) { return g.node(v).rank; }));
+  var min = _.min(g.nodes().map(function(v) { return g.node(v).rank; }));
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (_.has(node, "rank")) {
@@ -139,9 +139,9 @@ export function normalizeRanks(g: Graph<GraphNode, EdgeLabel>) {
 
 export function removeEmptyRanks(g: Graph<GraphNode, EdgeLabel>) {
   // Ranks may not start at 0, so we need to offset them
-  var offset = _.min(_.map(g.nodes(), function(v) { return g.node(v).rank; }));
+  var offset = _.min(g.nodes().map(function(v) { return g.node(v).rank; }));
 
-  var layers = [];
+  var layers: string[][] = [];
   for (var v of g.nodes()) {
     var rank = g.node(v).rank - offset;
     if (!layers[rank]) {
@@ -151,14 +151,15 @@ export function removeEmptyRanks(g: Graph<GraphNode, EdgeLabel>) {
   }
 
   var delta = 0;
-  var nodeRankFactor = g.graph().nodeRankFactor;
-  _.forEach(layers, function(vs, i) {
+  var nodeRankFactor = +g.graph().nodeRankFactor; // TODO: specify type
+  for(var i = 0; i<layers.length; i++) {
+    var vs = layers[i];
     if (_.isUndefined(vs) && i % nodeRankFactor !== 0) {
       --delta;
     } else if (delta) {
-      _.forEach(vs, function(v) { g.node(v).rank += delta; });
+      for (var v of vs) { g.node(v).rank += delta; }
     }
-  });
+  }
 }
 
 export function addBorderNode(g: Graph<GraphNode, EdgeLabel>, prefix, rank?, order?) {

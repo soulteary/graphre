@@ -69,9 +69,9 @@ export function networkSimplex(g: Graph<GraphNode, EdgeLabel>) {
 export function initCutValues(t, g) {
   var vs = postorder(t, t.nodes());
   vs = vs.slice(0, vs.length - 1);
-  _.forEach(vs, function(v) {
+  for (var v of vs) {
     assignCutValue(t, g, v);
-  });
+  }
 }
 
 export function assignCutValue(t, g, child) {
@@ -101,7 +101,7 @@ export function calcCutValue(t, g, child) {
 
   cutValue = graphEdge.weight;
 
-  _.forEach(g.nodeEdges(child), function(e) {
+  for (var e of g.nodeEdges(child)) {
     var isOutEdge = e.v === child,
       other = isOutEdge ? e.w : e.v;
 
@@ -115,7 +115,7 @@ export function calcCutValue(t, g, child) {
         cutValue += pointsToHead ? -otherCutValue : otherCutValue;
       }
     }
-  });
+  }
 
   return cutValue;
 }
@@ -132,11 +132,11 @@ export function dfsAssignLowLim(tree, visited, nextLim, v, parent?) {
   var label = tree.node(v);
 
   visited[v] = true;
-  _.forEach(tree.neighbors(v), function(w) {
+  for (var w of tree.neighbors(v)) {
     if (!_.has(visited, w)) {
       nextLim = dfsAssignLowLim(tree, visited, nextLim, w, v);
     }
-  });
+  }
 
   label.low = low;
   label.lim = nextLim++;
@@ -180,7 +180,7 @@ export function enterEdge(t, g, edge) {
     flip = true;
   }
 
-  var candidates = _.filter(g.edges(), function(edge) {
+  var candidates = g.edges().filter(function(edge) {
     return flip === isDescendant(t, t.node(edge.v), tailLabel) &&
            flip !== isDescendant(t, t.node(edge.w), tailLabel);
   });
@@ -202,7 +202,7 @@ export function updateRanks(t, g) {
   var root = _.find(t.nodes(), function(v) { return !g.node(v).parent; });
   var vs = preorder(t, root);
   vs = vs.slice(1);
-  _.forEach(vs, function(v) {
+  for (var v of vs) {
     var parent = t.node(v).parent,
       edge = g.edge(v, parent),
       flipped = false;
@@ -213,7 +213,7 @@ export function updateRanks(t, g) {
     }
 
     g.node(v).rank = g.node(parent).rank + (flipped ? edge.minlen : -edge.minlen);
-  });
+  }
 }
 
 /*

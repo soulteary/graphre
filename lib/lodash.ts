@@ -1,3 +1,49 @@
-import * as _ from "lodash";
+import {
+  cloneDeep,
+  defaults,
+  filter,
+  find,
+  flatten,
+  forEach,
+  forIn,
+  has,
+  isUndefined,
+  last,
+  mapValues,
+  max,
+  merge,
+  min,
+  minBy,
+  now,
+  pick,
+  range,
+  sortBy,
+  uniqueId,
+  values,
+  zipObject
+} from "lodash";
 
-export default _;
+export default {
+  cloneDeep,
+  defaults,
+  filter,
+  find,
+  flatten,
+  forEach,
+  forIn,
+  has,
+  isUndefined,
+  last,
+  mapValues,
+  max,
+  merge,
+  min,
+  minBy,
+  now,
+  pick,
+  range,
+  sortBy,
+  uniqueId,
+  values,
+  zipObject
+};

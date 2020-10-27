@@ -29,10 +29,9 @@ function twoLayerCrossCount(g: Graph<GraphNode, EdgeLabel>, northLayer: number[]
   // Sort all of the edges between the north and south layers by their position
   // in the north layer and then the south. Map these edges to the position of
   // their head in the south layer.
-  var southPos = _.zipObject(southLayer,
-    _.map(southLayer, function (v, i) { return i; }));
-  var southEntries = _.flatten(_.map(northLayer, function(v) {
-    return _.sortBy(_.map(g.outEdges(v), function(e) {
+  var southPos = _.zipObject(southLayer, southLayer.map(function (v, i) { return i; }));
+  var southEntries = _.flatten(northLayer.map(function(v) {
+    return _.sortBy(g.outEdges(v).map(function(e) {
       return { pos: southPos[e.w], weight: g.edge(e).weight };
     }), "pos");
   }), true);
@@ -42,11 +41,11 @@ function twoLayerCrossCount(g: Graph<GraphNode, EdgeLabel>, northLayer: number[]
   while (firstIndex < southLayer.length) firstIndex <<= 1;
   var treeSize = 2 * firstIndex - 1;
   firstIndex -= 1;
-  var tree = _.map(new Array(treeSize), function() { return 0; });
+  var tree = _.range(treeSize).map(() => 0);
 
   // Calculate the weighted crossings
   var cc = 0;
-  _.forEach(southEntries.forEach(function(entry) {
+  southEntries.forEach(function(entry) {
     var index = entry.pos + firstIndex;
     tree[index] += entry.weight;
     var weightSum = 0;
@@ -58,7 +57,7 @@ function twoLayerCrossCount(g: Graph<GraphNode, EdgeLabel>, northLayer: number[]
       tree[index] += entry.weight;
     }
     cc += entry.weight * weightSum;
-  }));
+  });
 
   return cc;
 }

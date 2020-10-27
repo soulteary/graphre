@@ -43,7 +43,7 @@ export interface MappedEntry extends ForsterEntry {
 */
 export function resolveConflicts(entries: ForsterEntry[], cg) {
   var mappedEntries: Record<string, MappedEntry> = {};
-  _.forEach(entries, function(entry, i) {
+  entries.map(function(entry, i) {
     var tmp = mappedEntries[entry.v] = {
       indegree: 0,
       "in": [],
@@ -57,14 +57,14 @@ export function resolveConflicts(entries: ForsterEntry[], cg) {
     }
   });
 
-  _.forEach(cg.edges(), function(e) {
+  for (var e of cg.edges()) {
     var entryV = mappedEntries[e.v];
     var entryW = mappedEntries[e.w];
     if (!_.isUndefined(entryV) && !_.isUndefined(entryW)) {
       entryW.indegree++;
       entryV.out.push(mappedEntries[e.w]);
     }
-  });
+  }
 
   var sourceSet = _.filter(mappedEntries, function(entry) {
     return !entry.indegree;
@@ -101,15 +101,16 @@ export function doResolveConflicts(sourceSet) {
   while (sourceSet.length) {
     var entry = sourceSet.pop();
     entries.push(entry);
-    _.forEach(entry["in"].reverse(), handleIn(entry));
-    _.forEach(entry.out, handleOut(entry));
+    entry["in"].reverse().forEach(handleIn(entry));
+    entry.out.forEach(handleOut(entry));
   }
 
-  return _.map(_.filter(entries, function(entry) { return !entry.merged; }),
-    function(entry) {
-      return _.pick(entry, ["vs", "i", "barycenter", "weight"]);
-    });
-
+  return entries.filter(e => !e.merged).map(e => ({
+    vs: e.vs,
+    i: e.i,
+    barycenter: e.barycenter,
+    weight: e.weight
+  }));
 }
 
 export function mergeEntries(target, source) {

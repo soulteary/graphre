@@ -7,7 +7,7 @@ export function addBorderSegments(g: Graph<GraphNode, EdgeLabel>) {
     var children = g.children(v);
     var node = g.node(v);
     if (children.length) {
-      _.forEach(children, dfs);
+      children.forEach(dfs);
     }
 
     if (_.has(node, "minRank")) {
@@ -22,7 +22,7 @@ export function addBorderSegments(g: Graph<GraphNode, EdgeLabel>) {
     }
   }
 
-  _.forEach(g.children(), dfs);
+  g.children().forEach(dfs);
 }
 
 function addBorderNode(g: Graph<GraphNode, EdgeLabel>, prop, prefix, sg, sgNode, rank) {

@@ -10,6 +10,8 @@ declare interface GraphNode {
   edgeObj?: unknown; // TODO: specify this
   borderTop?: string;
   borderBottom?: string;
+  borderLeft?: string;
+  borderRight?: string;
   dummy?: unknown;
   selfEdges?: unknown[]
   e?: unknown;

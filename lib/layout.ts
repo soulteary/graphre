@@ -140,19 +140,19 @@ export function buildLayoutGraph(inputGraph) {
     selectNumberAttrs(graph, graphNumAttrs),
     _.pick(graph, graphAttrs)));
 
-  _.forEach(inputGraph.nodes(), function(v) {
+  for (var v of inputGraph.nodes()) {
     var node = canonicalize(inputGraph.node(v));
     g.setNode(v, _.defaults(selectNumberAttrs(node, nodeNumAttrs), nodeDefaults));
     g.setParent(v, inputGraph.parent(v));
-  });
+  }
 
-  _.forEach(inputGraph.edges(), function(e) {
+  for (var e of inputGraph.edges()) {
     var edge = canonicalize(inputGraph.edge(e));
     g.setEdge(e, _.merge({},
       edgeDefaults,
       selectNumberAttrs(edge, edgeNumAttrs),
       _.pick(edge, edgeAttrs)));
-  });
+  }
 
   return g;
 }
@@ -354,12 +354,13 @@ function removeSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
 
 function insertSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
   var layers = util.buildLayerMatrix(g);
-  _.forEach(layers, function(layer) {
+  for (var layer of layers) {
     var orderShift = 0;
-    _.forEach(layer, function(v, i) {
+    for (var i = 0; i < layer.length; i++) {
+      var v = layer[i];
       var node = g.node(v);
       node.order = i + orderShift;
-      _.forEach(node.selfEdges, function(selfEdge) {
+      for (var selfEdge of node.selfEdges) {
         util.addDummyNode(g, "selfedge", {
           width: selfEdge.label.width,
           height: selfEdge.label.height,
@@ -368,10 +369,10 @@ function insertSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
           e: selfEdge.e,
           label: selfEdge.label
         }, "_se");
-      });
+      }
       delete node.selfEdges;
-    });
-  });
+    }
+  }
 }
 
 function positionSelfEdges(g: Graph<GraphNode, EdgeLabel>) {

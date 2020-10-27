@@ -23,8 +23,8 @@ function undo(g: Graph<GraphNode, EdgeLabel>) {
 }
 
 function swapWidthHeight(g: Graph<GraphNode, EdgeLabel>) {
-  _.forEach(g.nodes(), function(v) { swapWidthHeightOne(g.node(v)); });
-  _.forEach(g.edges(), function(e) { swapWidthHeightOne(g.edge(e)); });
+  for (var v of g.nodes()) { swapWidthHeightOne(g.node(v)); }
+  for (var e of g.edges()) { swapWidthHeightOne(g.edge(e)); }
 }
 
 function swapWidthHeightOne(attrs) {
@@ -34,15 +34,15 @@ function swapWidthHeightOne(attrs) {
 }
 
 function reverseY(g: Graph<GraphNode, EdgeLabel>) {
-  _.forEach(g.nodes(), function(v) { reverseYOne(g.node(v)); });
+  for (var v of g.nodes()) { reverseYOne(g.node(v)); }
 
-  _.forEach(g.edges(), function(e) {
+  for (var e of g.edges()) {
     var edge = g.edge(e);
-    _.forEach(edge.points, reverseYOne);
+    edge.points.forEach(reverseYOne);
     if (_.has(edge, "y")) {
       reverseYOne(edge);
     }
-  });
+  }
 }
 
 function reverseYOne(attrs) {
@@ -50,15 +50,15 @@ function reverseYOne(attrs) {
 }
 
 function swapXY(g: Graph<GraphNode, EdgeLabel>) {
-  _.forEach(g.nodes(), function(v) { swapXYOne(g.node(v)); });
+  for (var v of g.nodes()) { swapXYOne(g.node(v)); }
 
-  _.forEach(g.edges(), function(e) {
+  for (var e of g.edges()) {
     var edge = g.edge(e);
-    _.forEach(edge.points, swapXYOne);
+    edge.points.forEach(swapXYOne);
     if (_.has(edge, "x")) {
       swapXYOne(edge);
     }
-  });
+  }
 }
 
 function swapXYOne(attrs) {

@@ -51,7 +51,7 @@ export function feasibleTree(g: Graph<GraphNode, EdgeLabel>): Graph {
 */
 export function tightTree(t, g) {
   function dfs(v) {
-    _.forEach(g.nodeEdges(v), function(e) {
+    for (var e of g.nodeEdges(v)) {
       var edgeV = e.v,
         w = (v === edgeV) ? e.w : edgeV;
       if (!t.hasNode(w) && !slack(g, e)) {
@@ -59,10 +59,10 @@ export function tightTree(t, g) {
         t.setEdge(v, w, {});
         dfs(w);
       }
-    });
+    }
   }
 
-  _.forEach(t.nodes(), dfs);
+  t.nodes().forEach(dfs);
   return t.nodeCount();
 }
 
@@ -79,7 +79,7 @@ export function findMinSlackEdge(t, g) {
 }
 
 export function shiftRanks(t, g, delta) {
-  _.forEach(t.nodes(), function(v) {
+  for (var v of t.nodes()) {
     g.node(v).rank += delta;
   });
 }

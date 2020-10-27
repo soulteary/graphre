@@ -32,7 +32,7 @@ export function longestPath(g: Graph<GraphNode, EdgeLabel>) {
     }
     visited[v] = true;
 
-    var rank = _.min(_.map(g.outEdges(v), function(e) {
+    var rank = _.min(g.outEdges(v).map(function(e) {
       return dfs(e.w) - g.edge(e).minlen;
     }));
 
@@ -45,7 +45,7 @@ export function longestPath(g: Graph<GraphNode, EdgeLabel>) {
     return (label.rank = rank);
   }
 
-  _.forEach(g.sources(), dfs);
+  g.sources().forEach(dfs);
 }
 
 /*

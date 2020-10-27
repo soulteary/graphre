@@ -4,7 +4,7 @@ import { Graph } from 'graphlib';
 export function parentDummyChains(g: Graph<GraphNode, EdgeLabel>) {
   var postorderNums = postorder(g);
 
-  _.forEach(g.graph().dummyChains, function(v) {
+  for (var v of g.graph().dummyChains) {
     var node = g.node(v);
     var edgeObj = node.edgeObj;
     var pathData = findPath(g, postorderNums, edgeObj.v, edgeObj.w);
@@ -39,7 +39,7 @@ export function parentDummyChains(g: Graph<GraphNode, EdgeLabel>) {
       g.setParent(v, pathV);
       v = g.successors(v)[0];
     }
-  });
+  }
 }
 
 // Find a path from v to w through the lowest common ancestor (LCA). Return the
@@ -81,10 +81,10 @@ function postorder(g: Graph<GraphNode, EdgeLabel>): Record<string, Ordering> {
 
   function dfs(v) {
     var low = lim;
-    _.forEach(g.children(v), dfs);
+    g.children(v).forEach(dfs);
     result[v] = { low: low, lim: lim++ };
   }
-  _.forEach(g.children(), dfs);
+  g.children().forEach(dfs);
 
   return result;
 }

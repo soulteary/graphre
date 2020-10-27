@@ -14,22 +14,20 @@ import { Graph } from 'graphlib';
 */
 export function initOrder(g: Graph<GraphNode, EdgeLabel>): number[][] {
   var visited = {};
-  var simpleNodes = _.filter(g.nodes(), function(v) {
-    return !g.children(v).length;
-  });
-  var maxRank = _.max(_.map(simpleNodes, function(v) { return g.node(v).rank; }));
-  var layers: number[][] = _.map(_.range(maxRank + 1), function() { return []; });
+  var simpleNodes = g.nodes().filter(v => !g.children(v).length);
+  var maxRank = _.max(simpleNodes.map(function(v) { return g.node(v).rank; }));
+  var layers: number[][] = _.range(maxRank + 1).map(function() { return []; });
 
   function dfs(v) {
     if (_.has(visited, v)) return;
     visited[v] = true;
     var node = g.node(v);
     layers[node.rank].push(v);
-    _.forEach(g.successors(v), dfs);
+    g.successors(v).forEach(dfs);
   }
 
   var orderedVs = _.sortBy(simpleNodes, function(v) { return g.node(v).rank; });
-  _.forEach(orderedVs, dfs);
+  orderedVs.forEach(dfs);
 
   return layers;
 }

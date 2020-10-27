@@ -22,13 +22,13 @@ export function sort(entries, biasRight): SortResult {
 
   vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
 
-  _.forEach(sortable, function (entry) {
+  for (var entry of sortable) {
     vsIndex += entry.vs.length;
     vs.push(entry.vs);
     sum += entry.barycenter * entry.weight;
     weight += entry.weight;
     vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
-  });
+  }
 
   var result: SortResult = { vs: _.flatten(vs, true) };
   if (weight) {
