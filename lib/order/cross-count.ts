@@ -1,5 +1,5 @@
-import { Graph } from 'graphlib';
 import _ from '../lodash';
+import { DagreGraph } from '../types';
 
 /*
  * A function that takes a layering (an array of layers, each with an array of
@@ -17,7 +17,7 @@ import _ from '../lodash';
  *
  * This algorithm is derived from Barth, et al., "Bilayer Cross Counting."
  */
-export function crossCount(g: Graph<GraphNode, EdgeLabel>, layering: number[][]): number {
+export function crossCount(g: DagreGraph, layering: string[][]): number {
   var cc = 0;
   for (var i = 1; i < layering.length; ++i) {
     cc += twoLayerCrossCount(g, layering[i-1], layering[i]);
@@ -25,23 +25,23 @@ export function crossCount(g: Graph<GraphNode, EdgeLabel>, layering: number[][])
   return cc;
 }
 
-function twoLayerCrossCount(g: Graph<GraphNode, EdgeLabel>, northLayer: number[], southLayer: number[]): number {
+function twoLayerCrossCount(g: DagreGraph, northLayer: string[], southLayer: string[]): number {
   // Sort all of the edges between the north and south layers by their position
   // in the north layer and then the south. Map these edges to the position of
   // their head in the south layer.
   var southPos = _.zipObject(southLayer, southLayer.map(function (v, i) { return i; }));
-  var southEntries = _.flatten(northLayer.map(function(v) {
+  var southEntries = _.flattenDeep(northLayer.map(function(v) {
     return _.sortBy(g.outEdges(v).map(function(e) {
       return { pos: southPos[e.w], weight: g.edge(e).weight };
     }), "pos");
-  }), true);
+  }));
 
   // Build the accumulator tree
   var firstIndex = 1;
   while (firstIndex < southLayer.length) firstIndex <<= 1;
   var treeSize = 2 * firstIndex - 1;
   firstIndex -= 1;
-  var tree = _.range(treeSize).map(() => 0);
+  var tree = _.array(treeSize, () => 0);
 
   // Calculate the weighted crossings
   var cc = 0;

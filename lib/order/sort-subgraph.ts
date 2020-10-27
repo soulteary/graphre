@@ -1,15 +1,16 @@
 import _ from '../lodash';
-import { barycenter } from "./barycenter";
-import { resolveConflicts } from "./resolve-conflicts";
-import { sort } from "./sort";
-import { Graph } from 'graphlib';
+import { Barycenter, barycenter } from "./barycenter";
+import { resolveConflicts, XEntry } from "./resolve-conflicts";
+import { sort, SortResult } from "./sort";
+import { LayerGraph } from './build-layer-graph';
+import { ConstraintGraph } from '../types';
 
-export function sortSubgraph(g: Graph<GraphNode, EdgeLabel>, v, cg, biasRight) {
+export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, biasRight: boolean) {
   var movable = g.children(v);
   var node = g.node(v);
   var bl = node ? node.borderLeft : undefined;
   var br = node ? node.borderRight: undefined;
-  var subgraphs = {};
+  var subgraphs: Record<string, SortResult> = {};
 
   if (bl) {
     movable = movable.filter((w) => w !== bl && w !== br);
@@ -26,16 +27,16 @@ export function sortSubgraph(g: Graph<GraphNode, EdgeLabel>, v, cg, biasRight) {
     }
   }
 
-  var entries = resolveConflicts(barycenters, cg);
+  var entries = resolveConflicts(barycenters, cg) as any;
   expandSubgraphs(entries, subgraphs);
 
   var result = sort(entries, biasRight);
 
   if (bl) {
-    result.vs = _.flatten([bl, result.vs, br], true);
+    result.vs = _.flattenDeep([bl, result.vs, br]);
     if (g.predecessors(bl).length) {
-      var blPred = g.node(g.predecessors(bl)[0]),
-        brPred = g.node(g.predecessors(br)[0]);
+      var blPred = g.node(g.predecessors(bl)[0]);
+      var brPred = g.node(g.predecessors(br)[0]);
       if (!_.has(result, "barycenter")) {
         result.barycenter = 0;
         result.weight = 0;
@@ -49,18 +50,18 @@ export function sortSubgraph(g: Graph<GraphNode, EdgeLabel>, v, cg, biasRight) {
   return result;
 }
 
-export function expandSubgraphs(entries, subgraphs) {
+function expandSubgraphs(entries: XEntry[], subgraphs: Record<string, SortResult>) {
   for (var entry of entries) {
-    entry.vs = _.flatten(entry.vs.map(function(v) {
+    entry.vs = _.flattenDeep(entry.vs.map(function(v) {
       if (subgraphs[v]) {
         return subgraphs[v].vs;
       }
       return v;
-    }), true);
+    }));
   }
 }
 
-export function mergeBarycenters(target, other) {
+function mergeBarycenters(target: Barycenter, other: SortResult) {
   if (!_.isUndefined(target.barycenter)) {
     target.barycenter = (target.barycenter * target.weight +
                          other.barycenter * other.weight) /

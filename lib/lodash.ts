@@ -1,49 +1,68 @@
 import {
   cloneDeep,
-  defaults,
   filter,
   find,
   flatten,
+  flattenDeep,
   forEach,
   forIn,
-  has,
-  isUndefined,
-  last,
+  map,
   mapValues,
   max,
   merge,
   min,
   minBy,
-  now,
   pick,
   range,
+  reduce,
   sortBy,
-  uniqueId,
   values,
   zipObject
 } from "lodash";
 
+const idCounter: Record<string, number> = {};
+
 export default {
   cloneDeep,
-  defaults,
   filter,
   find,
   flatten,
+  flattenDeep,
   forEach,
   forIn,
-  has,
-  isUndefined,
-  last,
+  has(object: any, key: string): boolean {
+    return object != null && object.hasOwnProperty(key)
+  },
+  isUndefined(value: unknown) {
+    return value === undefined;
+  },
+  last<T>(array: T[]): T {
+    const length = array == null ? 0 : array.length
+    return length ? array[length - 1] : undefined
+  },
+  map,
   mapValues,
   max,
   merge,
   min,
   minBy,
-  now,
   pick,
   range,
+  reduce,
   sortBy,
-  uniqueId,
+  uniqueId(prefix: string): string {
+    if (!idCounter[prefix]) {
+      idCounter[prefix] = 0
+    }
+    const id = ++idCounter[prefix]
+    return `${prefix}${id}`
+  },
   values,
-  zipObject
+  zipObject,
+  
+  array<T>(count: number, factory: () => T): T[] {
+    var output = []
+    for(var i=0; i<count; i++) output.push(factory());
+    return output;
+  }
 };

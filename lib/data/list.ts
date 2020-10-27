@@ -46,14 +46,14 @@ export class List<T> {
   };
 }
 
-function unlink(entry) {
+function unlink(entry: any) {
   entry._prev._next = entry._next;
   entry._next._prev = entry._prev;
   delete entry._next;
   delete entry._prev;
 }
 
-function filterOutLinks(k, v) {
+function filterOutLinks(k: string, v: any): any {
   if (k !== "_next" && k !== "_prev") {
     return v;
   }

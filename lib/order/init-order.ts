@@ -1,5 +1,5 @@
 import _ from '../lodash';
-import { Graph } from 'graphlib';
+import { DagreGraph } from '../types';
 
 /*
  * Assigns an initial order value for each node by performing a DFS search
@@ -12,13 +12,13 @@ import { Graph } from 'graphlib';
  * Returns a layering matrix with an array per layer and each layer sorted by
  * the order of its nodes.
 */
-export function initOrder(g: Graph<GraphNode, EdgeLabel>): number[][] {
-  var visited = {};
+export function initOrder(g: DagreGraph): string[][] {
+  var visited: Record<string, boolean> = {};
   var simpleNodes = g.nodes().filter(v => !g.children(v).length);
   var maxRank = _.max(simpleNodes.map(function(v) { return g.node(v).rank; }));
-  var layers: number[][] = _.range(maxRank + 1).map(function() { return []; });
+  var layers: string[][] = _.array(maxRank + 1, function() { return []; });
 
-  function dfs(v) {
+  function dfs(v: string) {
     if (_.has(visited, v)) return;
     visited[v] = true;
     var node = g.node(v);
@@ -26,7 +26,7 @@ export function initOrder(g: Graph<GraphNode, EdgeLabel>): number[][] {
     g.successors(v).forEach(dfs);
   }
 
-  var orderedVs = _.sortBy(simpleNodes, function(v) { return g.node(v).rank; });
+  var orderedVs = _.sortBy(simpleNodes, function(v: string) { return g.node(v).rank; });
   orderedVs.forEach(dfs);
 
   return layers;

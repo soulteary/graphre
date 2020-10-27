@@ -12,6 +12,7 @@ import { order } from "./order";
 import { position } from "./position";
 import * as util from "./util";
 import { Edge, Graph } from "graphlib";
+import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, LayoutEdge, LayoutGraph, LayoutGraphConfig, LayoutNode, Vector } from "./types";
 
 interface NodeEdgeProxy extends GraphNode {
   dummy: 'edge-proxy';
@@ -29,14 +30,18 @@ interface NodeSelfEdge extends GraphNode {
   rank: number;
   order: number;
   e: Edge;
-  label: unknown;
+  label: {
+    points: { x: number, y: number }[];
+    x: number;
+    y: number;
+  };
 }
 
 function isSelfEdge(node: GraphNode): node is NodeSelfEdge {
   return node.dummy == 'selfedge';
 }
 
-export function layout(g: Graph<GraphNode, EdgeLabel>, opts) {
+export function layout(g: DagreGraph, opts?: { debugTiming?: boolean }) {
   var time = opts && opts.debugTiming ? util.time : util.notime;
   time("layout", function() {
     var layoutGraph = 
@@ -46,7 +51,7 @@ export function layout(g: Graph<GraphNode, EdgeLabel>, opts) {
   });
 }
 
-function runLayout(g: Graph<GraphNode, EdgeLabel>, time) {
+function runLayout(g: DagreGraph, time: (name: string, fn: Function) => void) {
   time("    makeSpaceForEdgeLabels", function() { makeSpaceForEdgeLabels(g); });
   time("    removeSelfEdges",        function() { removeSelfEdges(g); });
   time("    acyclic",                function() { acyclic.run(g); });
@@ -82,7 +87,7 @@ function runLayout(g: Graph<GraphNode, EdgeLabel>, time) {
  * to the input graph, so it serves as a good place to determine what
  * attributes can influence layout.
 */
-export function updateInputGraph(inputGraph, layoutGraph) {
+export function updateInputGraph(inputGraph: DagreGraph, layoutGraph: LayoutGraph) {
   for (var v of inputGraph.nodes()) {
     var inputLabel = inputGraph.node(v);
     var layoutLabel = layoutGraph.node(v);
@@ -99,13 +104,13 @@ export function updateInputGraph(inputGraph, layoutGraph) {
   }
 
   for (var e of inputGraph.edges()) {
-    var inputLabel = inputGraph.edge(e);
-    var layoutLabel = layoutGraph.edge(e);
+    var inputEdgeLabel = inputGraph.edge(e);
+    var layoutEdgeLabel = layoutGraph.edge(e);
 
-    inputLabel.points = layoutLabel.points;
-    if (_.has(layoutLabel, "x")) {
-      inputLabel.x = layoutLabel.x;
-      inputLabel.y = layoutLabel.y;
+    inputEdgeLabel.points = layoutEdgeLabel.points;
+    if (_.has(layoutEdgeLabel, "x")) {
+      inputEdgeLabel.x = layoutEdgeLabel.x;
+      inputEdgeLabel.y = layoutEdgeLabel.y;
     }
   }
 
@@ -113,17 +118,11 @@ export function updateInputGraph(inputGraph, layoutGraph) {
   inputGraph.graph().height = layoutGraph.graph().height;
 }
 
-var graphNumAttrs = ["nodesep", "edgesep", "ranksep", "marginx", "marginy"];
-var graphDefaults = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: "tb" };
-var graphAttrs = ["acyclicer", "ranker", "rankdir", "align"];
-var nodeNumAttrs = ["width", "height"];
-var nodeDefaults = { width: 0, height: 0 };
-var edgeNumAttrs = ["minlen", "weight", "width", "height", "labeloffset"];
+var graphDefaults = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: "tb" as 'tb' };
 var edgeDefaults = {
   minlen: 1, weight: 1, width: 0, height: 0,
   labeloffset: 10, labelpos: "r"
 };
-var edgeAttrs = ["labelpos"];
 
 /*
  * Constructs a new graph from the input graph, which can be used for layout.
@@ -131,27 +130,44 @@ var edgeAttrs = ["labelpos"];
  * layout graph. Thus this function serves as a good place to determine what
  * attributes can influence layout.
 */
-export function buildLayoutGraph(inputGraph) {
-  var g = new Graph({ multigraph: true, compound: true });
-  var graph = canonicalize(inputGraph.graph());
+export function buildLayoutGraph(inputGraph: DagreGraph) {
+  var g = new Graph<LayoutGraphConfig, LayoutNode, LayoutEdge>({ multigraph: true, compound: true });
+  var graph = canonicalize(inputGraph.graph()) as GraphLabel;
 
-  g.setGraph(_.merge({},
-    graphDefaults,
-    selectNumberAttrs(graph, graphNumAttrs),
-    _.pick(graph, graphAttrs)));
+  var layoutGraphConfig: LayoutGraphConfig = {
+    nodesep: (graph.nodesep || graphDefaults.nodesep),
+    edgesep: (graph.edgesep || graphDefaults.edgesep),
+    ranksep: (graph.ranksep || graphDefaults.ranksep),
+    marginx: +(graph.marginx),
+    marginy: +(graph.marginy),
+    acyclicer: graph.acyclicer,
+    ranker: graph.ranker,
+    rankdir: graph.rankdir || graphDefaults.rankdir,
+    align: graph.align,
+  };
+  g.setGraph(layoutGraphConfig);
 
   for (var v of inputGraph.nodes()) {
-    var node = canonicalize(inputGraph.node(v));
-    g.setNode(v, _.defaults(selectNumberAttrs(node, nodeNumAttrs), nodeDefaults));
+    var node = canonicalize(inputGraph.node(v)) as GraphNode;
+    var layoutNode: LayoutNode = {
+      width: +((node && node.width) || 0),
+      height: +((node && node.height) || 0)
+    };
+    g.setNode(v, layoutNode);
     g.setParent(v, inputGraph.parent(v));
   }
 
   for (var e of inputGraph.edges()) {
-    var edge = canonicalize(inputGraph.edge(e));
-    g.setEdge(e, _.merge({},
-      edgeDefaults,
-      selectNumberAttrs(edge, edgeNumAttrs),
-      _.pick(edge, edgeAttrs)));
+    var edge = canonicalize(inputGraph.edge(e)) as EdgeLabel;
+    var layoutEdge = {
+      minlen: (edge.minlen || edgeDefaults.minlen),
+      weight: (edge.weight || edgeDefaults.weight),
+      width: (edge.width || edgeDefaults.width),
+      height: (edge.height || edgeDefaults.height),
+      labeloffset: (edge.labeloffset || edgeDefaults.labeloffset),
+      labelpos: edge.labelpos || edgeDefaults.labelpos
+    }
+    g.setEdge(e, layoutEdge);
   }
 
   return g;
@@ -165,9 +181,9 @@ export function buildLayoutGraph(inputGraph) {
  * We also add some minimal padding to the width to push the label for the edge
  * away from the edge itself a bit.
 */
-export function makeSpaceForEdgeLabels(g: Graph<GraphNode, EdgeLabel>) {
+export function makeSpaceForEdgeLabels(g: DagreGraph) {
   var graph = g.graph();
-  (graph.ranksep as number) /= 2; // TODO: specify
+  graph.ranksep /= 2;
   for (var e of g.edges()) {
     var edge = g.edge(e);
     edge.minlen *= 2;
@@ -187,7 +203,7 @@ export function makeSpaceForEdgeLabels(g: Graph<GraphNode, EdgeLabel>) {
  * so that we can safely remove empty ranks while preserving balance for the
  * label's position.
 */
-export function injectEdgeLabelProxies(g: Graph<GraphNode, EdgeLabel>) {
+function injectEdgeLabelProxies(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (edge.width && edge.height) {
@@ -199,20 +215,20 @@ export function injectEdgeLabelProxies(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function assignRankMinMax(g: Graph<GraphNode, EdgeLabel>) {
+function assignRankMinMax(g: DagreGraph) {
   var maxRank = 0;
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (node.borderTop) {
       node.minRank = g.node(node.borderTop).rank;
       node.maxRank = g.node(node.borderBottom).rank;
-      maxRank = _.max(maxRank, node.maxRank);
+      maxRank = Math.max(maxRank, node.maxRank);
     }
   }
   g.graph().maxRank = maxRank;
 }
 
-function removeEdgeLabelProxies(g: Graph<GraphNode, EdgeLabel>) {
+function removeEdgeLabelProxies(g: DagreGraph) {
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (isEdgeProxy(node)) {
@@ -222,16 +238,16 @@ function removeEdgeLabelProxies(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function translateGraph(g: Graph<GraphNode, EdgeLabel>) {
+function translateGraph(g: DagreGraph) {
   var minX = Number.POSITIVE_INFINITY;
   var maxX = 0;
   var minY = Number.POSITIVE_INFINITY;
   var maxY = 0;
   var graphLabel = g.graph();
-  var marginX: number = (+graphLabel.marginx) || 0; // TODO: specify type on GraphLabel
-  var marginY: number = (+graphLabel.marginy) || 0; // TODO: specify type on GraphLabel
+  var marginX: number = graphLabel.marginx || 0;
+  var marginY: number = graphLabel.marginy || 0;
 
-  function getExtremes(attrs) {
+  function getExtremes(attrs: { x?:number, y?:number, width?:number, height?:number }) {
     var x = attrs.x;
     var y = attrs.y;
     var w = attrs.width;
@@ -242,7 +258,7 @@ function translateGraph(g: Graph<GraphNode, EdgeLabel>) {
     maxY = Math.max(maxY, y + h / 2);
   }
 
-  for (var v of g.nodes()) { getExtremes(g.node(v)); });
+  for (var v of g.nodes()) { getExtremes(g.node(v)); }
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (_.has(edge, "x")) {
@@ -265,20 +281,21 @@ function translateGraph(g: Graph<GraphNode, EdgeLabel>) {
       p.x -= minX;
       p.y -= minY;
     }
-    if (_.has(edge, "x")) { edge.x -= minX; }
-    if (_.has(edge, "y")) { edge.y -= minY; }
+    if (edge.hasOwnProperty("x")) { edge.x -= minX; }
+    if (edge.hasOwnProperty("y")) { edge.y -= minY; }
   }
 
   graphLabel.width = maxX - minX + marginX;
   graphLabel.height = maxY - minY + marginY;
 }
 
-function assignNodeIntersects(g: Graph<GraphNode, EdgeLabel>) {
+function assignNodeIntersects(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     var nodeV = g.node(e.v);
     var nodeW = g.node(e.w);
-    var p1, p2;
+    var p1: Vector;
+    var p2: Vector;
     if (!edge.points) {
       edge.points = [];
       p1 = nodeW;
@@ -292,7 +309,7 @@ function assignNodeIntersects(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function fixupEdgeLabelCoords(g: Graph<GraphNode, EdgeLabel>) {
+function fixupEdgeLabelCoords(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (_.has(edge, "x")) {
@@ -307,7 +324,7 @@ function fixupEdgeLabelCoords(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function reversePointsForReversedEdges(g: Graph<GraphNode, EdgeLabel>) {
+function reversePointsForReversedEdges(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (edge.reversed) {
@@ -316,7 +333,7 @@ function reversePointsForReversedEdges(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function removeBorderNodes(g: Graph<GraphNode, EdgeLabel>) {
+function removeBorderNodes(g: DagreGraph) {
   for (var v of g.nodes()) {
     if (g.children(v).length) {
       var node = g.node(v);
@@ -339,7 +356,7 @@ function removeBorderNodes(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function removeSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
+function removeSelfEdges(g: DagreGraph) {
   for (var e of g.edges()) {
     if (e.v === e.w) {
       var node = g.node(e.v);
@@ -352,7 +369,7 @@ function removeSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function insertSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
+function insertSelfEdges(g: DagreGraph) {
   var layers = util.buildLayerMatrix(g);
   for (var layer of layers) {
     var orderShift = 0;
@@ -360,7 +377,7 @@ function insertSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
       var v = layer[i];
       var node = g.node(v);
       node.order = i + orderShift;
-      for (var selfEdge of node.selfEdges) {
+      for (var selfEdge of (node.selfEdges as any[]) || []) { // TODO: specify type
         util.addDummyNode(g, "selfedge", {
           width: selfEdge.label.width,
           height: selfEdge.label.height,
@@ -375,7 +392,7 @@ function insertSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function positionSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
+function positionSelfEdges(g: DagreGraph) {
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (isSelfEdge(node)) {
@@ -399,11 +416,7 @@ function positionSelfEdges(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function selectNumberAttrs(obj, attrs) {
-  return _.mapValues(_.pick(obj, attrs), Number);
-}
-
-function canonicalize(attrs) {
+function canonicalize(attrs: any): unknown {
   var newAttrs = {};
   _.forEach(attrs, function(v, k) {
     newAttrs[k.toLowerCase()] = v;

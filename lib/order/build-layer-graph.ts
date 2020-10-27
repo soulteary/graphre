@@ -1,5 +1,13 @@
 import _ from '../lodash';
-import { Graph } from "graphlib";
+import { Edge, Graph, GraphLike } from "graphlib";
+import { DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
+
+export type LayerGraph = Graph<GraphLabel, LayeredNode, EdgeLabel>;
+
+type LayeredNode = Omit<GraphNode, 'borderLeft'|'borderRight'> & {
+  borderLeft?: string;
+  borderRight?: string;
+}
 
 /*
  * Constructs a graph that can be used to sort a layer of nodes. The graph will
@@ -31,14 +39,14 @@ import { Graph } from "graphlib";
  *    5. The weights for copied edges are aggregated as need, since the output
  *       graph is not a multi-graph.
  */
-export function buildLayerGraph(g: Graph<GraphNode, EdgeLabel>, rank, relationship): Graph<GraphNode, EdgeLabel> {
-  var root = createRootNode(g),
-    result = new Graph<GraphNode, EdgeLabel>({ compound: true }).setGraph({ root: root })
-      .setDefaultNodeLabel(function(v) { return g.node(v); });
+export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEdges'|'outEdges'): LayerGraph {
+  var root = createRootNode(g);
+  var result = new Graph<unknown, LayeredNode, EdgeLabel>({ compound: true }).setGraph({ root: root })
+      .setDefaultNodeLabel(function(v) { return g.node(v) as unknown as LayeredNode; }); // TODO solve type incompatibility
 
   for (var v of g.nodes()) {
-    var node = g.node(v),
-      parent = g.parent(v);
+    var node = g.node(v);
+    var parent = g.parent(v);
 
     if (node.rank === rank || node.minRank <= rank && rank <= node.maxRank) {
       result.setNode(v);
@@ -46,9 +54,9 @@ export function buildLayerGraph(g: Graph<GraphNode, EdgeLabel>, rank, relationsh
 
       // This assumes we have only short edges!
       for (var e of g[relationship](v)) {
-        var u = e.v === v ? e.w : e.v,
-          edge = result.edge(u, v),
-          weight = !_.isUndefined(edge) ? edge.weight : 0;
+        var u = e.v === v ? e.w : e.v;
+        var edge = result.edge(u, v);
+        var weight = !_.isUndefined(edge) ? edge.weight : 0;
         result.setEdge(u, v, { weight: g.edge(e).weight + weight });
       }
 
@@ -64,7 +72,7 @@ export function buildLayerGraph(g: Graph<GraphNode, EdgeLabel>, rank, relationsh
   return result;
 }
 
-function createRootNode(g: Graph<GraphNode, EdgeLabel>) {
+function createRootNode(g: DagreGraph): string {
   var v;
   while (g.hasNode((v = _.uniqueId("_root"))));
   return v;

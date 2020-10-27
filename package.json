@@ -10,7 +10,7 @@
     "layout"
   ],
   "scripts": {
-    "build": "tsc && rollup -c && mocha --recursive"
+    "build": "tsc && rollup -c && mocha --recursive --reporter progress"
   },
   "dependencies": {
     "graphlib": "file:../graphlib",
@@ -19,6 +19,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
+    "@types/lodash": "^4.14.162",
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
     "mocha": "^8.2.0",
@@ -27,6 +28,7 @@
     "semver": "^7.3.2",
     "sprintf": "^0.1.5",
     "terser": "^5.3.8",
+    "ts-unused-exports": "^6.2.4",
     "typescript": "^4.0.3"
   },
   "repository": {

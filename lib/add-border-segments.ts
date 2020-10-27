@@ -1,9 +1,9 @@
 import _ from "./lodash";
 import * as util from "./util";
-import { Graph } from 'graphlib';
+import { DagreGraph, GraphNode } from "./types";
 
-export function addBorderSegments(g: Graph<GraphNode, EdgeLabel>) {
-  function dfs(v) {
+export function addBorderSegments(g: DagreGraph) {
+  function dfs(v: string) {
     var children = g.children(v);
     var node = g.node(v);
     if (children.length) {
@@ -25,7 +25,7 @@ export function addBorderSegments(g: Graph<GraphNode, EdgeLabel>) {
   g.children().forEach(dfs);
 }
 
-function addBorderNode(g: Graph<GraphNode, EdgeLabel>, prop, prefix, sg, sgNode, rank) {
+function addBorderNode(g: DagreGraph, prop: "borderLeft"|"borderRight", prefix: '_bl'|'_br', sg: string, sgNode: GraphNode, rank: number) {
   var label = { width: 0, height: 0, rank: rank, borderType: prop };
   var prev = sgNode[prop][rank - 1];
   var curr = util.addDummyNode(g, "border", label, prefix);

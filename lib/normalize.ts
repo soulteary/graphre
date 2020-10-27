@@ -1,5 +1,6 @@
 import * as util from "./util";
-import { Edge, Graph } from 'graphlib';
+import { Edge } from 'graphlib';
+import { DagreGraph, GraphNode } from "./types";
 
 export var normalize = { run, undo };
 
@@ -19,14 +20,14 @@ export var normalize = { run, undo };
  *    3. The graph is augmented with a "dummyChains" attribute which contains
  *       the first dummy in each chain of dummy nodes produced.
 */
-function run(g: Graph<GraphNode, EdgeLabel>) {
+function run(g: DagreGraph) {
   g.graph().dummyChains = [];
   for (var edge of g.edges()) {
     normalizeEdge(g, edge);
   }
 }
 
-function normalizeEdge(g: Graph<GraphNode, EdgeLabel>, e: Edge) {
+function normalizeEdge(g: DagreGraph, e: Edge) {
   var v = e.v;
   var vRank = g.node(v).rank;
   var w = e.w;
@@ -39,12 +40,16 @@ function normalizeEdge(g: Graph<GraphNode, EdgeLabel>, e: Edge) {
 
   g.removeEdge(e);
 
-  var dummy, attrs, i;
+  var dummy: string;
+  var attrs: Partial<GraphNode>;
+  var i: number;
   for (i = 0, ++vRank; vRank < wRank; ++i, ++vRank) {
     edgeLabel.points = [];
     attrs = {
-      width: 0, height: 0,
-      edgeLabel: edgeLabel, edgeObj: e,
+      width: 0,
+      height: 0,
+      edgeLabel: edgeLabel,
+      edgeObj: e,
       rank: vRank
     };
     dummy = util.addDummyNode(g, "edge", attrs, "_d");
@@ -64,7 +69,7 @@ function normalizeEdge(g: Graph<GraphNode, EdgeLabel>, e: Edge) {
   g.setEdge(v, w, { weight: edgeLabel.weight }, name);
 }
 
-function undo(g: Graph<GraphNode, EdgeLabel>) {
+function undo(g: DagreGraph) {
   for(var v of g.graph().dummyChains) {
     var node = g.node(v);
     var origLabel = node.edgeLabel;

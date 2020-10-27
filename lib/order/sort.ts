@@ -1,5 +1,6 @@
 import _ from '../lodash';
 import * as util from "../util";
+import { XEntry } from './resolve-conflicts';
 
 export interface SortResult {
   vs: string[]
@@ -7,16 +8,16 @@ export interface SortResult {
   weight?: number
 }
 
-export function sort(entries, biasRight): SortResult {
+export function sort(entries: XEntry[], biasRight: boolean): SortResult {
   var parts = util.partition(entries, function(entry) {
     return _.has(entry, "barycenter");
   });
-  var sortable = parts.lhs,
-    unsortable = _.sortBy(parts.rhs, function(entry) { return -entry.i; }),
-    vs = [],
-    sum = 0,
-    weight = 0,
-    vsIndex = 0;
+  var sortable = parts.lhs;
+  var unsortable = _.sortBy(parts.rhs, function(entry: XEntry) { return -entry.i; });
+  var vs: (string|string[])[] = [];
+  var sum = 0;
+  var weight = 0;
+  var vsIndex = 0;
 
   sortable.sort(compareWithBias(!!biasRight));
 
@@ -30,7 +31,7 @@ export function sort(entries, biasRight): SortResult {
     vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
   }
 
-  var result: SortResult = { vs: _.flatten(vs, true) };
+  var result: SortResult = { vs: _.flattenDeep(vs) };
   if (weight) {
     result.barycenter = sum / weight;
     result.weight = weight;
@@ -38,8 +39,9 @@ export function sort(entries, biasRight): SortResult {
   return result;
 }
 
-export function consumeUnsortable(vs, unsortable, index) {
-  var last;
+interface Unsortable<T> { i: number, vs: T }
+function consumeUnsortable<T>(vs: T[], unsortable: Array<Unsortable<T>>, index: number): number {
+  var last: Unsortable<T>;
   while (unsortable.length && (last = _.last(unsortable)).i <= index) {
     unsortable.pop();
     vs.push(last.vs);
@@ -48,8 +50,8 @@ export function consumeUnsortable(vs, unsortable, index) {
   return index;
 }
 
-export function compareWithBias(bias) {
-  return function(entryV, entryW) {
+function compareWithBias(bias: boolean) {
+  return function(entryV: XEntry, entryW: XEntry) {
     if (entryV.barycenter < entryW.barycenter) {
       return -1;
     } else if (entryV.barycenter > entryW.barycenter) {

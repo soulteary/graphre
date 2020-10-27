@@ -1,7 +1,8 @@
-import * as util from "./util";
 import { Graph } from "graphlib";
+import { DagreGraph } from "./types";
+import * as util from "./util";
 
-export function debugOrdering(g: Graph<GraphNode, EdgeLabel>) {
+export function debugOrdering(g: DagreGraph) {
   var layerMatrix = util.buildLayerMatrix(g);
 
   var h = new Graph({ compound: true, multigraph: true }).setGraph({});

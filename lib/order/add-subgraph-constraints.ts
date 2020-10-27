@@ -1,13 +1,15 @@
-import type { Graph } from 'graphlib';
+import { DagreGraph } from '../types';
+import { LayerGraph } from './build-layer-graph';
+import _ from '../lodash';
 
-export function addSubgraphConstraints(g: Graph<GraphNode, EdgeLabel>, cg: Graph<GraphNode, EdgeLabel>, vs: string[]) {
-  var prev = {},
-    rootPrev;
+export function addSubgraphConstraints(g: LayerGraph, cg: DagreGraph, vs: string[]) {
+  var prev: Record<string, string> = {};
+  var rootPrev: string;
 
-  for (var v of vs) {
-    var child = g.parent(v),
-      parent,
-      prevChild;
+  _.forEach(vs, function(v) {
+    var child = g.parent(v);
+    var parent: string;
+    var prevChild: string;
     while (child) {
       parent = g.parent(child);
       if (parent) {
@@ -23,5 +25,5 @@ export function addSubgraphConstraints(g: Graph<GraphNode, EdgeLabel>, cg: Graph
       }
       child = parent;
     }
-  }
+  });
 }

@@ -1,16 +1,16 @@
 import _ from "./lodash";
-import { Graph } from 'graphlib';
+import { DagreGraph, Rect, Vector } from "./types";
 
 export var coordinateSystem = { adjust, undo };
 
-function adjust(g: Graph<GraphNode, EdgeLabel>) {
+function adjust(g: DagreGraph) {
   var rankDir = g.graph().rankdir.toLowerCase();
   if (rankDir === "lr" || rankDir === "rl") {
     swapWidthHeight(g);
   }
 }
 
-function undo(g: Graph<GraphNode, EdgeLabel>) {
+function undo(g: DagreGraph) {
   var rankDir = g.graph().rankdir.toLowerCase();
   if (rankDir === "bt" || rankDir === "rl") {
     reverseY(g);
@@ -22,18 +22,18 @@ function undo(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function swapWidthHeight(g: Graph<GraphNode, EdgeLabel>) {
+function swapWidthHeight(g: DagreGraph) {
   for (var v of g.nodes()) { swapWidthHeightOne(g.node(v)); }
   for (var e of g.edges()) { swapWidthHeightOne(g.edge(e)); }
 }
 
-function swapWidthHeightOne(attrs) {
+function swapWidthHeightOne(attrs: Rect) {
   var w = attrs.width;
   attrs.width = attrs.height;
   attrs.height = w;
 }
 
-function reverseY(g: Graph<GraphNode, EdgeLabel>) {
+function reverseY(g: DagreGraph) {
   for (var v of g.nodes()) { reverseYOne(g.node(v)); }
 
   for (var e of g.edges()) {
@@ -45,11 +45,11 @@ function reverseY(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function reverseYOne(attrs) {
+function reverseYOne(attrs: Vector) {
   attrs.y = -attrs.y;
 }
 
-function swapXY(g: Graph<GraphNode, EdgeLabel>) {
+function swapXY(g: DagreGraph) {
   for (var v of g.nodes()) { swapXYOne(g.node(v)); }
 
   for (var e of g.edges()) {
@@ -61,7 +61,7 @@ function swapXY(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-function swapXYOne(attrs) {
+function swapXYOne(attrs: Vector) {
   var x = attrs.x;
   attrs.x = attrs.y;
   attrs.y = x;

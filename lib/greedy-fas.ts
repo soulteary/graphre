@@ -1,6 +1,9 @@
 import _ from "./lodash";
 import { Edge, Graph } from "graphlib";
 import { List } from "./data/list";
+import { DagreGraph } from "./types";
+
+type FasGraph = Graph<unknown, FasNode, number>;
 
 /*
  * A greedy heuristic for finding a feedback arc set for a graph. A feedback
@@ -11,7 +14,7 @@ import { List } from "./data/list";
  */
 var DEFAULT_WEIGHT_FN = (e: Edge) => (1);
 
-export function greedyFAS(g: Graph<GraphNode, EdgeLabel>, weightFn: (e: Edge) => number): Edge[] {
+export function greedyFAS(g: DagreGraph, weightFn: (e: Edge) => number): Edge[] {
   if (g.nodeCount() <= 1) {
     return [];
   }
@@ -19,12 +22,12 @@ export function greedyFAS(g: Graph<GraphNode, EdgeLabel>, weightFn: (e: Edge) =>
   var results = doGreedyFAS(state.graph, state.buckets, state.zeroIdx);
 
   // Expand multi-edges
-  return _.flatten(results.map(function(e: Edge) {
+  return _.flattenDeep(results.map(function(e: Edge) {
     return g.outEdges(e.v, e.w);
-  }), true);
+  }));
 }
 
-function doGreedyFAS(g: Graph<FasNode, number>, buckets, zeroIdx): Edge[] {
+function doGreedyFAS(g: FasGraph, buckets: Array<List<FasNode>>, zeroIdx: number): Edge[] {
   var results: Edge[] = [];
   var sources = buckets[buckets.length - 1];
   var sinks = buckets[0];
@@ -47,8 +50,8 @@ function doGreedyFAS(g: Graph<FasNode, number>, buckets, zeroIdx): Edge[] {
   return results;
 }
 
-function removeNode(g: Graph<FasNode, number>, buckets, zeroIdx, entry, collectPredecessors?): Edge[] {
-  var results = collectPredecessors ? [] : undefined;
+function removeNode(g: Graph<unknown, FasNode, number>, buckets: List<FasNode>[], zeroIdx: number, entry: FasNode, collectPredecessors?: boolean): Edge[] {
+  var results: { v:string, w:string }[] = collectPredecessors ? [] : undefined;
 
   for (var edge of g.inEdges(entry.v)) {
     var weight = g.edge(edge);
@@ -81,8 +84,8 @@ interface FasNode {
   out: number;
 }
 
-function buildState(g: Graph<GraphNode, EdgeLabel>, weightFn: (e: Edge) => number) {
-  var fasGraph = new Graph<FasNode, number>();
+function buildState(g: DagreGraph, weightFn: (e: Edge) => number): { graph: FasGraph, buckets: List<FasNode>[], zeroIdx: number } {
+  var fasGraph = new Graph<unknown, FasNode, number>();
   var maxIn = 0;
   var maxOut = 0;
 
@@ -101,7 +104,7 @@ function buildState(g: Graph<GraphNode, EdgeLabel>, weightFn: (e: Edge) => numbe
     maxIn  = Math.max(maxIn,  fasGraph.node(e.w)["in"]  += weight);
   }
 
-  var buckets = _.range(maxOut + maxIn + 3).map(function() { return new List(); });
+  var buckets = _.array(maxOut + maxIn + 3, function() { return new List<FasNode>(); });
   var zeroIdx = maxIn + 1;
 
   for (var v of fasGraph.nodes()) {
@@ -111,7 +114,7 @@ function buildState(g: Graph<GraphNode, EdgeLabel>, weightFn: (e: Edge) => numbe
   return { graph: fasGraph, buckets: buckets, zeroIdx: zeroIdx };
 }
 
-function assignBucket(buckets, zeroIdx, entry) {
+function assignBucket(buckets: List<FasNode>[], zeroIdx: number, entry: FasNode) {
   if (!entry.out) {
     buckets[0].enqueue(entry);
   } else if (!entry["in"]) {

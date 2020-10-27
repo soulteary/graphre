@@ -1,6 +1,7 @@
 import _ from '../lodash';
-import { Graph } from "graphlib";
+import { Edge, Graph } from "graphlib";
 import { slack } from "./util";
+import { DagreGraph } from '../types';
 
 /*
  * Constructs a spanning tree with tight edges and adjusted the input node's
@@ -27,8 +28,8 @@ import { slack } from "./util";
  * Returns a tree (undirected graph) that is constructed using only "tight"
  * edges.
 */
-export function feasibleTree(g: Graph<GraphNode, EdgeLabel>): Graph {
-  var t = new Graph({ directed: false });
+export function feasibleTree<TGraph, TNode, TEdge>(g: DagreGraph): Graph<TGraph, Partial<TNode>, Partial<TEdge>> {
+  var t = new Graph<TGraph, Partial<TNode>, Partial<TEdge>>({ directed: false });
 
   // Choose arbitrary node from which to start our tree
   var start = g.nodes()[0];
@@ -36,50 +37,50 @@ export function feasibleTree(g: Graph<GraphNode, EdgeLabel>): Graph {
   t.setNode(start, {});
 
   var edge, delta;
-  while (tightTree(t, g) < size) {
-    edge = findMinSlackEdge(t, g);
+  while (tightTree(g) < size) {
+    edge = findMinSlackEdge(g);
     delta = t.hasNode(edge.v) ? slack(g, edge) : -slack(g, edge);
-    shiftRanks(t, g, delta);
+    shiftRanks(g, delta);
   }
 
   return t;
-}
 
-/*
- * Finds a maximal tree of tight edges and returns the number of nodes in the
- * tree.
-*/
-export function tightTree(t, g) {
-  function dfs(v) {
-    for (var e of g.nodeEdges(v)) {
-      var edgeV = e.v,
-        w = (v === edgeV) ? e.w : edgeV;
-      if (!t.hasNode(w) && !slack(g, e)) {
-        t.setNode(w, {});
-        t.setEdge(v, w, {});
-        dfs(w);
+  /*
+   * Finds a maximal tree of tight edges and returns the number of nodes in the
+   * tree.
+  */
+  function tightTree(g: DagreGraph): number {
+    function dfs(v: string) {
+      for (var e of g.nodeEdges(v)) {
+        var edgeV = e.v;
+        var w = (v === edgeV) ? e.w : edgeV;
+        if (!t.hasNode(w) && !slack(g, e)) {
+          t.setNode(w, {});
+          t.setEdge(v, w, {});
+          dfs(w);
+        }
       }
     }
+  
+    t.nodes().forEach(dfs);
+    return t.nodeCount();
   }
-
-  t.nodes().forEach(dfs);
-  return t.nodeCount();
-}
-
-/*
- * Finds the edge with the smallest slack that is incident on tree and returns
- * it.
-*/
-export function findMinSlackEdge(t, g) {
-  return _.minBy(g.edges(), function(e) {
-    if (t.hasNode(e.v) !== t.hasNode(e.w)) {
-      return slack(g, e);
+  
+  /*
+   * Finds the edge with the smallest slack that is incident on tree and returns
+   * it.
+  */
+  function findMinSlackEdge(g: DagreGraph): Edge {
+    return _.minBy(g.edges(), function(e: Edge) {
+      if (t.hasNode(e.v) !== t.hasNode(e.w)) {
+        return slack(g, e);
+      }
+    });
+  }
+  
+  function shiftRanks(g: DagreGraph, delta: number) {
+    for (var v of t.nodes()) {
+      g.node(v).rank += delta;
     }
-  });
-}
-
-export function shiftRanks(t, g, delta) {
-  for (var v of t.nodes()) {
-    g.node(v).rank += delta;
-  });
+  }
 }

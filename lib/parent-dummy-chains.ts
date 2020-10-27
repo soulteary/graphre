@@ -1,7 +1,12 @@
 import _ from "./lodash";
-import { Graph } from 'graphlib';
+import { DagreGraph } from "./types";
 
-export function parentDummyChains(g: Graph<GraphNode, EdgeLabel>) {
+interface Ordering {
+  low: number
+  lim: number
+}
+
+export function parentDummyChains(g: DagreGraph) {
   var postorderNums = postorder(g);
 
   for (var v of g.graph().dummyChains) {
@@ -44,7 +49,7 @@ export function parentDummyChains(g: Graph<GraphNode, EdgeLabel>) {
 
 // Find a path from v to w through the lowest common ancestor (LCA). Return the
 // full path and the LCA.
-function findPath(g: Graph<GraphNode, EdgeLabel>, postorderNums: Record<string, Ordering>, v: string, w: string) {
+function findPath(g: DagreGraph, postorderNums: Record<string, Ordering>, v: string, w: string) {
   var vPath = [];
   var wPath = [];
   var low = Math.min(postorderNums[v].low, postorderNums[w].low);
@@ -70,16 +75,11 @@ function findPath(g: Graph<GraphNode, EdgeLabel>, postorderNums: Record<string, 
   return { path: vPath.concat(wPath.reverse()), lca: lca };
 }
 
-export interface Ordering {
-  low: number
-  lim: number
-}
-
-function postorder(g: Graph<GraphNode, EdgeLabel>): Record<string, Ordering> {
-  var result = {};
+function postorder(g: DagreGraph): Record<string, Ordering> {
+  var result: Record<string, Ordering> = {};
   var lim = 0;
 
-  function dfs(v) {
+  function dfs(v: string) {
     var low = lim;
     g.children(v).forEach(dfs);
     result[v] = { low: low, lim: lim++ };

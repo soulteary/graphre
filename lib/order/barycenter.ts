@@ -1,4 +1,4 @@
-import type { Graph } from 'graphlib';
+import { Edge, Graph } from 'graphlib';
 
 export interface Barycenter {
   v: string,
@@ -6,15 +6,16 @@ export interface Barycenter {
   weight?: number
 }
 
-export function barycenter(g: Graph<GraphNode, EdgeLabel>, movable: string[]): Barycenter[] {
+export function barycenter(g: Graph<unknown, { order?: number }, { weight?: number }>, movable: string[]): Barycenter[] {
+  if (!movable) return [];
   return movable.map(function(v: string) {
     var inV = g.inEdges(v);
     if (!inV['length']) {
       return { v: v };
     } else {
-      var result = inV.reduce(function(acc, e) {
-        var edge = g.edge(e),
-          nodeU = g.node(e.v);
+      var result = inV.reduce(function(acc: { sum: number, weight: number }, e: Edge) {
+        var edge = g.edge(e);
+        var nodeU = g.node(e.v);
         return {
           sum: acc.sum + (edge.weight * nodeU.order),
           weight: acc.weight + edge.weight

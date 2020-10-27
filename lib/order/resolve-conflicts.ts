@@ -16,6 +16,13 @@ export interface MappedEntry extends ForsterEntry {
   weight?: number
 }
 
+export interface XEntry {
+  vs: string[]
+  i: number
+  barycenter: number
+  weight: number
+}
+
 /*
  * Given a list of entries of the form {v, barycenter, weight} and a
  * constraint graph this function will resolve any conflicts between the
@@ -43,7 +50,7 @@ export interface MappedEntry extends ForsterEntry {
 */
 export function resolveConflicts(entries: ForsterEntry[], cg) {
   var mappedEntries: Record<string, MappedEntry> = {};
-  entries.map(function(entry, i) {
+  _.forEach(entries, function(entry, i) {
     var tmp = mappedEntries[entry.v] = {
       indegree: 0,
       "in": [],
@@ -57,14 +64,14 @@ export function resolveConflicts(entries: ForsterEntry[], cg) {
     }
   });
 
-  for (var e of cg.edges()) {
+  _.forEach(cg.edges(), function(e) {
     var entryV = mappedEntries[e.v];
     var entryW = mappedEntries[e.w];
     if (!_.isUndefined(entryV) && !_.isUndefined(entryW)) {
       entryW.indegree++;
       entryV.out.push(mappedEntries[e.w]);
     }
-  }
+  });
 
   var sourceSet = _.filter(mappedEntries, function(entry) {
     return !entry.indegree;
@@ -101,16 +108,15 @@ export function doResolveConflicts(sourceSet) {
   while (sourceSet.length) {
     var entry = sourceSet.pop();
     entries.push(entry);
-    entry["in"].reverse().forEach(handleIn(entry));
-    entry.out.forEach(handleOut(entry));
+    _.forEach(entry["in"].reverse(), handleIn(entry));
+    _.forEach(entry.out, handleOut(entry));
   }
 
-  return entries.filter(e => !e.merged).map(e => ({
-    vs: e.vs,
-    i: e.i,
-    barycenter: e.barycenter,
-    weight: e.weight
-  }));
+  return _.map(_.filter(entries, function(entry) { return !entry.merged; }),
+    function(entry) {
+      return _.pick(entry, ["vs", "i", "barycenter", "weight"]);
+    });
+
 }
 
 export function mergeEntries(target, source) {

@@ -1,7 +1,7 @@
 import { longestPath } from "./util";
 import { feasibleTree } from "./feasible-tree";
 import { networkSimplex } from "./network-simplex";
-import { Graph } from 'graphlib';
+import { DagreGraph } from "../types";
 
 export { networkSimplex } from './network-simplex';
 export { feasibleTree } from './feasible-tree';
@@ -26,7 +26,7 @@ export { longestPath } from './util';
  *       algorithm. Ranks can start at any index (including negative), we'll
  *       fix them up later.
 */
-export function rank(g: Graph<GraphNode, EdgeLabel>) {
+export function rank(g: DagreGraph) {
   switch(g.graph().ranker) {
   case "network-simplex": networkSimplexRanker(g); break;
   case "tight-tree": tightTreeRanker(g); break;
@@ -38,11 +38,11 @@ export function rank(g: Graph<GraphNode, EdgeLabel>) {
 // A fast and simple ranker, but results are far from optimal.
 var longestPathRanker = longestPath;
 
-export function tightTreeRanker(g: Graph<GraphNode, EdgeLabel>) {
+export function tightTreeRanker(g: DagreGraph) {
   longestPath(g);
   feasibleTree(g);
 }
 
-export function networkSimplexRanker(g: Graph<GraphNode, EdgeLabel>) {
+export function networkSimplexRanker(g: DagreGraph) {
   networkSimplex(g);
 }

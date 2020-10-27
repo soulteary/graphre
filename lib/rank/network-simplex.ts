@@ -2,8 +2,13 @@ import _ from '../lodash';
 import { feasibleTree } from "./feasible-tree";
 import { slack } from "./util";
 import { longestPath } from "./util";
-import { alg, Graph } from 'graphlib';
+import { alg, Edge, Graph } from 'graphlib';
 import { simplify } from "../util";
+import { DagreGraph, GraphNode } from '../types';
+
+type SimplexNode = GraphNode & { low: number, lim: number, parent: string, cutvalue: number };
+type SimplexEdge = { cutvalue: number };
+export type SimplexTree = Graph<unknown, Partial<SimplexNode>, Partial<SimplexEdge>>;
 
 var preorder = alg.preorder;
 var postorder = alg.postorder;
@@ -49,10 +54,10 @@ networkSimplex.exchangeEdges = exchangeEdges;
  * for Drawing Directed Graphs." The structure of the file roughly follows the
  * structure of the overall algorithm.
 */
-export function networkSimplex(g: Graph<GraphNode, EdgeLabel>) {
+export function networkSimplex(g: DagreGraph) {
   g = simplify(g);
   longestPath(g);
-  var t = feasibleTree(g);
+  var t = feasibleTree<unknown, SimplexNode, SimplexEdge>(g);
   initLowLimValues(t);
   initCutValues(t, g);
 
@@ -66,7 +71,7 @@ export function networkSimplex(g: Graph<GraphNode, EdgeLabel>) {
 /*
  * Initializes cut values for all edges in the tree.
 */
-export function initCutValues(t, g) {
+function initCutValues(t: SimplexTree, g: DagreGraph) {
   var vs = postorder(t, t.nodes());
   vs = vs.slice(0, vs.length - 1);
   for (var v of vs) {
@@ -74,7 +79,7 @@ export function initCutValues(t, g) {
   }
 }
 
-export function assignCutValue(t, g, child) {
+function assignCutValue(t: SimplexTree, g: DagreGraph, child: string) {
   var childLab = t.node(child);
   var parent = childLab.parent;
   t.edge(child, parent).cutvalue = calcCutValue(t, g, child);
@@ -84,7 +89,7 @@ export function assignCutValue(t, g, child) {
  * Given the tight tree, its graph, and a child in the graph calculate and
  * return the cut value for the edge between the child and its parent.
 */
-export function calcCutValue(t, g, child) {
+function calcCutValue(t: SimplexTree, g: DagreGraph, child: string) {
   var childLab = t.node(child);
   var parent = childLab.parent;
   // True if the child is on the tail end of the edge in the directed graph
@@ -102,12 +107,12 @@ export function calcCutValue(t, g, child) {
   cutValue = graphEdge.weight;
 
   for (var e of g.nodeEdges(child)) {
-    var isOutEdge = e.v === child,
-      other = isOutEdge ? e.w : e.v;
+    var isOutEdge = e.v === child;
+    var other = isOutEdge ? e.w : e.v;
 
     if (other !== parent) {
-      var pointsToHead = isOutEdge === childIsTail,
-        otherWeight = g.edge(e).weight;
+      var pointsToHead = isOutEdge === childIsTail;
+      var otherWeight = g.edge(e).weight;
 
       cutValue += pointsToHead ? otherWeight : -otherWeight;
       if (isTreeEdge(t, child, other)) {
@@ -120,14 +125,14 @@ export function calcCutValue(t, g, child) {
   return cutValue;
 }
 
-export function initLowLimValues(tree, root?: Graph<GraphNode, EdgeLabel>) {
+function initLowLimValues(tree: SimplexTree, root?: string) {
   if (arguments.length < 2) {
     root = tree.nodes()[0];
   }
   dfsAssignLowLim(tree, {}, 1, root);
 }
 
-export function dfsAssignLowLim(tree, visited, nextLim, v, parent?) {
+function dfsAssignLowLim(tree: SimplexTree, visited: Record<string, boolean>, nextLim: number, v: string, parent?: string) {
   var low = nextLim;
   var label = tree.node(v);
 
@@ -150,13 +155,13 @@ export function dfsAssignLowLim(tree, visited, nextLim, v, parent?) {
   return nextLim;
 }
 
-export function leaveEdge(tree) {
+function leaveEdge(tree: SimplexTree) {
   return _.find(tree.edges(), function(e) {
     return tree.edge(e).cutvalue < 0;
   });
 }
 
-export function enterEdge(t, g, edge) {
+function enterEdge(t: SimplexTree, g: DagreGraph, edge: Edge) {
   var v = edge.v;
   var w = edge.w;
 
@@ -185,10 +190,10 @@ export function enterEdge(t, g, edge) {
            flip !== isDescendant(t, t.node(edge.w), tailLabel);
   });
 
-  return _.minBy(candidates, function(edge) { return slack(g, edge); });
+  return _.minBy(candidates, function(edge: Edge) { return slack(g, edge); });
 }
 
-export function exchangeEdges(t, g, e, f) {
+function exchangeEdges(t: SimplexTree, g: DagreGraph, e: Edge, f: Edge) {
   var v = e.v;
   var w = e.w;
   t.removeEdge(v, w);
@@ -198,14 +203,14 @@ export function exchangeEdges(t, g, e, f) {
   updateRanks(t, g);
 }
 
-export function updateRanks(t, g) {
+function updateRanks(t: SimplexTree, g: DagreGraph) {
   var root = _.find(t.nodes(), function(v) { return !g.node(v).parent; });
   var vs = preorder(t, root);
   vs = vs.slice(1);
   for (var v of vs) {
-    var parent = t.node(v).parent,
-      edge = g.edge(v, parent),
-      flipped = false;
+    var parent = t.node(v).parent;
+    var edge = g.edge(v, parent);
+    var flipped = false;
 
     if (!edge) {
       edge = g.edge(parent, v);
@@ -219,7 +224,7 @@ export function updateRanks(t, g) {
 /*
  * Returns true if the edge is in the tree.
 */
-export function isTreeEdge(tree, u, v) {
+function isTreeEdge(tree: SimplexTree, u: string, v: string) {
   return tree.hasEdge(u, v);
 }
 
@@ -227,6 +232,6 @@ export function isTreeEdge(tree, u, v) {
  * Returns true if the specified node is descendant of the root node per the
  * assigned low and lim attributes in the tree.
 */
-export function isDescendant(tree, vLabel, rootLabel) {
+function isDescendant(tree: unknown, vLabel: Partial<SimplexNode>, rootLabel: Partial<SimplexNode>) {
   return rootLabel.low <= vLabel.lim && vLabel.lim <= rootLabel.lim;
 }

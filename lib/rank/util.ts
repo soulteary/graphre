@@ -1,5 +1,6 @@
-import { Edge, Graph } from 'graphlib';
+import { Edge } from 'graphlib';
 import _ from '../lodash';
+import { DagreGraph } from '../types';
 
 /*
  * Initializes ranks for the input graph using the longest path algorithm. This
@@ -22,10 +23,10 @@ import _ from '../lodash';
  *
  *    1. Each node will be assign an (unnormalized) "rank" property.
 */
-export function longestPath(g: Graph<GraphNode, EdgeLabel>) {
-  var visited = {};
+export function longestPath(g: DagreGraph) {
+  var visited: Record<string, boolean> = {};
 
-  function dfs(v) {
+  function dfs(v: string): number {
     var label = g.node(v);
     if (_.has(visited, v)) {
       return label.rank;
@@ -52,6 +53,6 @@ export function longestPath(g: Graph<GraphNode, EdgeLabel>) {
  * Returns the amount of slack for the given edge. The slack is defined as the
  * difference between the length of the edge and its minimum length.
 */
-export function slack(g: Graph<GraphNode, EdgeLabel>, e: Edge) {
+export function slack(g: DagreGraph, e: Edge) {
   return g.node(e.w).rank - g.node(e.v).rank - g.edge(e).minlen;
 }

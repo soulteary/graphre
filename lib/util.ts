@@ -1,11 +1,12 @@
-import _ from "./lodash";
 import { Graph } from "graphlib";
+import _ from "./lodash";
+import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, Rect, Vector } from "./types";
 
 /*
  * Adds a dummy node to the graph and return v.
 */
-export function addDummyNode(g: Graph<GraphNode, EdgeLabel>, type: string, attrs, name: string) {
-  var v;
+export function addDummyNode(g: DagreGraph, type: string, attrs: Partial<GraphNode>, name: string): string {
+  var v: string;
   do {
     v = _.uniqueId(name);
   } while (g.hasNode(v));
@@ -19,8 +20,8 @@ export function addDummyNode(g: Graph<GraphNode, EdgeLabel>, type: string, attrs
  * Returns a new graph with only simple edges. Handles aggregation of data
  * associated with multi-edges.
 */
-export function simplify(g: Graph<GraphNode, EdgeLabel>) {
-  var simplified = new Graph<GraphNode, EdgeLabel>().setGraph(g.graph());
+export function simplify(g: DagreGraph) {
+  var simplified = new Graph<GraphLabel, GraphNode, EdgeLabel>().setGraph(g.graph());
   for (var v of g.nodes()) { simplified.setNode(v, g.node(v)); }
   for (var e of g.edges()) {
     var simpleLabel = simplified.edge(e.v, e.w) || { weight: 0, minlen: 1 };
@@ -33,8 +34,8 @@ export function simplify(g: Graph<GraphNode, EdgeLabel>) {
   return simplified;
 }
 
-export function asNonCompoundGraph(g: Graph<GraphNode, EdgeLabel>) {
-  var simplified = new Graph<GraphNode, EdgeLabel>({ multigraph: g.isMultigraph() }).setGraph(g.graph());
+export function asNonCompoundGraph(g: DagreGraph) {
+  var simplified = new Graph<GraphLabel, GraphNode, EdgeLabel>({ multigraph: g.isMultigraph() }).setGraph(g.graph());
   for (var v of g.nodes()) {
     if (!g.children(v).length) {
       simplified.setNode(v, g.node(v));
@@ -46,9 +47,9 @@ export function asNonCompoundGraph(g: Graph<GraphNode, EdgeLabel>) {
   return simplified;
 }
 
-export function successorWeights(g: Graph<GraphNode, EdgeLabel>) {
+export function successorWeights(g: DagreGraph): Record<string, Record<string, number>> {
   var weightMap = g.nodes().map(function(v) {
-    var sucs = {};
+    var sucs: Record<string, number> = {};
     for (var e of g.outEdges(v)) {
       sucs[e.w] = (sucs[e.w] || 0) + g.edge(e).weight;
     }
@@ -57,9 +58,9 @@ export function successorWeights(g: Graph<GraphNode, EdgeLabel>) {
   return _.zipObject(g.nodes(), weightMap);
 }
 
-export function predecessorWeights(g: Graph<GraphNode, EdgeLabel>) {
+export function predecessorWeights(g: DagreGraph): Record<string, Record<string, number>> {
   var weightMap = g.nodes().map(function(v) {
-    var preds = {};
+    var preds: Record<string, number> = {};
     for (var e of g.inEdges(v)) {
       preds[e.v] = (preds[e.v] || 0) + g.edge(e).weight;
     }
@@ -72,7 +73,7 @@ export function predecessorWeights(g: Graph<GraphNode, EdgeLabel>) {
  * Finds where a line starting at point ({x, y}) would intersect a rectangle
  * ({x, y, width, height}) if it were pointing at the rectangle's center.
 */
-export function intersectRect(rect, point) {
+export function intersectRect(rect: Rect, point: Vector) {
   var x = rect.x;
   var y = rect.y;
 
@@ -111,8 +112,8 @@ export function intersectRect(rect, point) {
  * Given a DAG with each node assigned "rank" and "order" properties, this
  * function will produce a matrix with the ids of each node.
 */
-export function buildLayerMatrix(g: Graph<GraphNode, EdgeLabel>): string[][] {
-  var layering: string[][] = _.range(maxRank(g) + 1).map(function() { return []; });
+export function buildLayerMatrix(g: DagreGraph): string[][] {
+  var layering: string[][] = _.array(maxRank(g) + 1, function() { return []; });
   for (var v of g.nodes()) {
     var node = g.node(v);
     var rank = node.rank;
@@ -127,7 +128,7 @@ export function buildLayerMatrix(g: Graph<GraphNode, EdgeLabel>): string[][] {
  * Adjusts the ranks for all nodes in the graph such that all nodes v have
  * rank(v) >= 0 and at least one node w has rank(w) = 0.
 */
-export function normalizeRanks(g: Graph<GraphNode, EdgeLabel>) {
+export function normalizeRanks(g: DagreGraph) {
   var min = _.min(g.nodes().map(function(v) { return g.node(v).rank; }));
   for (var v of g.nodes()) {
     var node = g.node(v);
@@ -137,7 +138,7 @@ export function normalizeRanks(g: Graph<GraphNode, EdgeLabel>) {
   }
 }
 
-export function removeEmptyRanks(g: Graph<GraphNode, EdgeLabel>) {
+export function removeEmptyRanks(g: DagreGraph) {
   // Ranks may not start at 0, so we need to offset them
   var offset = _.min(g.nodes().map(function(v) { return g.node(v).rank; }));
 
@@ -151,18 +152,18 @@ export function removeEmptyRanks(g: Graph<GraphNode, EdgeLabel>) {
   }
 
   var delta = 0;
-  var nodeRankFactor = +g.graph().nodeRankFactor; // TODO: specify type
+  var nodeRankFactor = g.graph().nodeRankFactor;
   for(var i = 0; i<layers.length; i++) {
     var vs = layers[i];
     if (_.isUndefined(vs) && i % nodeRankFactor !== 0) {
       --delta;
-    } else if (delta) {
+    } else if (delta && (vs != undefined)) {
       for (var v of vs) { g.node(v).rank += delta; }
     }
   }
 }
 
-export function addBorderNode(g: Graph<GraphNode, EdgeLabel>, prefix, rank?, order?) {
+export function addBorderNode(g: DagreGraph, prefix: string, rank?: number, order?: number) {
   var node: { width: number, height: number, rank?: number, order?: number } = {
     width: 0,
     height: 0
@@ -174,7 +175,7 @@ export function addBorderNode(g: Graph<GraphNode, EdgeLabel>, prefix, rank?, ord
   return addDummyNode(g, "border", node, prefix);
 }
 
-export function maxRank(g: Graph<GraphNode, EdgeLabel>): number {
+export function maxRank(g: DagreGraph): number {
   return _.max(g.nodes().map(function(v) {
     var rank = g.node(v).rank;
     if (!_.isUndefined(rank)) {
@@ -205,11 +206,11 @@ export function partition<T>(collection: T[], fn: (e: T) => boolean): { lhs: T[]
  * time it takes to execute the function.
 */
 export function time(name: string, fn: Function): Function {
-  var start = _.now();
+  var start = Date.now();
   try {
     return fn();
   } finally {
-    console.log(name + " time: " + (_.now() - start) + "ms");
+    console.log(name + " time: " + (Date.now() - start) + "ms");
   }
 }
 

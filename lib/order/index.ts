@@ -2,10 +2,11 @@ import _ from '../lodash';
 import { initOrder } from "./init-order";
 import { crossCount } from "./cross-count";
 import { sortSubgraph } from "./sort-subgraph";
-import { buildLayerGraph } from "./build-layer-graph";
+import { buildLayerGraph, LayerGraph } from "./build-layer-graph";
 import { addSubgraphConstraints } from "./add-subgraph-constraints";
 import { Graph } from "graphlib";
 import { buildLayerMatrix, maxRank } from "../util";
+import { ConstraintGraph, DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
 
 export { addSubgraphConstraints } from "./add-subgraph-constraints";
 export { barycenter } from './barycenter';
@@ -31,16 +32,16 @@ export { sort } from './sort';
  *    1. Graph nodes will have an "order" attribute based on the results of the
  *       algorithm.
  */
-export function order(g: Graph<GraphNode, EdgeLabel>) {
-  var maximumRank = maxRank(g),
-    downLayerGraphs = buildLayerGraphs(g, _.range(1, maximumRank + 1), "inEdges"),
-    upLayerGraphs = buildLayerGraphs(g, _.range(maximumRank - 1, -1, -1), "outEdges");
+export function order(g: DagreGraph) {
+  var maximumRank = maxRank(g);
+  var downLayerGraphs = buildLayerGraphs(g, _.range(1, maximumRank + 1), "inEdges");
+  var upLayerGraphs = buildLayerGraphs(g, _.range(maximumRank - 1, -1, -1), "outEdges");
 
   var layering = initOrder(g);
   assignOrder(g, layering);
 
-  var bestCC = Number.POSITIVE_INFINITY,
-    best;
+  var bestCC = Number.POSITIVE_INFINITY;
+  var best;
 
   for (var i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
     sweepLayerGraphs(i % 2 ? downLayerGraphs : upLayerGraphs, i % 4 >= 2);
@@ -57,14 +58,14 @@ export function order(g: Graph<GraphNode, EdgeLabel>) {
   assignOrder(g, best);
 }
 
-function buildLayerGraphs(g: Graph<GraphNode, EdgeLabel>, ranks: number[], relationship: 'inEdges'|'outEdges'): Array<Graph<GraphNode, EdgeLabel>> {
+function buildLayerGraphs(g: DagreGraph, ranks: number[], relationship: 'inEdges'|'outEdges'): Array<LayerGraph> {
   return ranks.map(function(rank) {
     return buildLayerGraph(g, rank, relationship);
   });
 }
 
-function sweepLayerGraphs(layerGraphs: Array<Graph<GraphNode, EdgeLabel>>, biasRight) {
-  var cg = new Graph<GraphNode, EdgeLabel>();
+function sweepLayerGraphs(layerGraphs: Array<LayerGraph>, biasRight: boolean) {
+  var cg: ConstraintGraph = new Graph<GraphLabel, GraphNode, EdgeLabel>();
   for (var lg of layerGraphs) {
     var root = lg.graph().root;
     var sorted = sortSubgraph(lg, root, cg, biasRight);
@@ -75,7 +76,7 @@ function sweepLayerGraphs(layerGraphs: Array<Graph<GraphNode, EdgeLabel>>, biasR
   }
 }
 
-function assignOrder(g: Graph<GraphNode, EdgeLabel>, layering) {
+function assignOrder(g: DagreGraph, layering: string[][]) {
   for (var layer of layering) {
     layer.map(function(v, i) {
       g.node(v).order = i;

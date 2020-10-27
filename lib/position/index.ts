@@ -1,21 +1,21 @@
 import _ from '../lodash';
-import { Graph } from 'graphlib';
 
 import * as util from "../util";
 import { positionX } from "./bk";
+import { DagreGraph } from '../types';
 
 export * as bk from './bk';
 
-export function position(g: Graph<GraphNode, EdgeLabel>) {
+export function position(g: DagreGraph) {
   g = util.asNonCompoundGraph(g);
 
   positionY(g);
-  positionX(g).map(function(x, v) {
+  _.mapValues(positionX(g), function(x, v) {
     g.node(v).x = x;
   });
 }
 
-function positionY(g: Graph<GraphNode, EdgeLabel>) {
+function positionY(g: DagreGraph) {
   var layering = util.buildLayerMatrix(g);
   var rankSep = g.graph().ranksep;
   var prevY = 0;
