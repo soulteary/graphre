@@ -2,7 +2,7 @@ import _ from '../lodash';
 import { ConstraintGraph } from '../types';
 
 interface ForsterEntry {
-  v: string
+  v?: string
   barycenter?: number
   weight?: number
 }
@@ -50,16 +50,16 @@ export interface XEntry {
  *    graph. The property `i` is the lowest original index of any of the
  *    elements in `vs`.
 */
-export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph) {
+export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): XEntry[] {
   var mappedEntries: Record<string, MappedEntry> = {};
   _.forEach(entries, function(entry, i) {
-    var tmp = mappedEntries[entry.v] = {
+    var tmp: MappedEntry = mappedEntries[entry.v] = {
       indegree: 0,
-      "in": [],
-      out: [],
+      "in": <MappedEntry[]> [],
+      out: <MappedEntry[]> [],
       vs: [entry.v],
       i: i
-    } as MappedEntry;
+    };
     if (!_.isUndefined(entry.barycenter)) {
       tmp.barycenter = entry.barycenter;
       tmp.weight = entry.weight;
@@ -82,7 +82,7 @@ export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph) {
   return doResolveConflicts(sourceSet);
 }
 
-export function doResolveConflicts(sourceSet: MappedEntry[]) {
+export function doResolveConflicts(sourceSet: MappedEntry[]): XEntry[] {
   var entries = [];
 
   function handleIn(vEntry: MappedEntry) {
@@ -116,7 +116,7 @@ export function doResolveConflicts(sourceSet: MappedEntry[]) {
 
   return _.map(_.filter(entries, function(entry) { return !entry.merged; }),
     function(entry) {
-      return _.pick(entry, ["vs", "i", "barycenter", "weight"]);
+      return _.pick(entry, ["vs", "i", "barycenter", "weight"]) as XEntry;
     });
 
 }

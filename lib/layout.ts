@@ -34,6 +34,8 @@ interface NodeSelfEdge extends GraphNode {
     points: { x: number, y: number }[];
     x: number;
     y: number;
+    width: number;
+    height: number;
   };
 }
 
@@ -377,7 +379,7 @@ function insertSelfEdges(g: DagreGraph) {
       var v = layer[i];
       var node = g.node(v);
       node.order = i + orderShift;
-      for (var selfEdge of (node.selfEdges as any[]) || []) { // TODO: specify type
+      for (var selfEdge of node.selfEdges || []) {
         util.addDummyNode(g, "selfedge", {
           width: selfEdge.label.width,
           height: selfEdge.label.height,

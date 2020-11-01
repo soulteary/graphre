@@ -27,7 +27,7 @@ export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, bias
     }
   }
 
-  var entries = resolveConflicts(barycenters, cg) as any;
+  var entries = resolveConflicts(barycenters, cg);
   expandSubgraphs(entries, subgraphs);
 
   var result = sort(entries, biasRight);

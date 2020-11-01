@@ -3,12 +3,14 @@
  * "Introduction to Algorithms".
  */
 
+interface Link { _next?: Link, _prev?: Link }
+
 export class List<T> {
   
-  _sentinel: { _next: any, _prev: any };
+  _sentinel: Link;
   
   constructor() {
-    var sentinel: any = {};
+    var sentinel: Link = {};
     sentinel._next = sentinel._prev = sentinel;
     this._sentinel = sentinel;
   }
@@ -24,7 +26,7 @@ export class List<T> {
 
   enqueue(entry: T) {
     var sentinel = this._sentinel;
-    var item = entry as any;
+    var item: any = entry;
     if (item._prev && item._next) {
       unlink(item);
     }

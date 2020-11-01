@@ -48,7 +48,7 @@ export interface GraphNode {
   borderRight?: string[];
   dummy?: unknown;
   borderType?: string;
-  selfEdges?: unknown[]
+  selfEdges?: { e: Edge, label: EdgeLabel }[]
   label?: unknown;
   parent?: string;
   e?: unknown;

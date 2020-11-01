@@ -339,11 +339,11 @@ export function positionX(g: DagreGraph) {
     findType1Conflicts(g, layering),
     findType2Conflicts(g, layering));
 
-  var xss: Xss = {} as Xss;
+  var xss: Xss = { ul: {}, ur: {}, dl: {}, dr: {} };
   var adjustedLayering: Layer[];
-  _.forEach(["u", "d"], function(vert) {
+  _.forEach(["u", "d"], function(vert: 'u'|'d') {
     adjustedLayering = vert === "u" ? layering : _.values(layering).reverse();
-    _.forEach(["l", "r"], function(horiz) {
+    _.forEach(["l", "r"], function(horiz: 'l'|'r') {
       if (horiz === "r") {
         adjustedLayering = _.map(adjustedLayering, function(inner) {
           return _.values(inner).reverse();
