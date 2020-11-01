@@ -1,19 +1,21 @@
 import _ from '../lodash';
+import { ConstraintGraph } from '../types';
 
-export interface ForsterEntry {
+interface ForsterEntry {
   v: string
   barycenter?: number
   weight?: number
 }
 
-export interface MappedEntry extends ForsterEntry {
+interface MappedEntry extends ForsterEntry {
   indegree: number
-  in: string[]
+  in: MappedEntry[]
   out: MappedEntry[]
   vs: string[]
   i: number
   barycenter?: number
   weight?: number
+  merged?: boolean
 }
 
 export interface XEntry {
@@ -48,7 +50,7 @@ export interface XEntry {
  *    graph. The property `i` is the lowest original index of any of the
  *    elements in `vs`.
 */
-export function resolveConflicts(entries: ForsterEntry[], cg) {
+export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph) {
   var mappedEntries: Record<string, MappedEntry> = {};
   _.forEach(entries, function(entry, i) {
     var tmp = mappedEntries[entry.v] = {
@@ -80,11 +82,11 @@ export function resolveConflicts(entries: ForsterEntry[], cg) {
   return doResolveConflicts(sourceSet);
 }
 
-export function doResolveConflicts(sourceSet) {
+export function doResolveConflicts(sourceSet: MappedEntry[]) {
   var entries = [];
 
-  function handleIn(vEntry) {
-    return function(uEntry) {
+  function handleIn(vEntry: MappedEntry) {
+    return function(uEntry: MappedEntry) {
       if (uEntry.merged) {
         return;
       }
@@ -96,8 +98,8 @@ export function doResolveConflicts(sourceSet) {
     };
   }
 
-  function handleOut(vEntry) {
-    return function(wEntry) {
+  function handleOut(vEntry: MappedEntry) {
+    return function(wEntry: MappedEntry) {
       wEntry["in"].push(vEntry);
       if (--wEntry.indegree === 0) {
         sourceSet.push(wEntry);
@@ -119,7 +121,7 @@ export function doResolveConflicts(sourceSet) {
 
 }
 
-export function mergeEntries(target, source) {
+export function mergeEntries(target: MappedEntry, source: MappedEntry) {
   var sum = 0;
   var weight = 0;
 

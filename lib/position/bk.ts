@@ -1,7 +1,12 @@
 import _ from '../lodash';
 import { Graph } from "graphlib";
 import { buildLayerMatrix } from "../util";
-import { DagreGraph } from '../types';
+import { Alignment, DagreGraph, GraphNode } from '../types';
+
+type Xs = Record<string, number>;
+type Xss = Record<Alignment, Xs>;
+type Conflicts = Record<string, Record<string, boolean>>;
+type Layer = string[];
 
 /*
  * This module provides coordinate assignment based on Brandes and Köpf, "Fast
@@ -25,10 +30,10 @@ import { DagreGraph } from '../types';
  * This algorithm (safely) assumes that a dummy node will only be incident on a
  * single node in the layers being scanned.
 */
-export function findType1Conflicts(g: DagreGraph, layering: any) {
+export function findType1Conflicts(g: DagreGraph, layering: Layer[]) {
   var conflicts = {};
 
-  function visitLayer(prevLayer, layer) {
+  function visitLayer(prevLayer: Layer, layer: Layer) {
     var
       // last visited node in the previous layer that is incident on an inner
       // segment.
@@ -66,11 +71,11 @@ export function findType1Conflicts(g: DagreGraph, layering: any) {
   return conflicts;
 }
 
-export function findType2Conflicts(g: DagreGraph, layering) {
+export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
   var conflicts = {};
 
-  function scan(south, southPos, southEnd, prevNorthBorder, nextNorthBorder) {
-    var v;
+  function scan(south: string[], southPos: number, southEnd: number, prevNorthBorder: number, nextNorthBorder: number) {
+    var v: string;
     _.forEach(_.range(southPos, southEnd), function(i) {
       v = south[i];
       if (g.node(v).dummy) {
@@ -86,10 +91,10 @@ export function findType2Conflicts(g: DagreGraph, layering) {
   }
 
 
-  function visitLayer(north, south) {
-    var prevNorthPos = -1,
-      nextNorthPos,
-      southPos: any = 0;
+  function visitLayer(north: Layer, south: Layer) {
+    var prevNorthPos = -1;
+    var nextNorthPos: number;
+    var southPos: number = 0;
 
     _.forEach(south, function(v, southLookahead) {
       if (g.node(v).dummy === "border") {
@@ -111,7 +116,7 @@ export function findType2Conflicts(g: DagreGraph, layering) {
   return conflicts;
 }
 
-export function findOtherInnerSegmentNode(g: DagreGraph, v): any {
+export function findOtherInnerSegmentNode(g: DagreGraph, v: string): any {
   if (g.node(v).dummy) {
     return _.find(g.predecessors(v), function(u) {
       return g.node(u).dummy;
@@ -119,7 +124,7 @@ export function findOtherInnerSegmentNode(g: DagreGraph, v): any {
   }
 }
 
-export function addConflict(conflicts, v, w) {
+export function addConflict(conflicts: Conflicts, v: string, w: string) {
   if (v > w) {
     var tmp = v;
     v = w;
@@ -133,7 +138,7 @@ export function addConflict(conflicts, v, w) {
   conflictsV[w] = true;
 }
 
-export function hasConflict(conflicts, v, w) {
+export function hasConflict(conflicts: Conflicts, v: string, w: string) {
   if (v > w) {
     var tmp = v;
     v = w;
@@ -150,10 +155,10 @@ export function hasConflict(conflicts, v, w) {
  * we're trying to form a block with, we also ignore that possibility - our
  * blocks would be split in that scenario.
 */
-export function verticalAlignment(g: DagreGraph, layering, conflicts, neighborFn) {
-  var root = {},
-    align = {},
-    pos = {};
+export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: Conflicts, neighborFn: Function) {
+  var root: Record<string, string> = {};
+  var align: Record<string, string> = {};
+  var pos: Record<string, number> = {};
 
   // We cache the position here based on the layering because the graph and
   // layering may be out of sync. The layering matrix is manipulated to
@@ -190,20 +195,20 @@ export function verticalAlignment(g: DagreGraph, layering, conflicts, neighborFn
   return { root: root, align: align };
 }
 
-export function horizontalCompaction(g: DagreGraph, layering, root, align, reverseSep) {
+export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Record<string, string>, align: Record<string, string>, reverseSep: boolean) {
   // This portion of the algorithm differs from BK due to a number of problems.
   // Instead of their algorithm we construct a new block graph and do two
   // sweeps. The first sweep places blocks with the smallest possible
   // coordinates. The second sweep removes unused space by moving blocks to the
   // greatest coordinates without violating separation.
-  var xs = {},
+  var xs: Xs = {} as Xs,
     blockG = buildBlockGraph(g, layering, root, reverseSep),
     borderType = reverseSep ? "borderLeft" : "borderRight";
 
-  function iterate(setXsFunc, nextNodesFunc) {
+  function iterate(setXsFunc: (e: string) => void, nextNodesFunc: (s: string) => string[]) {
     var stack = blockG.nodes();
     var elem = stack.pop();
-    var visited = {};
+    var visited = {} as Record<string, boolean>;
     while (elem) {
       if (visited[elem]) {
         setXsFunc(elem);
@@ -218,14 +223,14 @@ export function horizontalCompaction(g: DagreGraph, layering, root, align, rever
   }
 
   // First pass, assign smallest coordinates
-  function pass1(elem) {
+  function pass1(elem: string) {
     xs[elem] = blockG.inEdges(elem).reduce(function(acc, e) {
       return Math.max(acc, xs[e.v] + blockG.edge(e));
     }, 0);
   }
 
   // Second pass, assign greatest coordinates
-  function pass2(elem) {
+  function pass2(elem: string) {
     var min = blockG.outEdges(elem).reduce(function(acc, e) {
       return Math.min(acc, xs[e.w] - (blockG.edge(e) as any));
     }, Number.POSITIVE_INFINITY);
@@ -236,8 +241,8 @@ export function horizontalCompaction(g: DagreGraph, layering, root, align, rever
     }
   }
 
-  iterate(pass1, blockG.predecessors.bind(blockG));
-  iterate(pass2, blockG.successors.bind(blockG));
+  iterate(pass1, (s: string) => blockG.predecessors(s));
+  iterate(pass2, (s: string) => blockG.successors(s));
 
   // Assign x coordinates to all nodes
   _.forEach(align, function(v) {
@@ -248,13 +253,13 @@ export function horizontalCompaction(g: DagreGraph, layering, root, align, rever
 }
 
 
-export function buildBlockGraph(g: DagreGraph, layering, root, reverseSep) {
-  var blockGraph = new Graph(),
+export function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<string, string>, reverseSep: boolean) {
+  var blockGraph = new Graph<unknown, unknown, number>(),
     graphLabel = g.graph(),
     sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
 
   _.forEach(layering, function(layer) {
-    var u;
+    var u: string;
     _.forEach(layer, function(v) {
       var vRoot = root[v];
       blockGraph.setNode(vRoot);
@@ -273,7 +278,7 @@ export function buildBlockGraph(g: DagreGraph, layering, root, reverseSep) {
 /*
  * Returns the alignment that has the smallest width of the given alignments.
 */
-export function findSmallestWidthAlignment(g: DagreGraph, xss) {
+export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
   return _.minBy(_.values(xss), function (xs) {
     var max = Number.NEGATIVE_INFINITY;
     var min = Number.POSITIVE_INFINITY;
@@ -296,32 +301,31 @@ export function findSmallestWidthAlignment(g: DagreGraph, xss) {
  * alignments have their maximum coordinate at the same point as the maximum
  * coordinate of the smallest width alignment.
 */
-export function alignCoordinates(xss, alignTo) {
+export function alignCoordinates(xss: Xss, alignTo: Record<string, number>) {
   var alignToVals = _.values(alignTo),
     alignToMin = _.min(alignToVals),
     alignToMax = _.max(alignToVals);
 
   _.forEach(["u", "d"], function(vert) {
     _.forEach(["l", "r"], function(horiz) {
-      var alignment = vert + horiz,
-        xs = xss[alignment],
-        delta;
+      var alignment = vert + horiz;
+      var xs = xss[alignment as Alignment];
       if (xs === alignTo) return;
 
       var xsVals = _.values(xs);
-      delta = horiz === "l" ? alignToMin - _.min(xsVals) : alignToMax - _.max(xsVals);
+      var delta = horiz === "l" ? alignToMin - _.min(xsVals) : alignToMax - _.max(xsVals);
 
       if (delta) {
-        xss[alignment] = _.mapValues(xs, function(x) { return x + delta; });
+        xss[alignment as Alignment] = _.mapValues(xs, function(x) { return x + delta; });
       }
     });
   });
 }
 
-export function balance(xss, align) {
+export function balance(xss: Xss, align: Alignment) {
   return _.mapValues(xss.ul, function(ignore, v) {
     if (align) {
-      return xss[align.toLowerCase()][v];
+      return xss[align.toLowerCase() as Alignment][v];
     } else {
       var xs = _.sortBy(_.map(xss, v));
       return (xs[1] + xs[2]) / 2;
@@ -329,14 +333,14 @@ export function balance(xss, align) {
   });
 }
 
-export function positionX(g) {
+export function positionX(g: DagreGraph) {
   var layering = buildLayerMatrix(g);
   var conflicts = _.merge(
     findType1Conflicts(g, layering),
     findType2Conflicts(g, layering));
 
-  var xss = {};
-  var adjustedLayering;
+  var xss: Xss = {} as Xss;
+  var adjustedLayering: Layer[];
   _.forEach(["u", "d"], function(vert) {
     adjustedLayering = vert === "u" ? layering : _.values(layering).reverse();
     _.forEach(["l", "r"], function(horiz) {
@@ -353,7 +357,7 @@ export function positionX(g) {
       if (horiz === "r") {
         xs = _.mapValues(xs, function(x) { return -x; });
       }
-      xss[vert + horiz] = xs;
+      xss[(vert + horiz) as Alignment] = xs;
     });
   });
 
@@ -362,8 +366,8 @@ export function positionX(g) {
   return balance(xss, g.graph().align);
 }
 
-export function sep(nodeSep, edgeSep, reverseSep) {
-  return function(g: DagreGraph, v, w) {
+export function sep(nodeSep: number, edgeSep: number, reverseSep: boolean) {
+  return function(g: DagreGraph, v: string, w: string) {
     var vLabel = g.node(v);
     var wLabel = g.node(w);
     var sum = 0;
@@ -400,6 +404,6 @@ export function sep(nodeSep, edgeSep, reverseSep) {
   };
 }
 
-export function width(g: DagreGraph, v) {
+export function width(g: DagreGraph, v: string) {
   return g.node(v).width;
 }

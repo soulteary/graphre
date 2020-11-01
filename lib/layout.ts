@@ -417,7 +417,7 @@ function positionSelfEdges(g: DagreGraph) {
 }
 
 function canonicalize(attrs: any): unknown {
-  var newAttrs = {};
+  var newAttrs: any = {};
   _.forEach(attrs, function(v, k) {
     newAttrs[k.toLowerCase()] = v;
   });
