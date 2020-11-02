@@ -1,5 +1,5 @@
 import { Edge } from 'graphlib';
-import _ from '../lodash';
+import { has } from '../helpers';
 import { DagreGraph } from '../types';
 
 /*
@@ -28,7 +28,7 @@ export function longestPath(g: DagreGraph) {
 
   function dfs(v: string): number {
     var label = g.node(v);
-    if (_.has(visited, v)) {
+    if (has(visited, v)) {
       return label.rank;
     }
     visited[v] = true;

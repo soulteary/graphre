@@ -1,4 +1,4 @@
-import _ from '../lodash';
+import { array, has, sortBy } from '../helpers';
 import { DagreGraph } from '../types';
 
 /*
@@ -16,17 +16,17 @@ export function initOrder(g: DagreGraph): string[][] {
   var visited: Record<string, boolean> = {};
   var simpleNodes = g.nodes().filter(v => !g.children(v).length);
   var maxRank = Math.max(...simpleNodes.map(v => g.node(v).rank));
-  var layers: string[][] = _.array(maxRank + 1, function() { return []; });
+  var layers: string[][] = array(maxRank + 1, function() { return []; });
 
   function dfs(v: string) {
-    if (_.has(visited, v)) return;
+    if (has(visited, v)) return;
     visited[v] = true;
     var node = g.node(v);
     layers[node.rank].push(v);
     g.successors(v).forEach(dfs);
   }
 
-  var orderedVs = _.sortBy(simpleNodes, function(v: string) { return g.node(v).rank; });
+  var orderedVs = sortBy(simpleNodes, function(v: string) { return g.node(v).rank; });
   orderedVs.forEach(dfs);
 
   return layers;

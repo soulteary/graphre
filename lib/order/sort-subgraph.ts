@@ -1,9 +1,9 @@
-import _ from '../lodash';
 import { Barycenter, barycenter } from "./barycenter";
 import { resolveConflicts, XEntry } from "./resolve-conflicts";
 import { sort, SortResult } from "./sort";
 import { LayerGraph } from './build-layer-graph';
 import { ConstraintGraph } from '../types';
+import { flattenDeep, has } from "../helpers";
 
 export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, biasRight: boolean) {
   var movable = g.children(v);
@@ -21,7 +21,7 @@ export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, bias
     if (g.children(entry.v).length) {
       var subgraphResult = sortSubgraph(g, entry.v, cg, biasRight);
       subgraphs[entry.v] = subgraphResult;
-      if (_.has(subgraphResult, "barycenter")) {
+      if (has(subgraphResult, "barycenter")) {
         mergeBarycenters(entry, subgraphResult);
       }
     }
@@ -37,7 +37,7 @@ export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, bias
     if (g.predecessors(bl).length) {
       var blPred = g.node(g.predecessors(bl)[0]);
       var brPred = g.node(g.predecessors(br)[0]);
-      if (!_.has(result, "barycenter")) {
+      if (!has(result, "barycenter")) {
         result.barycenter = 0;
         result.weight = 0;
       }
@@ -52,7 +52,7 @@ export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, bias
 
 function expandSubgraphs(entries: XEntry[], subgraphs: Record<string, SortResult>) {
   for (var entry of entries) {
-    entry.vs = _.flattenDeep(entry.vs.map(function(v) {
+    entry.vs = flattenDeep(entry.vs.map(function(v) {
       if (subgraphs[v]) {
         return subgraphs[v].vs;
       }

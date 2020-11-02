@@ -1,6 +1,6 @@
-import _ from "./lodash";
 import * as util from "./util";
 import { DagreGraph, GraphNode } from "./types";
+import { has } from "./helpers";
 
 export function addBorderSegments(g: DagreGraph) {
   function dfs(v: string) {
@@ -10,7 +10,7 @@ export function addBorderSegments(g: DagreGraph) {
       children.forEach(dfs);
     }
 
-    if (_.has(node, "minRank")) {
+    if (has(node, "minRank")) {
       node.borderLeft = [];
       node.borderRight = [];
       for (var rank = node.minRank, maxRank = node.maxRank + 1;

@@ -1,7 +1,7 @@
-import _ from '../lodash';
 import { Graph } from "graphlib";
 import { buildLayerMatrix } from "../util";
 import { Alignment, DagreGraph, GraphNode } from '../types';
+import { has, last, mapValues, minBy, range, sortBy, values } from "../helpers";
 
 type Xs = Record<string, number>;
 type Xss = Record<Alignment, Xs>;
@@ -41,7 +41,7 @@ export function findType1Conflicts(g: DagreGraph, layering: Layer[]): Conflicts 
     // segment.
     var scanPos: number = 0;
     var prevLayerLength = prevLayer.length;
-    var lastNode = _.last(layer);
+    var lastNode = last(layer);
 
     for (var i = 0; i < layer.length; i++) {
       var v = layer[i];
@@ -75,7 +75,7 @@ export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
 
   function scan(south: string[], southPos: number, southEnd: number, prevNorthBorder: number, nextNorthBorder: number) {
     var v: string;
-    for (var i of _.range(southPos, southEnd)) {
+    for (var i of range(southPos, southEnd)) {
       v = south[i];
       if (g.node(v).dummy) {
         for (var u of g.predecessors(v)) {
@@ -149,7 +149,7 @@ export function hasConflict(conflicts: Conflicts, v: string, w: string) {
     v = w;
     w = tmp;
   }
-  return _.has(conflicts[v], w);
+  return has(conflicts[v], w);
 }
 
 /*
@@ -182,7 +182,7 @@ export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: C
     for (var v of layer) {
       var ws = neighborFn(v);
       if (ws.length) {
-        ws = _.sortBy(ws, function(w) { return pos[w]; });
+        ws = sortBy(ws, function(w) { return pos[w]; });
         var mp = (ws.length - 1) / 2;
         for (var i = Math.floor(mp), il = Math.ceil(mp); i <= il; ++i) {
           var w = ws[i];
@@ -207,9 +207,9 @@ export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Rec
   // sweeps. The first sweep places blocks with the smallest possible
   // coordinates. The second sweep removes unused space by moving blocks to the
   // greatest coordinates without violating separation.
-  var xs: Xs = {},
-    blockG = buildBlockGraph(g, layering, root, reverseSep),
-    borderType = reverseSep ? "borderLeft" : "borderRight";
+  var xs: Xs = {};
+  var blockG = buildBlockGraph(g, layering, root, reverseSep);
+  var borderType = reverseSep ? "borderLeft" : "borderRight";
 
   function iterate(setXsFunc: (e: string) => void, nextNodesFunc: (s: string) => string[]) {
     var stack = blockG.nodes();
@@ -259,11 +259,10 @@ export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Rec
   return xs;
 }
 
-
-export function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<string, string>, reverseSep: boolean) {
-  var blockGraph = new Graph<unknown, unknown, number>(),
-    graphLabel = g.graph(),
-    sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
+function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<string, string>, reverseSep: boolean) {
+  var blockGraph = new Graph<unknown, unknown, number>();
+  var graphLabel = g.graph();
+  var sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
 
   for (var layer of layering) {
     var u: string = null;
@@ -286,7 +285,7 @@ export function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<s
  * Returns the alignment that has the smallest width of the given alignments.
 */
 export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
-  return _.minBy(_.values(xss), function (xs) {
+  return minBy(values(xss), function (xs) {
     var max = Number.NEGATIVE_INFINITY;
     var min = Number.POSITIVE_INFINITY;
 
@@ -310,7 +309,7 @@ export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
  * coordinate of the smallest width alignment.
 */
 export function alignCoordinates(xss: Xss, alignTo: Record<string, number>) {
-  var alignToVals = _.values(alignTo);
+  var alignToVals = values(alignTo);
   var alignToMin = Math.min(...alignToVals);
   var alignToMax = Math.max(...alignToVals);
   for (var alignment of ['ul', 'ur', 'dl', 'dr']) {
@@ -318,21 +317,21 @@ export function alignCoordinates(xss: Xss, alignTo: Record<string, number>) {
     var xs = xss[alignment as Alignment];
     if (xs === alignTo) continue;
 
-    var xsVals = _.values(xs);
+    var xsVals = values(xs);
     var delta = horiz === "l" ? alignToMin - Math.min(...xsVals) : alignToMax - Math.max(...xsVals);
 
     if (delta) {
-      xss[alignment as Alignment] = _.mapValues(xs, function(x) { return x + delta; });
+      xss[alignment as Alignment] = mapValues(xs, function(x) { return x + delta; });
     }
   }
 }
 
 export function balance(xss: Xss, align: Alignment) {
-  return _.mapValues(xss.ul, function(ignore, v) {
+  return mapValues(xss.ul, function(ignore, v) {
     if (align) {
       return xss[align.toLowerCase() as Alignment][v];
     } else {
-      var xs = _.sortBy([xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]], e => e);
+      var xs = sortBy([xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]], e => e);
       return (xs[1] + xs[2]) / 2;
     }
   });
@@ -359,7 +358,7 @@ export function positionX(g: DagreGraph) {
       var xs = horizontalCompaction(g, adjustedLayering,
         align.root, align.align, horiz === "r");
       if (horiz === "r") {
-        xs = _.mapValues(xs, function(x) { return -x; });
+        xs = mapValues(xs, function(x) { return -x; });
       }
       xss[(vert + horiz) as Alignment] = xs;
     }
@@ -378,7 +377,7 @@ export function sep(nodeSep: number, edgeSep: number, reverseSep: boolean) {
     var delta;
 
     sum += vLabel.width / 2;
-    if (_.has(vLabel, "labelpos")) {
+    if (has(vLabel, "labelpos")) {
       switch (vLabel.labelpos.toLowerCase()) {
       case "l": delta = -vLabel.width / 2; break;
       case "r": delta = vLabel.width / 2; break;
@@ -393,7 +392,7 @@ export function sep(nodeSep: number, edgeSep: number, reverseSep: boolean) {
     sum += (wLabel.dummy ? edgeSep : nodeSep) / 2;
 
     sum += wLabel.width / 2;
-    if (_.has(wLabel, "labelpos")) {
+    if (has(wLabel, "labelpos")) {
       switch (wLabel.labelpos.toLowerCase()) {
       case "l": delta = wLabel.width / 2; break;
       case "r": delta = -wLabel.width / 2; break;

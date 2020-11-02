@@ -1,4 +1,4 @@
-import _ from '../lodash';
+import { values } from '../helpers';
 import { ConstraintGraph } from '../types';
 
 interface ForsterEntry {
@@ -76,7 +76,7 @@ export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): 
     }
   }
 
-  var sourceSet = _.values(mappedEntries).filter((e) => !e.indegree);
+  var sourceSet = values(mappedEntries).filter((e) => !e.indegree);
 
   return doResolveConflicts(sourceSet);
 }

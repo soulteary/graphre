@@ -1,4 +1,4 @@
-import _ from "./lodash";
+import { has } from "./helpers";
 import { DagreGraph, Rect, Vector } from "./types";
 
 export var coordinateSystem = { adjust, undo };
@@ -39,7 +39,7 @@ function reverseY(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     edge.points.forEach(reverseYOne);
-    if (_.has(edge, "y")) {
+    if (has(edge, "y")) {
       reverseYOne(edge);
     }
   }
@@ -55,7 +55,7 @@ function swapXY(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     edge.points.forEach(swapXYOne);
-    if (_.has(edge, "x")) {
+    if (has(edge, "x")) {
       swapXYOne(edge);
     }
   }

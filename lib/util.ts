@@ -1,5 +1,5 @@
 import { Graph } from "graphlib";
-import _ from "./lodash";
+import { array, has, uniqueId } from "./helpers";
 import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, Rect, Vector } from "./types";
 
 /*
@@ -8,7 +8,7 @@ import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, Rect, Vector } from "./ty
 export function addDummyNode(g: DagreGraph, type: string, attrs: Partial<GraphNode>, name: string): string {
   var v: string;
   do {
-    v = _.uniqueId(name);
+    v = uniqueId(name);
   } while (g.hasNode(v));
 
   attrs.dummy = type;
@@ -115,7 +115,7 @@ export function intersectRect(rect: Rect, point: Vector) {
  * function will produce a matrix with the ids of each node.
 */
 export function buildLayerMatrix(g: DagreGraph): string[][] {
-  var layering: string[][] = _.array(maxRank(g) + 1, function() { return []; });
+  var layering: string[][] = array(maxRank(g) + 1, function() { return []; });
   for (var v of g.nodes()) {
     var node = g.node(v);
     var rank = node.rank;
@@ -134,7 +134,7 @@ export function normalizeRanks(g: DagreGraph) {
   var min = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
   for (var v of g.nodes()) {
     var node = g.node(v);
-    if (_.has(node, "rank")) {
+    if (has(node, "rank")) {
       node.rank -= min;
     }
   }

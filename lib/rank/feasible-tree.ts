@@ -1,7 +1,7 @@
-import _ from '../lodash';
 import { Edge, Graph } from "graphlib";
 import { slack } from "./util";
 import { DagreGraph } from '../types';
+import { minBy } from "../helpers";
 
 /*
  * Constructs a spanning tree with tight edges and adjusted the input node's
@@ -71,7 +71,7 @@ export function feasibleTree<TGraph, TNode, TEdge>(g: DagreGraph): Graph<TGraph,
    * it.
   */
   function findMinSlackEdge(g: DagreGraph): Edge {
-    return _.minBy(g.edges(), function(e: Edge) {
+    return minBy(g.edges(), function(e: Edge) {
       if (t.hasNode(e.v) !== t.hasNode(e.w)) {
         return slack(g, e);
       }

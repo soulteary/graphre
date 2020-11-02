@@ -1,4 +1,4 @@
-import _ from '../lodash';
+import { flattenDeep, has, last, sortBy } from "../helpers";
 import * as util from "../util";
 import { XEntry } from './resolve-conflicts';
 
@@ -10,10 +10,10 @@ export interface SortResult {
 
 export function sort(entries: XEntry[], biasRight: boolean): SortResult {
   var parts = util.partition(entries, function(entry) {
-    return _.has(entry, "barycenter");
+    return has(entry, "barycenter");
   });
   var sortable = parts.lhs;
-  var unsortable = _.sortBy(parts.rhs, function(entry: XEntry) { return -entry.i; });
+  var unsortable = sortBy(parts.rhs, function(entry: XEntry) { return -entry.i; });
   var vss: string[][] = [];
   var sum = 0;
   var weight = 0;
@@ -31,7 +31,7 @@ export function sort(entries: XEntry[], biasRight: boolean): SortResult {
     vsIndex = consumeUnsortable(vss, unsortable, vsIndex);
   }
 
-  var result: SortResult = { vs: _.flattenDeep(vss) };
+  var result: SortResult = { vs: flattenDeep(vss) };
   if (weight) {
     result.barycenter = sum / weight;
     result.weight = weight;
@@ -41,10 +41,10 @@ export function sort(entries: XEntry[], biasRight: boolean): SortResult {
 
 interface Unsortable<T> { i: number, vs: T }
 function consumeUnsortable<T>(vs: T[], unsortable: Array<Unsortable<T>>, index: number): number {
-  var last: Unsortable<T>;
-  while (unsortable.length && (last = _.last(unsortable)).i <= index) {
+  var lastItem: Unsortable<T>;
+  while (unsortable.length && (lastItem = last(unsortable)).i <= index) {
     unsortable.pop();
-    vs.push(last.vs);
+    vs.push(lastItem.vs);
     index++;
   }
   return index;

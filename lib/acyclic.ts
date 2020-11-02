@@ -1,7 +1,7 @@
-import _ from "./lodash";
 import { greedyFAS } from "./greedy-fas";
 import { DagreGraph } from "./types";
 import { Edge } from "graphlib";
+import { has, uniqueId } from "./helpers";
 
 export var acyclic = { run, undo };
 
@@ -14,7 +14,7 @@ function run(g: DagreGraph) {
     g.removeEdge(e);
     label.forwardName = e.name;
     label.reversed = true;
-    g.setEdge(e.w, e.v, label, _.uniqueId("rev"));
+    g.setEdge(e.w, e.v, label, uniqueId("rev"));
   }
 
   function weightFn(g: DagreGraph) {
@@ -30,13 +30,13 @@ function dfsFAS(g: DagreGraph) {
   var visited: Record<string, boolean> = {};
 
   function dfs(v: string) {
-    if (_.has(visited, v)) {
+    if (has(visited, v)) {
       return;
     }
     visited[v] = true;
     stack[v] = true;
     for (var e of g.outEdges(v)) {
-      if (_.has(stack, e.w)) {
+      if (has(stack, e.w)) {
         fas.push(e);
       } else {
         dfs(e.w);

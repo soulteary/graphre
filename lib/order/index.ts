@@ -1,4 +1,3 @@
-import _ from '../lodash';
 import { initOrder } from "./init-order";
 import { crossCount } from "./cross-count";
 import { sortSubgraph } from "./sort-subgraph";
@@ -7,6 +6,7 @@ import { addSubgraphConstraints } from "./add-subgraph-constraints";
 import { Graph } from "graphlib";
 import { buildLayerMatrix, maxRank } from "../util";
 import { ConstraintGraph, DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
+import { range } from "../helpers";
 
 export { addSubgraphConstraints } from "./add-subgraph-constraints";
 export { barycenter } from './barycenter';
@@ -34,8 +34,8 @@ export { sort } from './sort';
  */
 export function order(g: DagreGraph) {
   var maximumRank = maxRank(g);
-  var downLayerGraphs = buildLayerGraphs(g, _.range(1, maximumRank + 1), "inEdges");
-  var upLayerGraphs = buildLayerGraphs(g, _.range(maximumRank - 1, -1), "outEdges");
+  var downLayerGraphs = buildLayerGraphs(g, range(1, maximumRank + 1), "inEdges");
+  var upLayerGraphs = buildLayerGraphs(g, range(maximumRank - 1, -1), "outEdges");
 
   var layering = initOrder(g);
   assignOrder(g, layering);

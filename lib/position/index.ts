@@ -1,5 +1,3 @@
-import _ from '../lodash';
-
 import * as util from "../util";
 import { positionX } from "./bk";
 import { DagreGraph } from '../types';

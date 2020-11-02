@@ -1,5 +1,5 @@
-import _ from '../lodash';
-import { Edge, Graph, GraphLike } from "graphlib";
+import { Graph } from "graphlib";
+import { has, uniqueId } from "../helpers";
 import { DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
 
 export type LayerGraph = Graph<GraphLabel, LayeredNode, EdgeLabel>;
@@ -60,7 +60,7 @@ export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEd
         result.setEdge(u, v, { weight: g.edge(e).weight + weight });
       }
 
-      if (_.has(node, "minRank")) {
+      if (has(node, "minRank")) {
         result.setNode(v, {
           borderLeft: node.borderLeft[rank],
           borderRight: node.borderRight[rank]
@@ -74,6 +74,6 @@ export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEd
 
 function createRootNode(g: DagreGraph): string {
   var v;
-  while (g.hasNode((v = _.uniqueId("_root"))));
+  while (g.hasNode((v = uniqueId("_root"))));
   return v;
 }

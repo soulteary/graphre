@@ -1,4 +1,4 @@
-import _ from '../lodash';
+import { array, flattenDeep, sortBy } from '../helpers';
 import { DagreGraph } from '../types';
 
 /*
@@ -33,8 +33,8 @@ function twoLayerCrossCount(g: DagreGraph, northLayer: string[], southLayer: str
   for (var i=0; i<southLayer.length; i++) {
     southPos[southLayer[i]] = i;
   }
-  var southEntries = _.flattenDeep(northLayer.map(function(v) {
-    return _.sortBy(g.outEdges(v).map(function(e) {
+  var southEntries = flattenDeep(northLayer.map(function(v) {
+    return sortBy(g.outEdges(v).map(function(e) {
       return { pos: southPos[e.w], weight: g.edge(e).weight };
     }), e => e.pos);
   }));
@@ -44,7 +44,7 @@ function twoLayerCrossCount(g: DagreGraph, northLayer: string[], southLayer: str
   while (firstIndex < southLayer.length) firstIndex <<= 1;
   var treeSize = 2 * firstIndex - 1;
   firstIndex -= 1;
-  var tree = _.array(treeSize, () => 0);
+  var tree = array(treeSize, () => 0);
 
   // Calculate the weighted crossings
   var cc = 0;

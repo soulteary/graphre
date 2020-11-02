@@ -1,6 +1,6 @@
-import _ from "./lodash";
 import { Edge, Graph } from "graphlib";
 import { List } from "./data/list";
+import { array, flattenDeep } from "./helpers";
 import { DagreGraph } from "./types";
 
 type FasGraph = Graph<unknown, FasNode, number>;
@@ -22,7 +22,7 @@ export function greedyFAS(g: DagreGraph, weightFn: (e: Edge) => number): Edge[] 
   var results = doGreedyFAS(state.graph, state.buckets, state.zeroIdx);
 
   // Expand multi-edges
-  return _.flattenDeep(results.map(function(e: Edge) {
+  return flattenDeep(results.map(function(e: Edge) {
     return g.outEdges(e.v, e.w);
   }));
 }
@@ -104,7 +104,7 @@ function buildState(g: DagreGraph, weightFn: (e: Edge) => number): { graph: FasG
     maxIn  = Math.max(maxIn,  fasGraph.node(e.w)["in"]  += weight);
   }
 
-  var buckets = _.array(maxOut + maxIn + 3, function() { return new List<FasNode>(); });
+  var buckets = array(maxOut + maxIn + 3, function() { return new List<FasNode>(); });
   var zeroIdx = maxIn + 1;
 
   for (var v of fasGraph.nodes()) {

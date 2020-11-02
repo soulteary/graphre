@@ -1,4 +1,3 @@
-import _ from "./lodash";
 import { acyclic } from "./acyclic";
 import { normalize } from "./normalize";
 import { rank } from "./rank";
@@ -13,6 +12,7 @@ import { position } from "./position";
 import * as util from "./util";
 import { Edge, Graph } from "graphlib";
 import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, LayoutEdge, LayoutGraph, LayoutGraphConfig, LayoutNode, Vector } from "./types";
+import { has, last } from "./helpers";
 
 interface NodeEdgeProxy extends GraphNode {
   dummy: 'edge-proxy';
@@ -110,7 +110,7 @@ export function updateInputGraph(inputGraph: DagreGraph, layoutGraph: LayoutGrap
     var layoutEdgeLabel = layoutGraph.edge(e);
 
     inputEdgeLabel.points = layoutEdgeLabel.points;
-    if (_.has(layoutEdgeLabel, "x")) {
+    if (has(layoutEdgeLabel, "x")) {
       inputEdgeLabel.x = layoutEdgeLabel.x;
       inputEdgeLabel.y = layoutEdgeLabel.y;
     }
@@ -263,7 +263,7 @@ function translateGraph(g: DagreGraph) {
   for (var v of g.nodes()) { getExtremes(g.node(v)); }
   for (var e of g.edges()) {
     var edge = g.edge(e);
-    if (_.has(edge, "x")) {
+    if (has(edge, "x")) {
       getExtremes(edge);
     }
   }
@@ -314,7 +314,7 @@ function assignNodeIntersects(g: DagreGraph) {
 function fixupEdgeLabelCoords(g: DagreGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
-    if (_.has(edge, "x")) {
+    if (has(edge, "x")) {
       if (edge.labelpos === "l" || edge.labelpos === "r") {
         edge.width -= edge.labeloffset;
       }
@@ -341,8 +341,8 @@ function removeBorderNodes(g: DagreGraph) {
       var node = g.node(v);
       var t = g.node(node.borderTop);
       var b = g.node(node.borderBottom);
-      var l = g.node(_.last(node.borderLeft));
-      var r = g.node(_.last(node.borderRight));
+      var l = g.node(last(node.borderLeft));
+      var r = g.node(last(node.borderRight));
 
       node.width = Math.abs(r.x - l.x);
       node.height = Math.abs(b.y - t.y);

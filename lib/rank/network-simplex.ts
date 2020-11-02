@@ -1,10 +1,10 @@
-import _ from '../lodash';
 import { feasibleTree } from "./feasible-tree";
 import { slack } from "./util";
 import { longestPath } from "./util";
 import { alg, Edge, Graph } from 'graphlib';
 import { simplify } from "../util";
 import { DagreGraph, GraphNode } from '../types';
+import { has, minBy } from "../helpers";
 
 type SimplexNode = GraphNode & { low: number, lim: number, parent: string, cutvalue: number };
 type SimplexEdge = { cutvalue: number };
@@ -138,7 +138,7 @@ function dfsAssignLowLim(tree: SimplexTree, visited: Record<string, boolean>, ne
 
   visited[v] = true;
   for (var w of tree.neighbors(v)) {
-    if (!_.has(visited, w)) {
+    if (!has(visited, w)) {
       nextLim = dfsAssignLowLim(tree, visited, nextLim, w, v);
     }
   }
@@ -193,7 +193,7 @@ function enterEdge(t: SimplexTree, g: DagreGraph, edge: Edge) {
            flip !== isDescendant(t, t.node(edge.w), tailLabel);
   });
 
-  return _.minBy(candidates, function(edge: Edge) { return slack(g, edge); });
+  return minBy(candidates, function(edge: Edge) { return slack(g, edge); });
 }
 
 function exchangeEdges(t: SimplexTree, g: DagreGraph, e: Edge, f: Edge) {
