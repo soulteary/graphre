@@ -336,9 +336,10 @@ export function balance(xss: Xss, align: Alignment) {
 
 export function positionX(g: DagreGraph) {
   var layering = buildLayerMatrix(g);
-  var conflicts = _.merge(
-    findType1Conflicts(g, layering),
-    findType2Conflicts(g, layering));
+  var conflicts = {
+    ...findType1Conflicts(g, layering),
+    ...findType2Conflicts(g, layering)
+  };
 
   var xss: Xss = { ul: {}, ur: {}, dl: {}, dr: {} };
   var adjustedLayering: Layer[];

@@ -5,7 +5,6 @@ import {
   flattenDeep,
   forIn,
   mapValues,
-  merge,
   minBy,
   pick,
   range,
@@ -28,7 +27,6 @@ export default {
     return length ? array[length - 1] : undefined
   },
   mapValues,
-  merge,
   minBy,
   pick,
   range,
