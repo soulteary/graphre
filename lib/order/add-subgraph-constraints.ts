@@ -1,29 +1,30 @@
-import { DagreGraph } from '../types';
+import { ConstraintGraph, DagreGraph } from '../types';
 import { LayerGraph } from './build-layer-graph';
 import _ from '../lodash';
 
-export function addSubgraphConstraints(g: LayerGraph, cg: DagreGraph, vs: string[]) {
+export function addSubgraphConstraints(g: LayerGraph, cg: ConstraintGraph, vs: string[]) {
   var prev: Record<string, string> = {};
   var rootPrev: string;
 
-  _.forEach(vs, function(v) {
-    var child = g.parent(v);
-    var parent: string;
-    var prevChild: string;
-    while (child) {
-      parent = g.parent(child);
-      if (parent) {
-        prevChild = prev[parent];
-        prev[parent] = child;
-      } else {
-        prevChild = rootPrev;
-        rootPrev = child;
+  for(var v of vs) {
+    (function () {
+      var child = g.parent(v);
+      var prevChild: string;
+      while (child) {
+        var parent = g.parent(child);
+        if (parent) {
+          prevChild = prev[parent];
+          prev[parent] = child;
+        } else {
+          prevChild = rootPrev;
+          rootPrev = child;
+        }
+        if (prevChild && prevChild !== child) {
+          cg.setEdge(prevChild, child);
+          return;
+        }
+        child = parent;
       }
-      if (prevChild && prevChild !== child) {
-        cg.setEdge(prevChild, child);
-        return;
-      }
-      child = parent;
-    }
-  });
+    })();
+  }
 }

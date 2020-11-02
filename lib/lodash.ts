@@ -3,7 +3,6 @@ import {
   find,
   flatten,
   flattenDeep,
-  forEach,
   forIn,
   map,
   mapValues,
@@ -13,7 +12,6 @@ import {
   minBy,
   pick,
   range,
-  reduce,
   sortBy,
   zipObject
 } from "lodash";
@@ -25,7 +23,6 @@ export default {
   find,
   flatten,
   flattenDeep,
-  forEach,
   forIn,
   has(object: any, key: string): boolean {
     return object != null && object.hasOwnProperty(key)
@@ -42,7 +39,6 @@ export default {
   minBy,
   pick,
   range,
-  reduce,
   sortBy,
   uniqueId(prefix: string): string {
     if (!idCounter[prefix]) {

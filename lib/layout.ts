@@ -418,10 +418,10 @@ function positionSelfEdges(g: DagreGraph) {
   }
 }
 
-function canonicalize(attrs: any): unknown {
+function canonicalize(attrs: any = {}): unknown {
   var newAttrs: any = {};
-  _.forEach(attrs, function(v, k) {
-    newAttrs[k.toLowerCase()] = v;
+  Object.keys(attrs).map(function(key) {
+    newAttrs[key.toLowerCase()] = attrs[key];
   });
   return newAttrs;
 }

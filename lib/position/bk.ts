@@ -30,44 +30,43 @@ type Layer = string[];
  * This algorithm (safely) assumes that a dummy node will only be incident on a
  * single node in the layers being scanned.
 */
-export function findType1Conflicts(g: DagreGraph, layering: Layer[]) {
+export function findType1Conflicts(g: DagreGraph, layering: Layer[]): Conflicts {
   var conflicts = {};
 
   function visitLayer(prevLayer: Layer, layer: Layer) {
-    var
-      // last visited node in the previous layer that is incident on an inner
-      // segment.
-      k0 = 0,
-      // Tracks the last node in this layer scanned for crossings with a type-1
-      // segment.
-      scanPos: any = 0,
-      prevLayerLength = prevLayer.length,
-      lastNode = _.last(layer);
+    // last visited node in the previous layer that is incident on an inner
+    // segment.
+    var k0 = 0;
+    // Tracks the last node in this layer scanned for crossings with a type-1
+    // segment.
+    var scanPos: any = 0;
+    var prevLayerLength = prevLayer.length;
+    var lastNode = _.last(layer);
 
-    _.forEach(layer, function(v, i) {
-      var w = findOtherInnerSegmentNode(g, v),
-        k1 = w ? g.node(w).order : prevLayerLength;
+    for (var i = 0; i < layer.length; i++) {
+      var v = layer[i];
+      var w = findOtherInnerSegmentNode(g, v);
+      var k1 = w ? g.node(w).order : prevLayerLength;
 
       if (w || v === lastNode) {
-        _.forEach(layer.slice(scanPos, i +1), function(scanNode) {
-          _.forEach(g.predecessors(scanNode), function(u) {
-            var uLabel = g.node(u),
-              uPos = uLabel.order;
-            if ((uPos < k0 || k1 < uPos) &&
-                !(uLabel.dummy && g.node(scanNode).dummy)) {
+        for (var scanNode of layer.slice(scanPos, i +1)) {
+          for (var u of g.predecessors(scanNode)) {
+            var uLabel = g.node(u);
+            var uPos = uLabel.order;
+            if ((uPos < k0 || k1 < uPos) && !(uLabel.dummy && g.node(scanNode).dummy)) {
               addConflict(conflicts, u, scanNode);
             }
-          });
-        });
+          }
+        }
         scanPos = i + 1;
         k0 = k1;
       }
-    });
+    }
 
     return layer;
   }
 
-  _.reduce(layering, visitLayer);
+  layering.reduce(visitLayer);
   return conflicts;
 }
 
@@ -76,18 +75,18 @@ export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
 
   function scan(south: string[], southPos: number, southEnd: number, prevNorthBorder: number, nextNorthBorder: number) {
     var v: string;
-    _.forEach(_.range(southPos, southEnd), function(i) {
+    for (var i of _.range(southPos, southEnd)) {
       v = south[i];
       if (g.node(v).dummy) {
-        _.forEach(g.predecessors(v), function(u) {
+        for (var u of g.predecessors(v)) {
           var uNode = g.node(u);
           if (uNode.dummy &&
               (uNode.order < prevNorthBorder || uNode.order > nextNorthBorder)) {
             addConflict(conflicts, u, v);
           }
-        });
+        }
       }
-    });
+    }
   }
 
 
@@ -96,7 +95,10 @@ export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
     var nextNorthPos: number;
     var southPos: number = 0;
 
-    _.forEach(south, function(v, southLookahead) {
+    for (var i=0; i<south.length; i++) {
+      var southLookahead = i;
+      var v = south[i];
+      if (v === undefined) continue;
       if (g.node(v).dummy === "border") {
         var predecessors = g.predecessors(v);
         if (predecessors.length) {
@@ -107,12 +109,12 @@ export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
         }
       }
       scan(south, southPos, south.length, nextNorthPos, north.length);
-    });
+    }
 
     return south;
   }
 
-  _.reduce(layering, visitLayer);
+  layering.reduce(visitLayer);
   return conflicts;
 }
 
@@ -163,17 +165,18 @@ export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: C
   // We cache the position here based on the layering because the graph and
   // layering may be out of sync. The layering matrix is manipulated to
   // generate different extreme alignments.
-  _.forEach(layering, function(layer) {
-    _.forEach(layer, function(v, order) {
+  for (var layer of layering) {
+    for (var order=0; order<layer.length; order++) {
+      var v = layer[order];
       root[v] = v;
       align[v] = v;
       pos[v] = order;
-    });
-  });
+    }
+  }
 
-  _.forEach(layering, function(layer) {
+  for (var layer of layering) {
     var prevIdx = -1;
-    _.forEach(layer, function(v) {
+    for (var v of layer) {
       var ws = neighborFn(v);
       if (ws.length) {
         ws = _.sortBy(ws, function(w) { return pos[w]; });
@@ -189,8 +192,8 @@ export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: C
           }
         }
       }
-    });
-  });
+    }
+  }
 
   return { root: root, align: align };
 }
@@ -245,9 +248,10 @@ export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Rec
   iterate(pass2, (s: string) => blockG.successors(s));
 
   // Assign x coordinates to all nodes
-  _.forEach(align, function(v) {
+  for (var key of Object.keys(align)) {
+    var v = align[key];
     xs[v] = xs[root[v]];
-  });
+  }
 
   return xs;
 }
@@ -258,9 +262,9 @@ export function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<s
     graphLabel = g.graph(),
     sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
 
-  _.forEach(layering, function(layer) {
-    var u: string;
-    _.forEach(layer, function(v) {
+  for (var layer of layering) {
+    var u: string = null;
+    for (var v of layer) {
       var vRoot = root[v];
       blockGraph.setNode(vRoot);
       if (u) {
@@ -269,8 +273,8 @@ export function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<s
         blockGraph.setEdge(uRoot, vRoot, Math.max(sepFn(g, v, u), prevMax || 0));
       }
       u = v;
-    });
-  });
+    }
+  }
 
   return blockGraph;
 }
@@ -302,24 +306,21 @@ export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
  * coordinate of the smallest width alignment.
 */
 export function alignCoordinates(xss: Xss, alignTo: Record<string, number>) {
-  var alignToVals = _.values(alignTo),
-    alignToMin = _.min(alignToVals),
-    alignToMax = _.max(alignToVals);
+  var alignToVals = _.values(alignTo);
+  var alignToMin = _.min(alignToVals);
+  var alignToMax = _.max(alignToVals);
+  for (var alignment of ['ul', 'ur', 'dl', 'dr']) {
+    var horiz = alignment[1];
+    var xs = xss[alignment as Alignment];
+    if (xs === alignTo) continue;
 
-  _.forEach(["u", "d"], function(vert) {
-    _.forEach(["l", "r"], function(horiz) {
-      var alignment = vert + horiz;
-      var xs = xss[alignment as Alignment];
-      if (xs === alignTo) return;
+    var xsVals = _.values(xs);
+    var delta = horiz === "l" ? alignToMin - _.min(xsVals) : alignToMax - _.max(xsVals);
 
-      var xsVals = _.values(xs);
-      var delta = horiz === "l" ? alignToMin - _.min(xsVals) : alignToMax - _.max(xsVals);
-
-      if (delta) {
-        xss[alignment as Alignment] = _.mapValues(xs, function(x) { return x + delta; });
-      }
-    });
-  });
+    if (delta) {
+      xss[alignment as Alignment] = _.mapValues(xs, function(x) { return x + delta; });
+    }
+  }
 }
 
 export function balance(xss: Xss, align: Alignment) {
@@ -341,9 +342,9 @@ export function positionX(g: DagreGraph) {
 
   var xss: Xss = { ul: {}, ur: {}, dl: {}, dr: {} };
   var adjustedLayering: Layer[];
-  _.forEach(["u", "d"], function(vert: 'u'|'d') {
+  for (var vert of ["u", "d"] as ('u'|'d')[]) {
     adjustedLayering = vert === "u" ? layering : layering.map(e => e).reverse();
-    _.forEach(["l", "r"], function(horiz: 'l'|'r') {
+    for (var horiz of ["l", "r"] as ('l'|'r')[]) {
       if (horiz === "r") {
         adjustedLayering = _.map(adjustedLayering, function(inner) {
           return inner.map(e => e).reverse();
@@ -358,8 +359,8 @@ export function positionX(g: DagreGraph) {
         xs = _.mapValues(xs, function(x) { return -x; });
       }
       xss[(vert + horiz) as Alignment] = xs;
-    });
-  });
+    }
+  }
 
   var smallestWidth = findSmallestWidthAlignment(g, xss);
   alignCoordinates(xss, smallestWidth);

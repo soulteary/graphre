@@ -52,7 +52,8 @@ export interface XEntry {
 */
 export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): XEntry[] {
   var mappedEntries: Record<string, MappedEntry> = {};
-  _.forEach(entries, function(entry, i) {
+  for (var i = 0; i<entries.length; i++) {
+    var entry = entries[i];
     var tmp: MappedEntry = mappedEntries[entry.v] = {
       indegree: 0,
       "in": <MappedEntry[]> [],
@@ -64,16 +65,16 @@ export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): 
       tmp.barycenter = entry.barycenter;
       tmp.weight = entry.weight;
     }
-  });
+  }
 
-  _.forEach(cg.edges(), function(e) {
+  for(var e of cg.edges()) {
     var entryV = mappedEntries[e.v];
     var entryW = mappedEntries[e.w];
     if ((undefined !== entryV) && (undefined !== entryW)) {
       entryW.indegree++;
       entryV.out.push(mappedEntries[e.w]);
     }
-  });
+  }
 
   var sourceSet = _.values(mappedEntries).filter((e) => !e.indegree);
 
@@ -108,8 +109,8 @@ export function doResolveConflicts(sourceSet: MappedEntry[]): XEntry[] {
   while (sourceSet.length) {
     var entry = sourceSet.pop();
     entries.push(entry);
-    _.forEach(entry["in"].reverse(), handleIn(entry));
-    _.forEach(entry.out, handleOut(entry));
+    entry["in"].reverse().forEach(handleIn(entry));
+    entry.out.forEach(handleOut(entry));
   }
 
   return entries.filter((e) => !e.merged).map(
