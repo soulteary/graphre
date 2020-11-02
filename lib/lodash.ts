@@ -1,5 +1,4 @@
 import {
-  flattenDeep,
   minBy,
   pick,
   range,
@@ -9,7 +8,13 @@ import {
 const idCounter: Record<string, number> = {};
 
 export default {
-  flattenDeep,
+  flattenDeep<T>(matrix: T[][]) {
+    var result: T[] = [];
+    for (var e of matrix) {
+      result.push(...e);
+    }
+    return result;
+  },
   has(object: any, key: string): boolean {
     return object != null && object.hasOwnProperty(key)
   },

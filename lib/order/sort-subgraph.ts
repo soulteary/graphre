@@ -33,7 +33,7 @@ export function sortSubgraph(g: LayerGraph, v: string, cg: ConstraintGraph, bias
   var result = sort(entries, biasRight);
 
   if (bl) {
-    result.vs = _.flattenDeep([bl, result.vs, br]);
+    result.vs = ([bl, ...result.vs, br]);
     if (g.predecessors(bl).length) {
       var blPred = g.node(g.predecessors(bl)[0]);
       var brPred = g.node(g.predecessors(br)[0]);
@@ -56,7 +56,7 @@ function expandSubgraphs(entries: XEntry[], subgraphs: Record<string, SortResult
       if (subgraphs[v]) {
         return subgraphs[v].vs;
       }
-      return v;
+      return [v];
     }));
   }
 }

@@ -14,24 +14,24 @@ export function sort(entries: XEntry[], biasRight: boolean): SortResult {
   });
   var sortable = parts.lhs;
   var unsortable = _.sortBy(parts.rhs, function(entry: XEntry) { return -entry.i; });
-  var vs: (string|string[])[] = [];
+  var vss: string[][] = [];
   var sum = 0;
   var weight = 0;
   var vsIndex = 0;
 
   sortable.sort(compareWithBias(!!biasRight));
 
-  vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
+  vsIndex = consumeUnsortable(vss, unsortable, vsIndex);
 
   for (var entry of sortable) {
     vsIndex += entry.vs.length;
-    vs.push(entry.vs);
+    vss.push(entry.vs);
     sum += entry.barycenter * entry.weight;
     weight += entry.weight;
-    vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
+    vsIndex = consumeUnsortable(vss, unsortable, vsIndex);
   }
 
-  var result: SortResult = { vs: _.flattenDeep(vs) };
+  var result: SortResult = { vs: _.flattenDeep(vss) };
   if (weight) {
     result.barycenter = sum / weight;
     result.weight = weight;
