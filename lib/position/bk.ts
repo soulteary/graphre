@@ -342,11 +342,11 @@ export function positionX(g: DagreGraph) {
   var xss: Xss = { ul: {}, ur: {}, dl: {}, dr: {} };
   var adjustedLayering: Layer[];
   _.forEach(["u", "d"], function(vert: 'u'|'d') {
-    adjustedLayering = vert === "u" ? layering : _.values(layering).reverse();
+    adjustedLayering = vert === "u" ? layering : layering.map(e => e).reverse();
     _.forEach(["l", "r"], function(horiz: 'l'|'r') {
       if (horiz === "r") {
         adjustedLayering = _.map(adjustedLayering, function(inner) {
-          return _.values(inner).reverse();
+          return inner.map(e => e).reverse();
         });
       }
 

@@ -75,9 +75,7 @@ export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): 
     }
   });
 
-  var sourceSet = _.filter(mappedEntries, function(entry) {
-    return !entry.indegree;
-  });
+  var sourceSet = _.values(mappedEntries).filter((e) => !e.indegree);
 
   return doResolveConflicts(sourceSet);
 }
@@ -114,7 +112,7 @@ export function doResolveConflicts(sourceSet: MappedEntry[]): XEntry[] {
     _.forEach(entry.out, handleOut(entry));
   }
 
-  return _.map(_.filter(entries, function(entry) { return !entry.merged; }),
+  return entries.filter((e) => !e.merged).map(
     function(entry) {
       return _.pick(entry, ["vs", "i", "barycenter", "weight"]) as XEntry;
     });

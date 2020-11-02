@@ -1,6 +1,5 @@
 import {
   cloneDeep,
-  filter,
   find,
   flatten,
   flattenDeep,
@@ -16,7 +15,6 @@ import {
   range,
   reduce,
   sortBy,
-  values,
   zipObject
 } from "lodash";
 
@@ -24,7 +22,6 @@ const idCounter: Record<string, number> = {};
 
 export default {
   cloneDeep,
-  filter,
   find,
   flatten,
   flattenDeep,
@@ -54,7 +51,9 @@ export default {
     const id = ++idCounter[prefix]
     return `${prefix}${id}`
   },
-  values,
+  values<T>(object: Record<string, T>): T[] {
+    return object ? Object.keys(object).map(e => object[e]) : [];
+  },
   zipObject,
   
   array<T>(count: number, factory: () => T): T[] {
