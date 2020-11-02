@@ -1,9 +1,9 @@
 <!doctype html>
 
 <meta charset="utf-8">
-<title>Dagre Debug Console</title>
+<title>Graphre Debug Console</title>
 
-<script src="../build/dagre.js"></script>
+<script src="../dist/graphre.js"></script>
 <script src="http://cpettitt.github.io/project/graphlib-dot/latest/graphlib-dot.js"></script>
 <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.14.1/lodash.js"></script>
@@ -67,7 +67,7 @@ path.edge {
 </style>
 
 <div id="wrapper">
-  <h1>Dagre Debug Console</h1>
+  <h1>Graphre Debug Console</h1>
 
   <div id="inputPanel">
     <textarea rows=25 onkeyup="renderDot();"></textarea>
@@ -89,12 +89,12 @@ path.edge {
 
 <script>
 var debugTiming = false,
-    time = dagre.util.notime,
+    time = graphre.util.notime,
     lastDotStr = "",
     input = document.querySelector("#inputPanel textarea");
 function renderDot() {
   debugTiming = d3.select("#timing").property("checked"),
-  time = debugTiming ? dagre.util.time : dagre.util.notime;
+  time = debugTiming ? graphre.util.time : graphre.util.notime;
 
   var dotStr = input.value;
   if (dotStr !== lastDotStr) {
@@ -125,7 +125,7 @@ function render(g) {
   svg.selectAll("g").remove();
   var group = svg.append("g");
   time("preLayout", function() { preLayout(g, group) });
-  dagre.layout(g, { debugTiming: debugTiming });
+  graphre.layout(g, { debugTiming: debugTiming });
   time("postLayout", function() { postLayout(g, svg, group); });
 }
 

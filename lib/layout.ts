@@ -11,7 +11,7 @@ import { order } from "./order";
 import { position } from "./position";
 import * as util from "./util";
 import { Edge, Graph } from "./graph";
-import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, LayoutEdge, LayoutGraph, LayoutGraphConfig, LayoutNode, Vector } from "./types";
+import { DaGraph, EdgeLabel, GraphLabel, GraphNode, LayoutEdge, LayoutGraph, LayoutGraphConfig, LayoutNode, Vector } from "./types";
 import { has, last } from "./helpers";
 
 interface NodeEdgeProxy extends GraphNode {
@@ -43,7 +43,7 @@ function isSelfEdge(node: GraphNode): node is NodeSelfEdge {
   return node.dummy == 'selfedge';
 }
 
-export function layout(g: DagreGraph, opts?: { debugTiming?: boolean }) {
+export function layout(g: DaGraph, opts?: { debugTiming?: boolean }) {
   var time = opts && opts.debugTiming ? util.time : util.notime;
   time("layout", function() {
     var layoutGraph = 
@@ -53,7 +53,7 @@ export function layout(g: DagreGraph, opts?: { debugTiming?: boolean }) {
   });
 }
 
-function runLayout(g: DagreGraph, time: (name: string, fn: Function) => void) {
+function runLayout(g: DaGraph, time: (name: string, fn: Function) => void) {
   time("    makeSpaceForEdgeLabels", function() { makeSpaceForEdgeLabels(g); });
   time("    removeSelfEdges",        function() { removeSelfEdges(g); });
   time("    acyclic",                function() { acyclic.run(g); });
@@ -89,7 +89,7 @@ function runLayout(g: DagreGraph, time: (name: string, fn: Function) => void) {
  * to the input graph, so it serves as a good place to determine what
  * attributes can influence layout.
 */
-export function updateInputGraph(inputGraph: DagreGraph, layoutGraph: LayoutGraph) {
+export function updateInputGraph(inputGraph: DaGraph, layoutGraph: LayoutGraph) {
   for (var v of inputGraph.nodes()) {
     var inputLabel = inputGraph.node(v);
     var layoutLabel = layoutGraph.node(v);
@@ -132,7 +132,7 @@ var edgeDefaults = {
  * layout graph. Thus this function serves as a good place to determine what
  * attributes can influence layout.
 */
-export function buildLayoutGraph(inputGraph: DagreGraph) {
+export function buildLayoutGraph(inputGraph: DaGraph) {
   var g = new Graph<LayoutGraphConfig, LayoutNode, LayoutEdge>({ multigraph: true, compound: true });
   var graph = canonicalize<GraphLabel>(inputGraph.graph());
 
@@ -183,7 +183,7 @@ export function buildLayoutGraph(inputGraph: DagreGraph) {
  * We also add some minimal padding to the width to push the label for the edge
  * away from the edge itself a bit.
 */
-export function makeSpaceForEdgeLabels(g: DagreGraph) {
+export function makeSpaceForEdgeLabels(g: DaGraph) {
   var graph = g.graph();
   graph.ranksep /= 2;
   for (var e of g.edges()) {
@@ -205,7 +205,7 @@ export function makeSpaceForEdgeLabels(g: DagreGraph) {
  * so that we can safely remove empty ranks while preserving balance for the
  * label's position.
 */
-function injectEdgeLabelProxies(g: DagreGraph) {
+function injectEdgeLabelProxies(g: DaGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (edge.width && edge.height) {
@@ -217,7 +217,7 @@ function injectEdgeLabelProxies(g: DagreGraph) {
   }
 }
 
-function assignRankMinMax(g: DagreGraph) {
+function assignRankMinMax(g: DaGraph) {
   var maxRank = 0;
   for (var v of g.nodes()) {
     var node = g.node(v);
@@ -230,7 +230,7 @@ function assignRankMinMax(g: DagreGraph) {
   g.graph().maxRank = maxRank;
 }
 
-function removeEdgeLabelProxies(g: DagreGraph) {
+function removeEdgeLabelProxies(g: DaGraph) {
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (isEdgeProxy(node)) {
@@ -240,7 +240,7 @@ function removeEdgeLabelProxies(g: DagreGraph) {
   }
 }
 
-function translateGraph(g: DagreGraph) {
+function translateGraph(g: DaGraph) {
   var minX = Number.POSITIVE_INFINITY;
   var maxX = 0;
   var minY = Number.POSITIVE_INFINITY;
@@ -291,7 +291,7 @@ function translateGraph(g: DagreGraph) {
   graphLabel.height = maxY - minY + marginY;
 }
 
-function assignNodeIntersects(g: DagreGraph) {
+function assignNodeIntersects(g: DaGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     var nodeV = g.node(e.v);
@@ -311,7 +311,7 @@ function assignNodeIntersects(g: DagreGraph) {
   }
 }
 
-function fixupEdgeLabelCoords(g: DagreGraph) {
+function fixupEdgeLabelCoords(g: DaGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (has(edge, "x")) {
@@ -326,7 +326,7 @@ function fixupEdgeLabelCoords(g: DagreGraph) {
   }
 }
 
-function reversePointsForReversedEdges(g: DagreGraph) {
+function reversePointsForReversedEdges(g: DaGraph) {
   for (var e of g.edges()) {
     var edge = g.edge(e);
     if (edge.reversed) {
@@ -335,7 +335,7 @@ function reversePointsForReversedEdges(g: DagreGraph) {
   }
 }
 
-function removeBorderNodes(g: DagreGraph) {
+function removeBorderNodes(g: DaGraph) {
   for (var v of g.nodes()) {
     if (g.children(v).length) {
       var node = g.node(v);
@@ -358,7 +358,7 @@ function removeBorderNodes(g: DagreGraph) {
   }
 }
 
-function removeSelfEdges(g: DagreGraph) {
+function removeSelfEdges(g: DaGraph) {
   for (var e of g.edges()) {
     if (e.v === e.w) {
       var node = g.node(e.v);
@@ -371,7 +371,7 @@ function removeSelfEdges(g: DagreGraph) {
   }
 }
 
-function insertSelfEdges(g: DagreGraph) {
+function insertSelfEdges(g: DaGraph) {
   var layers = util.buildLayerMatrix(g);
   for (var layer of layers) {
     var orderShift = 0;
@@ -394,7 +394,7 @@ function insertSelfEdges(g: DagreGraph) {
   }
 }
 
-function positionSelfEdges(g: DagreGraph) {
+function positionSelfEdges(g: DaGraph) {
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (isSelfEdge(node)) {

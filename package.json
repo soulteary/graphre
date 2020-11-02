@@ -1,6 +1,6 @@
 {
-  "name": "dagre",
-  "version": "0.0.0",
+  "name": "graphre",
+  "version": "0.1.0",
   "description": "Graph layout for JavaScript",
   "author": "Daniel Kallin <daniel.kallin@gmail.com>",
   "license": "MIT",
@@ -10,6 +10,7 @@
     "layout"
   ],
   "scripts": {
+    "prepare": "tsc && MINIFY=1 rollup -c",
     "build": "tsc && rollup -c && mocha --recursive --reporter progress",
     "pack": "tsc && MINIFY=1 rollup -c && mocha --recursive --reporter progress"
   },
@@ -23,14 +24,12 @@
     "mocha": "^8.2.0",
     "rollup": "^2.33.1",
     "rollup-plugin-terser": "^7.0.2",
-    "semver": "^7.3.2",
     "sprintf": "^0.1.5",
     "terser": "^5.3.8",
-    "ts-unused-exports": "^6.2.4",
     "typescript": "^4.0.5"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dagrejs/dagre.git"
+    "url": "https://github.com/skanaar/graphre.git"
   }
 }

@@ -1,5 +1,5 @@
 import { array, flattenDeep, sortBy } from '../helpers';
-import { DagreGraph } from '../types';
+import { DaGraph } from '../types';
 
 /*
  * A function that takes a layering (an array of layers, each with an array of
@@ -17,7 +17,7 @@ import { DagreGraph } from '../types';
  *
  * This algorithm is derived from Barth, et al., "Bilayer Cross Counting."
  */
-export function crossCount(g: DagreGraph, layering: string[][]): number {
+export function crossCount(g: DaGraph, layering: string[][]): number {
   var cc = 0;
   for (var i = 1; i < layering.length; ++i) {
     cc += twoLayerCrossCount(g, layering[i-1], layering[i]);
@@ -25,7 +25,7 @@ export function crossCount(g: DagreGraph, layering: string[][]): number {
   return cc;
 }
 
-function twoLayerCrossCount(g: DagreGraph, northLayer: string[], southLayer: string[]): number {
+function twoLayerCrossCount(g: DaGraph, northLayer: string[], southLayer: string[]): number {
   // Sort all of the edges between the north and south layers by their position
   // in the north layer and then the south. Map these edges to the position of
   // their head in the south layer.

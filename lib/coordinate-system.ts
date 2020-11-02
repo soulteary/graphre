@@ -1,16 +1,16 @@
 import { has } from "./helpers";
-import { DagreGraph, Rect, Vector } from "./types";
+import { DaGraph, Rect, Vector } from "./types";
 
 export var coordinateSystem = { adjust, undo };
 
-function adjust(g: DagreGraph) {
+function adjust(g: DaGraph) {
   var rankDir = g.graph().rankdir.toLowerCase();
   if (rankDir === "lr" || rankDir === "rl") {
     swapWidthHeight(g);
   }
 }
 
-function undo(g: DagreGraph) {
+function undo(g: DaGraph) {
   var rankDir = g.graph().rankdir.toLowerCase();
   if (rankDir === "bt" || rankDir === "rl") {
     reverseY(g);
@@ -22,7 +22,7 @@ function undo(g: DagreGraph) {
   }
 }
 
-function swapWidthHeight(g: DagreGraph) {
+function swapWidthHeight(g: DaGraph) {
   for (var v of g.nodes()) { swapWidthHeightOne(g.node(v)); }
   for (var e of g.edges()) { swapWidthHeightOne(g.edge(e)); }
 }
@@ -33,7 +33,7 @@ function swapWidthHeightOne(attrs: Rect) {
   attrs.height = w;
 }
 
-function reverseY(g: DagreGraph) {
+function reverseY(g: DaGraph) {
   for (var v of g.nodes()) { reverseYOne(g.node(v)); }
 
   for (var e of g.edges()) {
@@ -49,7 +49,7 @@ function reverseYOne(attrs: Vector) {
   attrs.y = -attrs.y;
 }
 
-function swapXY(g: DagreGraph) {
+function swapXY(g: DaGraph) {
   for (var v of g.nodes()) { swapXYOne(g.node(v)); }
 
   for (var e of g.edges()) {

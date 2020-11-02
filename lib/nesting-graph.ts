@@ -1,6 +1,6 @@
 import { values } from "./helpers";
 import * as util from "./util";
-import { DagreGraph } from "./types";
+import { DaGraph } from "./types";
 
 export var nestingGraph = { run, cleanup };
 
@@ -27,7 +27,7 @@ export var nestingGraph = { run, cleanup };
  * The nesting graph idea comes from Sander, "Layout of Compound Directed
  * Graphs."
 */
-function run(g: DagreGraph) {
+function run(g: DaGraph) {
   var root = util.addDummyNode(g, "root", {}, "_root");
   var depths = treeDepths(g);
   var height = Math.max(...values(depths)) - 1; // Note: depths is an Object not an array
@@ -53,7 +53,7 @@ function run(g: DagreGraph) {
   g.graph().nodeRankFactor = nodeSep;
 }
 
-function dfs(g: DagreGraph, root: string, nodeSep: number, weight: number, height: number, depths: Record<string, number>, v: string) {
+function dfs(g: DaGraph, root: string, nodeSep: number, weight: number, height: number, depths: Record<string, number>, v: string) {
   var children = g.children(v);
   if (!children.length) {
     if (v !== root) {
@@ -98,7 +98,7 @@ function dfs(g: DagreGraph, root: string, nodeSep: number, weight: number, heigh
   }
 }
 
-function treeDepths(g: DagreGraph): Record<string, number> {
+function treeDepths(g: DaGraph): Record<string, number> {
   var depths: Record<string, number> = {};
   function dfs(v: string, depth: number) {
     var children = g.children(v);
@@ -115,11 +115,11 @@ function treeDepths(g: DagreGraph): Record<string, number> {
   return depths;
 }
 
-function sumWeights(g: DagreGraph) {
+function sumWeights(g: DaGraph) {
   return g.edges().reduce((acc, e) => acc + g.edge(e).weight, 0);
 }
 
-function cleanup(g: DagreGraph) {
+function cleanup(g: DaGraph) {
   var graphLabel = g.graph();
   g.removeNode(graphLabel.nestingRoot);
   delete graphLabel.nestingRoot;

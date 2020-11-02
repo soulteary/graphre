@@ -1,5 +1,5 @@
 import { array, has, sortBy } from '../helpers';
-import { DagreGraph } from '../types';
+import { DaGraph } from '../types';
 
 /*
  * Assigns an initial order value for each node by performing a DFS search
@@ -12,7 +12,7 @@ import { DagreGraph } from '../types';
  * Returns a layering matrix with an array per layer and each layer sorted by
  * the order of its nodes.
 */
-export function initOrder(g: DagreGraph): string[][] {
+export function initOrder(g: DaGraph): string[][] {
   var visited: Record<string, boolean> = {};
   var simpleNodes = g.nodes().filter(v => !g.children(v).length);
   var maxRank = Math.max(...simpleNodes.map(v => g.node(v).rank));

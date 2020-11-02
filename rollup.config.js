@@ -5,9 +5,9 @@ import commonjs from '@rollup/plugin-commonjs';
 export default {
   input: 'build/index.js',
   output: {
-    file: 'dist/dagre.js',
+    file: 'dist/graphre.js',
     format: 'umd',
-    name: 'dagre'
+    name: 'graphre'
   },
   plugins: [nodeResolve(), commonjs(), process.env.MINIFY ? terser() : null]
 };

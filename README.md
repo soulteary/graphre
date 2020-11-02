@@ -1,14 +1,9 @@
-# dagre - Graph layout for JavaScript
+# Graphre - Graph layout for JavaScript
 
-[![Build Status](https://secure.travis-ci.org/dagrejs/dagre.svg?branch=master)](http://travis-ci.org/dagrejs/dagre)
+Graphre is a JavaScript library that makes it easy to lay out directed graphs on the client-side.
 
-Dagre is a JavaScript library that makes it easy to lay out directed graphs on
-the client-side.
-
-For more details, including examples and configuration options, please see our
-[wiki](https://github.com/dagrejs/dagre/wiki).
+This is a fork of [Dagre](https://github.com/dagrejs/dagre).
 
 ## License
 
-dagre is licensed under the terms of the MIT License. See the LICENSE file
-for details.
+Graphre is licensed under the terms of the MIT License. See the LICENSE file for details.

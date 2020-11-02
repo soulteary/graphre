@@ -1,11 +1,11 @@
-import { DagreGraph } from "./types";
+import { DaGraph } from "./types";
 
 interface Ordering {
   low: number
   lim: number
 }
 
-export function parentDummyChains(g: DagreGraph) {
+export function parentDummyChains(g: DaGraph) {
   var postorderNums = postorder(g);
 
   for (var v of g.graph().dummyChains) {
@@ -48,7 +48,7 @@ export function parentDummyChains(g: DagreGraph) {
 
 // Find a path from v to w through the lowest common ancestor (LCA). Return the
 // full path and the LCA.
-function findPath(g: DagreGraph, postorderNums: Record<string, Ordering>, v: string, w: string) {
+function findPath(g: DaGraph, postorderNums: Record<string, Ordering>, v: string, w: string) {
   var vPath = [];
   var wPath = [];
   var low = Math.min(postorderNums[v].low, postorderNums[w].low);
@@ -74,7 +74,7 @@ function findPath(g: DagreGraph, postorderNums: Record<string, Ordering>, v: str
   return { path: vPath.concat(wPath.reverse()), lca: lca };
 }
 
-function postorder(g: DagreGraph): Record<string, Ordering> {
+function postorder(g: DaGraph): Record<string, Ordering> {
   var result: Record<string, Ordering> = {};
   var lim = 0;
 

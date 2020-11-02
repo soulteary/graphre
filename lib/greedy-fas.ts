@@ -1,7 +1,7 @@
 import { Edge, Graph } from "./graph";
 import { List } from "./data/list";
 import { array, flattenDeep } from "./helpers";
-import { DagreGraph } from "./types";
+import { DaGraph } from "./types";
 
 type FasGraph = Graph<unknown, FasNode, number>;
 
@@ -14,7 +14,7 @@ type FasGraph = Graph<unknown, FasNode, number>;
  */
 var DEFAULT_WEIGHT_FN = (e: Edge) => (1);
 
-export function greedyFAS(g: DagreGraph, weightFn: (e: Edge) => number): Edge[] {
+export function greedyFAS(g: DaGraph, weightFn: (e: Edge) => number): Edge[] {
   if (g.nodeCount() <= 1) {
     return [];
   }
@@ -82,7 +82,7 @@ interface FasNode {
   out: number;
 }
 
-function buildState(g: DagreGraph, weightFn: (e: Edge) => number): { graph: FasGraph, buckets: List<FasNode>[], zeroIdx: number } {
+function buildState(g: DaGraph, weightFn: (e: Edge) => number): { graph: FasGraph, buckets: List<FasNode>[], zeroIdx: number } {
   var fasGraph = new Graph<unknown, FasNode, number>();
   var maxIn = 0;
   var maxOut = 0;

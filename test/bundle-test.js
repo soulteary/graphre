@@ -2,24 +2,24 @@
 // correctly.
 
 var expect = require("./chai").expect;
-var dagre = require('..');
+var graphre = require('..');
 
 describe("bundle", function() {
-  it("exports dagre", function() {
-    expect(dagre).to.be.an("object");
-    expect(dagre.graphlib).to.be.an("object");
-    expect(dagre.layout).to.be.a("function");
-    expect(dagre.util).to.be.an("object");
-    expect(dagre.version).to.be.a("string");
+  it("exports graphre", function() {
+    expect(graphre).to.be.an("object");
+    expect(graphre.graphlib).to.be.an("object");
+    expect(graphre.layout).to.be.a("function");
+    expect(graphre.util).to.be.an("object");
+    expect(graphre.version).to.be.a("string");
   });
 
   it("can do trivial layout", function() {
-    var g = new dagre.Graph().setGraph({});
+    var g = new graphre.Graph().setGraph({});
     g.setNode("a", { label: "a", width: 50, height: 100 });
     g.setNode("b", { label: "b", width: 50, height: 100 });
     g.setEdge("a", "b", { label: "ab", width: 50, height: 100 });
 
-    dagre.layout(g);
+    graphre.layout(g);
     expect(g.node("a")).to.have.property("x");
     expect(g.node("a")).to.have.property("y");
     expect(g.node("a").x).to.be.gte(0);

@@ -1,6 +1,6 @@
 import * as util from "./util";
 import { Edge } from "./graph";
-import { DagreGraph, GraphNode } from "./types";
+import { DaGraph, GraphNode } from "./types";
 
 export var normalize = { run, undo };
 
@@ -20,14 +20,14 @@ export var normalize = { run, undo };
  *    3. The graph is augmented with a "dummyChains" attribute which contains
  *       the first dummy in each chain of dummy nodes produced.
 */
-function run(g: DagreGraph) {
+function run(g: DaGraph) {
   g.graph().dummyChains = [];
   for (var edge of g.edges()) {
     normalizeEdge(g, edge);
   }
 }
 
-function normalizeEdge(g: DagreGraph, e: Edge) {
+function normalizeEdge(g: DaGraph, e: Edge) {
   var v = e.v;
   var vRank = g.node(v).rank;
   var w = e.w;
@@ -69,7 +69,7 @@ function normalizeEdge(g: DagreGraph, e: Edge) {
   g.setEdge(v, w, { weight: edgeLabel.weight }, name);
 }
 
-function undo(g: DagreGraph) {
+function undo(g: DaGraph) {
   for(var v of g.graph().dummyChains) {
     var node = g.node(v);
     var origLabel = node.edgeLabel;

@@ -1,11 +1,11 @@
 import { greedyFAS } from "./greedy-fas";
-import { DagreGraph } from "./types";
+import { DaGraph } from "./types";
 import { Edge } from "./graph";
 import { has, uniqueId } from "./helpers";
 
 export var acyclic = { run, undo };
 
-function run(g: DagreGraph) {
+function run(g: DaGraph) {
   var fas = (g.graph().acyclicer === "greedy"
     ? greedyFAS(g, weightFn(g))
     : dfsFAS(g));
@@ -17,14 +17,14 @@ function run(g: DagreGraph) {
     g.setEdge(e.w, e.v, label, uniqueId("rev"));
   }
 
-  function weightFn(g: DagreGraph) {
+  function weightFn(g: DaGraph) {
     return function(e: Edge) {
       return g.edge(e).weight;
     };
   }
 }
 
-function dfsFAS(g: DagreGraph) {
+function dfsFAS(g: DaGraph) {
   var fas: Edge[] = [];
   var stack: Record<string, boolean> = {};
   var visited: Record<string, boolean> = {};
@@ -49,7 +49,7 @@ function dfsFAS(g: DagreGraph) {
   return fas;
 }
 
-function undo(g: DagreGraph) {
+function undo(g: DaGraph) {
   for (var e of g.edges()) {
     var label = g.edge(e);
     if (label.reversed) {

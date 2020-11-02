@@ -1,8 +1,8 @@
 import { Graph } from "./graph";
-import { DagreGraph } from "./types";
+import { DaGraph } from "./types";
 import * as util from "./util";
 
-export function debugOrdering(g: DagreGraph) {
+export function debugOrdering(g: DaGraph) {
   var layerMatrix = util.buildLayerMatrix(g);
 
   var h = new Graph({ compound: true, multigraph: true }).setGraph({});

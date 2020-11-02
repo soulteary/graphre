@@ -1,8 +1,8 @@
 import * as util from "./util";
-import { DagreGraph, GraphNode } from "./types";
+import { DaGraph, GraphNode } from "./types";
 import { has } from "./helpers";
 
-export function addBorderSegments(g: DagreGraph) {
+export function addBorderSegments(g: DaGraph) {
   function dfs(v: string) {
     var children = g.children(v);
     var node = g.node(v);
@@ -25,7 +25,7 @@ export function addBorderSegments(g: DagreGraph) {
   g.children().forEach(dfs);
 }
 
-function addBorderNode(g: DagreGraph, prop: "borderLeft"|"borderRight", prefix: '_bl'|'_br', sg: string, sgNode: GraphNode, rank: number) {
+function addBorderNode(g: DaGraph, prop: "borderLeft"|"borderRight", prefix: '_bl'|'_br', sg: string, sgNode: GraphNode, rank: number) {
   var label = { width: 0, height: 0, rank: rank, borderType: prop };
   var prev = sgNode[prop][rank - 1];
   var curr = util.addDummyNode(g, "border", label, prefix);

@@ -1,6 +1,6 @@
 import { Graph } from "../graph";
 import { has, uniqueId } from "../helpers";
-import { DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
+import { DaGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
 
 export type LayerGraph = Graph<GraphLabel, LayeredNode, EdgeLabel>;
 
@@ -39,7 +39,7 @@ type LayeredNode = Omit<GraphNode, 'borderLeft'|'borderRight'> & {
  *    5. The weights for copied edges are aggregated as need, since the output
  *       graph is not a multi-graph.
  */
-export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEdges'|'outEdges'): LayerGraph {
+export function buildLayerGraph(g: DaGraph, rank: number, relationship: 'inEdges'|'outEdges'): LayerGraph {
   var root = createRootNode(g);
   var result = new Graph<unknown, LayeredNode, EdgeLabel>({ compound: true }).setGraph({ root: root })
       .setDefaultNodeLabel(v => g.node(v) as unknown as LayeredNode); // TODO solve type incompatibility
@@ -72,7 +72,7 @@ export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEd
   return result;
 }
 
-function createRootNode(g: DagreGraph): string {
+function createRootNode(g: DaGraph): string {
   var v;
   while (g.hasNode((v = uniqueId("_root"))));
   return v;

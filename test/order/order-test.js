@@ -26,7 +26,7 @@ describe("order", function() {
   });
 
   it("can solve a simple graph", function() {
-    // This graph resulted in a single crossing for previous versions of dagre.
+    // This graph resulted in a single crossing for previous versions.
     _.forEach(["a", "d"], function(v) { g.setNode(v, { rank: 1 }); });
     _.forEach(["b", "f", "e"], function(v) { g.setNode(v, { rank: 2 }); });
     _.forEach(["c", "g"], function(v) { g.setNode(v, { rank: 3 }); });

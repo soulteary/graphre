@@ -4,7 +4,7 @@ import { longestPath } from "./util";
 import { Edge, Graph } from "../graph";
 import { preorder, postorder } from "../alg";
 import { simplify } from "../util";
-import { DagreGraph, GraphNode } from '../types';
+import { DaGraph, GraphNode } from '../types';
 import { has, minBy } from "../helpers";
 
 type SimplexNode = GraphNode & { low: number, lim: number, parent: string, cutvalue: number };
@@ -52,7 +52,7 @@ networkSimplex.exchangeEdges = exchangeEdges;
  * for Drawing Directed Graphs." The structure of the file roughly follows the
  * structure of the overall algorithm.
 */
-export function networkSimplex(g: DagreGraph) {
+export function networkSimplex(g: DaGraph) {
   g = simplify(g);
   longestPath(g);
   var t = feasibleTree<unknown, SimplexNode, SimplexEdge>(g);
@@ -69,7 +69,7 @@ export function networkSimplex(g: DagreGraph) {
 /*
  * Initializes cut values for all edges in the tree.
 */
-function initCutValues(t: SimplexTree, g: DagreGraph) {
+function initCutValues(t: SimplexTree, g: DaGraph) {
   var vs = postorder(t, t.nodes());
   vs = vs.slice(0, vs.length - 1);
   for (var v of vs) {
@@ -77,7 +77,7 @@ function initCutValues(t: SimplexTree, g: DagreGraph) {
   }
 }
 
-function assignCutValue(t: SimplexTree, g: DagreGraph, child: string) {
+function assignCutValue(t: SimplexTree, g: DaGraph, child: string) {
   var childLab = t.node(child);
   var parent = childLab.parent;
   t.edge(child, parent).cutvalue = calcCutValue(t, g, child);
@@ -87,7 +87,7 @@ function assignCutValue(t: SimplexTree, g: DagreGraph, child: string) {
  * Given the tight tree, its graph, and a child in the graph calculate and
  * return the cut value for the edge between the child and its parent.
 */
-function calcCutValue(t: SimplexTree, g: DagreGraph, child: string) {
+function calcCutValue(t: SimplexTree, g: DaGraph, child: string) {
   var childLab = t.node(child);
   var parent = childLab.parent;
   // True if the child is on the tail end of the edge in the directed graph
@@ -162,7 +162,7 @@ function leaveEdge(tree: SimplexTree) {
   return undefined;
 }
 
-function enterEdge(t: SimplexTree, g: DagreGraph, edge: Edge) {
+function enterEdge(t: SimplexTree, g: DaGraph, edge: Edge) {
   var v = edge.v;
   var w = edge.w;
 
@@ -194,7 +194,7 @@ function enterEdge(t: SimplexTree, g: DagreGraph, edge: Edge) {
   return minBy(candidates, (edge: Edge) => slack(g, edge));
 }
 
-function exchangeEdges(t: SimplexTree, g: DagreGraph, e: Edge, f: Edge) {
+function exchangeEdges(t: SimplexTree, g: DaGraph, e: Edge, f: Edge) {
   var v = e.v;
   var w = e.w;
   t.removeEdge(v, w);
@@ -204,12 +204,12 @@ function exchangeEdges(t: SimplexTree, g: DagreGraph, e: Edge, f: Edge) {
   updateRanks(t, g);
 }
 
-function findRoot(t: SimplexTree, g: DagreGraph): string {
+function findRoot(t: SimplexTree, g: DaGraph): string {
   for (var v of t.nodes()) if (!g.node(v).parent) return v;
   return undefined;
 }
 
-function updateRanks(t: SimplexTree, g: DagreGraph) {
+function updateRanks(t: SimplexTree, g: DaGraph) {
   var root = findRoot(t, g);
   var vs = preorder(t, root);
   vs = vs.slice(1);

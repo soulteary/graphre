@@ -1,6 +1,6 @@
 import { Graph } from "../graph";
 import { buildLayerMatrix } from "../util";
-import { Alignment, DagreGraph } from '../types';
+import { Alignment, DaGraph } from '../types';
 import { has, last, mapValues, minBy, range, sortBy, values } from "../helpers";
 
 type Xs = Record<string, number>;
@@ -30,7 +30,7 @@ type Layer = string[];
  * This algorithm (safely) assumes that a dummy node will only be incident on a
  * single node in the layers being scanned.
 */
-export function findType1Conflicts(g: DagreGraph, layering: Layer[]): Conflicts {
+export function findType1Conflicts(g: DaGraph, layering: Layer[]): Conflicts {
   var conflicts = {};
 
   function visitLayer(prevLayer: Layer, layer: Layer) {
@@ -70,7 +70,7 @@ export function findType1Conflicts(g: DagreGraph, layering: Layer[]): Conflicts 
   return conflicts;
 }
 
-export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
+export function findType2Conflicts(g: DaGraph, layering: Layer[]) {
   var conflicts = {};
 
   function scan(south: string[], southPos: number, southEnd: number, prevNorthBorder: number, nextNorthBorder: number) {
@@ -118,7 +118,7 @@ export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
   return conflicts;
 }
 
-export function findOtherInnerSegmentNode(g: DagreGraph, v: string): string {
+export function findOtherInnerSegmentNode(g: DaGraph, v: string): string {
   if (g.node(v).dummy) {
     for (var u of g.predecessors(v)) {
       if (g.node(u).dummy) {
@@ -160,7 +160,7 @@ export function hasConflict(conflicts: Conflicts, v: string, w: string) {
  * we're trying to form a block with, we also ignore that possibility - our
  * blocks would be split in that scenario.
 */
-export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: Conflicts, neighborFn: (e: string) => string[]) {
+export function verticalAlignment(g: DaGraph, layering: Layer[], conflicts: Conflicts, neighborFn: (e: string) => string[]) {
   var root: Record<string, string> = {};
   var align: Record<string, string> = {};
   var pos: Record<string, number> = {};
@@ -201,7 +201,7 @@ export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: C
   return { root: root, align: align };
 }
 
-export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Record<string, string>, align: Record<string, string>, reverseSep: boolean) {
+export function horizontalCompaction(g: DaGraph, layering: Layer[], root: Record<string, string>, align: Record<string, string>, reverseSep: boolean) {
   // This portion of the algorithm differs from BK due to a number of problems.
   // Instead of their algorithm we construct a new block graph and do two
   // sweeps. The first sweep places blocks with the smallest possible
@@ -259,7 +259,7 @@ export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Rec
   return xs;
 }
 
-function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<string, string>, reverseSep: boolean) {
+function buildBlockGraph(g: DaGraph, layering: Layer[], root: Record<string, string>, reverseSep: boolean) {
   var blockGraph = new Graph<unknown, unknown, number>();
   var graphLabel = g.graph();
   var sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
@@ -284,7 +284,7 @@ function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<string, 
 /*
  * Returns the alignment that has the smallest width of the given alignments.
 */
-export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
+export function findSmallestWidthAlignment(g: DaGraph, xss: Xss) {
   return minBy(values(xss), function (xs) {
     var max = Number.NEGATIVE_INFINITY;
     var min = Number.POSITIVE_INFINITY;
@@ -337,7 +337,7 @@ export function balance(xss: Xss, align: Alignment) {
   });
 }
 
-export function positionX(g: DagreGraph) {
+export function positionX(g: DaGraph) {
   var layering = buildLayerMatrix(g);
   var conflicts = {
     ...findType1Conflicts(g, layering),
@@ -370,7 +370,7 @@ export function positionX(g: DagreGraph) {
 }
 
 export function sep(nodeSep: number, edgeSep: number, reverseSep: boolean) {
-  return function(g: DagreGraph, v: string, w: string) {
+  return function(g: DaGraph, v: string, w: string) {
     var vLabel = g.node(v);
     var wLabel = g.node(w);
     var sum = 0;
@@ -407,6 +407,6 @@ export function sep(nodeSep: number, edgeSep: number, reverseSep: boolean) {
   };
 }
 
-export function width(g: DagreGraph, v: string) {
+export function width(g: DaGraph, v: string) {
   return g.node(v).width;
 }

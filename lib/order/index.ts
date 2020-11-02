@@ -5,7 +5,7 @@ import { buildLayerGraph, LayerGraph } from "./build-layer-graph";
 import { addSubgraphConstraints } from "./add-subgraph-constraints";
 import { Graph } from "../graph";
 import { buildLayerMatrix, maxRank } from "../util";
-import { ConstraintGraph, DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
+import { ConstraintGraph, DaGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
 import { range } from "../helpers";
 
 export { addSubgraphConstraints } from "./add-subgraph-constraints";
@@ -32,7 +32,7 @@ export { sort } from './sort';
  *    1. Graph nodes will have an "order" attribute based on the results of the
  *       algorithm.
  */
-export function order(g: DagreGraph) {
+export function order(g: DaGraph) {
   var maximumRank = maxRank(g);
   var downLayerGraphs = buildLayerGraphs(g, range(1, maximumRank + 1), "inEdges");
   var upLayerGraphs = buildLayerGraphs(g, range(maximumRank - 1, -1), "outEdges");
@@ -58,7 +58,7 @@ export function order(g: DagreGraph) {
   assignOrder(g, best);
 }
 
-function buildLayerGraphs(g: DagreGraph, ranks: number[], relationship: 'inEdges'|'outEdges'): Array<LayerGraph> {
+function buildLayerGraphs(g: DaGraph, ranks: number[], relationship: 'inEdges'|'outEdges'): Array<LayerGraph> {
   return ranks.map(rank => buildLayerGraph(g, rank, relationship));
 }
 
@@ -74,7 +74,7 @@ function sweepLayerGraphs(layerGraphs: Array<LayerGraph>, biasRight: boolean) {
   }
 }
 
-function assignOrder(g: DagreGraph, layering: string[][]) {
+function assignOrder(g: DaGraph, layering: string[][]) {
   for (var layer of layering) {
     layer.map(function(v, i) {
       g.node(v).order = i;

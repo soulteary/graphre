@@ -1,10 +1,10 @@
 import * as util from "../util";
 import { positionX } from "./bk";
-import { DagreGraph } from '../types';
+import { DaGraph } from '../types';
 
 export * as bk from './bk';
 
-export function position(g: DagreGraph) {
+export function position(g: DaGraph) {
   g = util.asNonCompoundGraph(g);
 
   positionY(g);
@@ -14,7 +14,7 @@ export function position(g: DagreGraph) {
   }
 }
 
-function positionY(g: DagreGraph) {
+function positionY(g: DaGraph) {
   var layering = util.buildLayerMatrix(g);
   var rankSep = g.graph().ranksep;
   var prevY = 0;

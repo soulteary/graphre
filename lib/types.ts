@@ -1,6 +1,6 @@
 import { Edge, Graph } from "./graph";
 
-export type DagreGraph = Graph<GraphLabel, GraphNode, EdgeLabel>;
+export type DaGraph = Graph<GraphLabel, GraphNode, EdgeLabel>;
 
 export type Alignment = 'ul'|'ur'|'dl'|'dr';
 export type Ranker = 'network-simplex' | 'tight-tree' | 'longest-path';

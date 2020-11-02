@@ -1,11 +1,11 @@
 import { Graph } from "./graph";
 import { array, has, uniqueId } from "./helpers";
-import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, Rect, Vector } from "./types";
+import { DaGraph, EdgeLabel, GraphLabel, GraphNode, Rect, Vector } from "./types";
 
 /*
  * Adds a dummy node to the graph and return v.
 */
-export function addDummyNode(g: DagreGraph, type: string, attrs: Partial<GraphNode>, name: string): string {
+export function addDummyNode(g: DaGraph, type: string, attrs: Partial<GraphNode>, name: string): string {
   var v: string;
   do {
     v = uniqueId(name);
@@ -20,7 +20,7 @@ export function addDummyNode(g: DagreGraph, type: string, attrs: Partial<GraphNo
  * Returns a new graph with only simple edges. Handles aggregation of data
  * associated with multi-edges.
 */
-export function simplify(g: DagreGraph) {
+export function simplify(g: DaGraph) {
   var simplified = new Graph<GraphLabel, GraphNode, EdgeLabel>().setGraph(g.graph());
   for (var v of g.nodes()) { simplified.setNode(v, g.node(v)); }
   for (var e of g.edges()) {
@@ -34,7 +34,7 @@ export function simplify(g: DagreGraph) {
   return simplified;
 }
 
-export function asNonCompoundGraph(g: DagreGraph) {
+export function asNonCompoundGraph(g: DaGraph) {
   var simplified = new Graph<GraphLabel, GraphNode, EdgeLabel>({ multigraph: g.isMultigraph() }).setGraph(g.graph());
   for (var v of g.nodes()) {
     if (!g.children(v).length) {
@@ -47,7 +47,7 @@ export function asNonCompoundGraph(g: DagreGraph) {
   return simplified;
 }
 
-export function successorWeights(g: DagreGraph): Record<string, Record<string, number>> {
+export function successorWeights(g: DaGraph): Record<string, Record<string, number>> {
   var result: Record<string, Record<string, number>> = {};
   for (var v of g.nodes()) {
     var sucs: Record<string, number> = {};
@@ -59,7 +59,7 @@ export function successorWeights(g: DagreGraph): Record<string, Record<string, n
   return result;
 }
 
-export function predecessorWeights(g: DagreGraph): Record<string, Record<string, number>> {
+export function predecessorWeights(g: DaGraph): Record<string, Record<string, number>> {
   var result: Record<string, Record<string, number>> = {};
   for (var v of g.nodes()) {
     var preds: Record<string, number> = {};
@@ -114,7 +114,7 @@ export function intersectRect(rect: Rect, point: Vector) {
  * Given a DAG with each node assigned "rank" and "order" properties, this
  * function will produce a matrix with the ids of each node.
 */
-export function buildLayerMatrix(g: DagreGraph): string[][] {
+export function buildLayerMatrix(g: DaGraph): string[][] {
   var layering: string[][] = array(maxRank(g) + 1, () => []);
   for (var v of g.nodes()) {
     var node = g.node(v);
@@ -130,7 +130,7 @@ export function buildLayerMatrix(g: DagreGraph): string[][] {
  * Adjusts the ranks for all nodes in the graph such that all nodes v have
  * rank(v) >= 0 and at least one node w has rank(w) = 0.
 */
-export function normalizeRanks(g: DagreGraph) {
+export function normalizeRanks(g: DaGraph) {
   var min = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
   for (var v of g.nodes()) {
     var node = g.node(v);
@@ -140,7 +140,7 @@ export function normalizeRanks(g: DagreGraph) {
   }
 }
 
-export function removeEmptyRanks(g: DagreGraph) {
+export function removeEmptyRanks(g: DaGraph) {
   // Ranks may not start at 0, so we need to offset them
   var offset = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
 
@@ -165,7 +165,7 @@ export function removeEmptyRanks(g: DagreGraph) {
   }
 }
 
-export function addBorderNode(g: DagreGraph, prefix: string, rank?: number, order?: number) {
+export function addBorderNode(g: DaGraph, prefix: string, rank?: number, order?: number) {
   var node: { width: number, height: number, rank?: number, order?: number } = {
     width: 0,
     height: 0
@@ -177,7 +177,7 @@ export function addBorderNode(g: DagreGraph, prefix: string, rank?: number, orde
   return addDummyNode(g, "border", node, prefix);
 }
 
-export function maxRank(g: DagreGraph): number {
+export function maxRank(g: DaGraph): number {
   var ranks = g.nodes().map(v => g.node(v).rank ).filter(e => undefined !== e);
   return Math.max(...ranks);
 }
