@@ -1,8 +1,5 @@
 import {
-  flatten,
   flattenDeep,
-  forIn,
-  mapValues,
   minBy,
   pick,
   range,
@@ -12,9 +9,7 @@ import {
 const idCounter: Record<string, number> = {};
 
 export default {
-  flatten,
   flattenDeep,
-  forIn,
   has(object: any, key: string): boolean {
     return object != null && object.hasOwnProperty(key)
   },
@@ -22,7 +17,14 @@ export default {
     const length = array == null ? 0 : array.length
     return length ? array[length - 1] : undefined
   },
-  mapValues,
+  mapValues<T, U>(object: Record<string, T>, iteratee: (e: T, key?: string) => U) {
+    object = Object(object)
+    const result: Record<string, U> = {}
+    Object.keys(object).forEach((key) => {
+      result[key] = iteratee(object[key], key)
+    })
+    return result
+  },
   minBy,
   pick,
   range,

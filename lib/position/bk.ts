@@ -290,12 +290,13 @@ export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
     var max = Number.NEGATIVE_INFINITY;
     var min = Number.POSITIVE_INFINITY;
 
-    _.forIn(xs, function (x, v) {
+    for(var v in xs) {
+      var x = xs[v];
       var halfWidth = width(g, v) / 2;
 
       max = Math.max(x + halfWidth, max);
       min = Math.min(x - halfWidth, min);
-    });
+    }
 
     return max - min;
   });

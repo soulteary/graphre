@@ -10,9 +10,10 @@ export function position(g: DagreGraph) {
   g = util.asNonCompoundGraph(g);
 
   positionY(g);
-  _.mapValues(positionX(g), function(x, v) {
-    g.node(v).x = x;
-  });
+  var posx = positionX(g);
+  for (var v in posx) {
+    g.node(v).x = posx[v];
+  }
 }
 
 function positionY(g: DagreGraph) {
