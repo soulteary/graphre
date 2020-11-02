@@ -1,4 +1,4 @@
-import { Edge, Graph } from "graphlib";
+import { Edge, Graph } from "./graph";
 import { List } from "./data/list";
 import { array, flattenDeep } from "./helpers";
 import { DagreGraph } from "./types";

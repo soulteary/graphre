@@ -1,6 +1,6 @@
 var expect = require("./chai").expect;
 var {addBorderSegments} = require("..");
-var Graph = require("graphlib").Graph;
+var Graph = require("..").Graph;
 
 describe("addBorderSegments", function() {
   var g;

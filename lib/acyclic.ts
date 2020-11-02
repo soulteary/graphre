@@ -1,6 +1,6 @@
 import { greedyFAS } from "./greedy-fas";
 import { DagreGraph } from "./types";
-import { Edge } from "graphlib";
+import { Edge } from "./graph";
 import { has, uniqueId } from "./helpers";
 
 export var acyclic = { run, undo };

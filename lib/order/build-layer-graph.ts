@@ -1,4 +1,4 @@
-import { Graph } from "graphlib";
+import { Graph } from "../graph";
 import { has, uniqueId } from "../helpers";
 import { DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
 

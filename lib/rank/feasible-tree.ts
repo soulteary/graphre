@@ -1,4 +1,4 @@
-import { Edge, Graph } from "graphlib";
+import { Edge, Graph } from "../graph";
 import { slack } from "./util";
 import { DagreGraph } from '../types';
 import { minBy } from "../helpers";

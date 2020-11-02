@@ -1,6 +1,6 @@
 var expect = require("../chai").expect;
 var {barycenter} = require("../..").order;
-var Graph = require("graphlib").Graph;
+var Graph = require("../..").Graph;
 
 describe("order/barycenter", function() {
   var g;

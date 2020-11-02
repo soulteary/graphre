@@ -1,4 +1,4 @@
-import { Graph } from "graphlib";
+import { Graph } from "./graph";
 import { DagreGraph } from "./types";
 import * as util from "./util";
 

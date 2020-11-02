@@ -1,6 +1,6 @@
 var _ = require("lodash");
 var expect = require("../chai").expect;
-var Graph = require("graphlib").Graph;
+var Graph = require("../..").Graph;
 var { order } = require("../..").order;
 var { crossCount } = require("../..").order;
 var { util, buildLayerMatrix } = require("../..").util;

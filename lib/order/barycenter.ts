@@ -1,4 +1,4 @@
-import { Edge, Graph } from 'graphlib';
+import { Edge, Graph } from "../graph";
 
 export interface Barycenter {
   v: string,

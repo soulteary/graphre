@@ -1,7 +1,8 @@
 import { feasibleTree } from "./feasible-tree";
 import { slack } from "./util";
 import { longestPath } from "./util";
-import { alg, Edge, Graph } from 'graphlib';
+import { Edge, Graph } from "../graph";
+import { preorder, postorder } from "../alg";
 import { simplify } from "../util";
 import { DagreGraph, GraphNode } from '../types';
 import { has, minBy } from "../helpers";
@@ -9,9 +10,6 @@ import { has, minBy } from "../helpers";
 type SimplexNode = GraphNode & { low: number, lim: number, parent: string, cutvalue: number };
 type SimplexEdge = { cutvalue: number };
 export type SimplexTree = Graph<unknown, Partial<SimplexNode>, Partial<SimplexEdge>>;
-
-var preorder = alg.preorder;
-var postorder = alg.postorder;
 
 // Expose some internals for testing purposes
 networkSimplex.initLowLimValues = initLowLimValues;

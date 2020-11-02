@@ -1,7 +1,7 @@
 var _ = require("lodash");
 var expect = require("../chai").expect;
 var { rank } = require("../..").rank;
-var Graph = require("graphlib").Graph;
+var Graph = require("../..").Graph;
 
 describe("rank", function() {
   var RANKERS = [

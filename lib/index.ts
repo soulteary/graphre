@@ -1,5 +1,3 @@
-export * as graphlib from 'graphlib';
-
 export * as data from './data/list';
 export * as order from './order';
 export * as position from './position';
@@ -16,3 +14,20 @@ export { normalize } from './normalize';
 export { parentDummyChains } from './parent-dummy-chains';
 export * as util from './util';
 export { version } from './version';
+
+export { Edge, Graph, GraphLike } from "./graph";
+export * as alg from './alg/index';
+export * as json from './json';
+export { PriorityQueue } from './data/priority-queue';
+
+import { Graph, GraphLike } from "./graph";
+import * as alg from './alg/index';
+import * as json from './json';
+import { PriorityQueue } from './data/priority-queue';
+export var graphlib = {
+  Graph,
+  GraphLike,
+  alg,
+  json,
+  PriorityQueue
+};

@@ -2,7 +2,6 @@
 // correctly.
 
 var expect = require("./chai").expect;
-var graphlib = require("graphlib");
 var dagre = require('..');
 
 describe("bundle", function() {
@@ -15,7 +14,7 @@ describe("bundle", function() {
   });
 
   it("can do trivial layout", function() {
-    var g = new graphlib.Graph().setGraph({});
+    var g = new dagre.Graph().setGraph({});
     g.setNode("a", { label: "a", width: 50, height: 100 });
     g.setNode("b", { label: "b", width: 50, height: 100 });
     g.setEdge("a", "b", { label: "ab", width: 50, height: 100 });

@@ -1,4 +1,4 @@
-import { Edge } from 'graphlib';
+import { Edge } from "../graph";
 import { has } from '../helpers';
 import { DagreGraph } from '../types';
 

@@ -3,7 +3,7 @@ import { crossCount } from "./cross-count";
 import { sortSubgraph } from "./sort-subgraph";
 import { buildLayerGraph, LayerGraph } from "./build-layer-graph";
 import { addSubgraphConstraints } from "./add-subgraph-constraints";
-import { Graph } from "graphlib";
+import { Graph } from "../graph";
 import { buildLayerMatrix, maxRank } from "../util";
 import { ConstraintGraph, DagreGraph, EdgeLabel, GraphLabel, GraphNode } from '../types';
 import { range } from "../helpers";

@@ -1,4 +1,4 @@
-import { Graph } from "graphlib";
+import { Graph } from "../graph";
 import { buildLayerMatrix } from "../util";
 import { Alignment, DagreGraph } from '../types';
 import { has, last, mapValues, minBy, range, sortBy, values } from "../helpers";

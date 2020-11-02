@@ -10,7 +10,7 @@ import { coordinateSystem } from "./coordinate-system";
 import { order } from "./order";
 import { position } from "./position";
 import * as util from "./util";
-import { Edge, Graph } from "graphlib";
+import { Edge, Graph } from "./graph";
 import { DagreGraph, EdgeLabel, GraphLabel, GraphNode, LayoutEdge, LayoutGraph, LayoutGraphConfig, LayoutNode, Vector } from "./types";
 import { has, last } from "./helpers";
 

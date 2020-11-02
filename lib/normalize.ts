@@ -1,5 +1,5 @@
 import * as util from "./util";
-import { Edge } from 'graphlib';
+import { Edge } from "./graph";
 import { DagreGraph, GraphNode } from "./types";
 
 export var normalize = { run, undo };
