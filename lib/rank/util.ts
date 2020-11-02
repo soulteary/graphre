@@ -33,7 +33,7 @@ export function longestPath(g: DagreGraph) {
     }
     visited[v] = true;
 
-    var rank = _.min(g.outEdges(v).map(function(e) {
+    var rank = Math.min(...g.outEdges(v).map(function(e) {
       return dfs(e.w) - g.edge(e).minlen;
     }));
 

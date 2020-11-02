@@ -129,7 +129,7 @@ export function buildLayerMatrix(g: DagreGraph): string[][] {
  * rank(v) >= 0 and at least one node w has rank(w) = 0.
 */
 export function normalizeRanks(g: DagreGraph) {
-  var min = _.min(g.nodes().map(function(v) { return g.node(v).rank; }));
+  var min = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
   for (var v of g.nodes()) {
     var node = g.node(v);
     if (_.has(node, "rank")) {
@@ -140,7 +140,7 @@ export function normalizeRanks(g: DagreGraph) {
 
 export function removeEmptyRanks(g: DagreGraph) {
   // Ranks may not start at 0, so we need to offset them
-  var offset = _.min(g.nodes().map(function(v) { return g.node(v).rank; }));
+  var offset = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
 
   var layers: string[][] = [];
   for (var v of g.nodes()) {
@@ -176,12 +176,8 @@ export function addBorderNode(g: DagreGraph, prefix: string, rank?: number, orde
 }
 
 export function maxRank(g: DagreGraph): number {
-  return _.max(g.nodes().map(function(v) {
-    var rank = g.node(v).rank;
-    if ((undefined !== rank)) {
-      return rank;
-    }
-  }));
+  var ranks = g.nodes().map(v => g.node(v).rank ).filter(e => undefined !== e);
+  return Math.max(...ranks);
 }
 
 /*

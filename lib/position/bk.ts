@@ -307,15 +307,15 @@ export function findSmallestWidthAlignment(g: DagreGraph, xss: Xss) {
 */
 export function alignCoordinates(xss: Xss, alignTo: Record<string, number>) {
   var alignToVals = _.values(alignTo);
-  var alignToMin = _.min(alignToVals);
-  var alignToMax = _.max(alignToVals);
+  var alignToMin = Math.min(...alignToVals);
+  var alignToMax = Math.max(...alignToVals);
   for (var alignment of ['ul', 'ur', 'dl', 'dr']) {
     var horiz = alignment[1];
     var xs = xss[alignment as Alignment];
     if (xs === alignTo) continue;
 
     var xsVals = _.values(xs);
-    var delta = horiz === "l" ? alignToMin - _.min(xsVals) : alignToMax - _.max(xsVals);
+    var delta = horiz === "l" ? alignToMin - Math.min(...xsVals) : alignToMax - Math.max(...xsVals);
 
     if (delta) {
       xss[alignment as Alignment] = _.mapValues(xs, function(x) { return x + delta; });

@@ -15,7 +15,7 @@ import { DagreGraph } from '../types';
 export function initOrder(g: DagreGraph): string[][] {
   var visited: Record<string, boolean> = {};
   var simpleNodes = g.nodes().filter(v => !g.children(v).length);
-  var maxRank = _.max(simpleNodes.map(function(v) { return g.node(v).rank; }));
+  var maxRank = Math.max(...simpleNodes.map(v => g.node(v).rank));
   var layers: string[][] = _.array(maxRank + 1, function() { return []; });
 
   function dfs(v: string) {

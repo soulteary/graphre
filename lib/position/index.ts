@@ -20,7 +20,7 @@ function positionY(g: DagreGraph) {
   var rankSep = g.graph().ranksep;
   var prevY = 0;
   for (var layer of layering) {
-    var maxHeight = _.max(layer.map(function(v) { return g.node(v).height; }));
+    var maxHeight = Math.max(...layer.map(v => g.node(v).height));
     for (var v of layer) {
       g.node(v).y = prevY + maxHeight / 2;
     }

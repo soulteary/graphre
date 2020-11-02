@@ -30,7 +30,7 @@ export var nestingGraph = { run, cleanup };
 function run(g: DagreGraph) {
   var root = util.addDummyNode(g, "root", {}, "_root");
   var depths = treeDepths(g);
-  var height = _.max(_.values(depths)) - 1; // Note: depths is an Object not an array
+  var height = Math.max(..._.values(depths)) - 1; // Note: depths is an Object not an array
   var nodeSep = 2 * height + 1;
 
   g.graph().nestingRoot = root;
