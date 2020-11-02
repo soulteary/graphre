@@ -22,6 +22,7 @@ export class List<T> {
       unlink(entry);
       return entry as T;
     }
+    return undefined;
   };
 
   enqueue(entry: T) {

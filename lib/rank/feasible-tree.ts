@@ -75,6 +75,7 @@ export function feasibleTree<TGraph, TNode, TEdge>(g: DagreGraph): Graph<TGraph,
       if (t.hasNode(e.v) !== t.hasNode(e.w)) {
         return slack(g, e);
       }
+      return undefined;
     });
   }
   

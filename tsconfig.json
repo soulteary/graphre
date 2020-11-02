@@ -3,6 +3,8 @@
     "module": "es6",
     "target": "es2020",
     "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
     "removeComments": true,
     "preserveConstEnums": true,
     "outDir": "build",

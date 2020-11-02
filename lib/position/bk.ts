@@ -1,6 +1,6 @@
 import { Graph } from "graphlib";
 import { buildLayerMatrix } from "../util";
-import { Alignment, DagreGraph, GraphNode } from '../types';
+import { Alignment, DagreGraph } from '../types';
 import { has, last, mapValues, minBy, range, sortBy, values } from "../helpers";
 
 type Xs = Record<string, number>;
