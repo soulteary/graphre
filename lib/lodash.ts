@@ -4,7 +4,6 @@ import {
   flatten,
   flattenDeep,
   forIn,
-  map,
   mapValues,
   merge,
   minBy,
@@ -29,7 +28,6 @@ export default {
     const length = array == null ? 0 : array.length
     return length ? array[length - 1] : undefined
   },
-  map,
   mapValues,
   merge,
   minBy,

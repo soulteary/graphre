@@ -328,7 +328,7 @@ export function balance(xss: Xss, align: Alignment) {
     if (align) {
       return xss[align.toLowerCase() as Alignment][v];
     } else {
-      var xs = _.sortBy(_.map(xss, v));
+      var xs = _.sortBy([xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]]);
       return (xs[1] + xs[2]) / 2;
     }
   });
@@ -346,9 +346,7 @@ export function positionX(g: DagreGraph) {
     adjustedLayering = vert === "u" ? layering : layering.map(e => e).reverse();
     for (var horiz of ["l", "r"] as ('l'|'r')[]) {
       if (horiz === "r") {
-        adjustedLayering = _.map(adjustedLayering, function(inner) {
-          return inner.map(e => e).reverse();
-        });
+        adjustedLayering = adjustedLayering.map((inner) => inner.map(e => e).reverse());
       }
 
       var neighborFn = (vert === "u" ? g.predecessors : g.successors).bind(g);
