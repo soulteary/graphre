@@ -9,8 +9,7 @@ import {
   minBy,
   pick,
   range,
-  sortBy,
-  zipObject
+  sortBy
 } from "lodash";
 
 const idCounter: Record<string, number> = {};
@@ -44,8 +43,6 @@ export default {
   values<T>(object: Record<string, T>): T[] {
     return object ? Object.keys(object).map(e => object[e]) : [];
   },
-  zipObject,
-  
   array<T>(count: number, factory: () => T): T[] {
     var output = []
     for(var i=0; i<count; i++) output.push(factory());

@@ -29,7 +29,10 @@ function twoLayerCrossCount(g: DagreGraph, northLayer: string[], southLayer: str
   // Sort all of the edges between the north and south layers by their position
   // in the north layer and then the south. Map these edges to the position of
   // their head in the south layer.
-  var southPos = _.zipObject(southLayer, southLayer.map(function (v, i) { return i; }));
+  var southPos: Record<string, number> = {};
+  for (var i=0; i<southLayer.length; i++) {
+    southPos[southLayer[i]] = i;
+  }
   var southEntries = _.flattenDeep(northLayer.map(function(v) {
     return _.sortBy(g.outEdges(v).map(function(e) {
       return { pos: southPos[e.w], weight: g.edge(e).weight };

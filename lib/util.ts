@@ -48,25 +48,27 @@ export function asNonCompoundGraph(g: DagreGraph) {
 }
 
 export function successorWeights(g: DagreGraph): Record<string, Record<string, number>> {
-  var weightMap = g.nodes().map(function(v) {
+  var result: Record<string, Record<string, number>> = {};
+  for (var v of g.nodes()) {
     var sucs: Record<string, number> = {};
     for (var e of g.outEdges(v)) {
       sucs[e.w] = (sucs[e.w] || 0) + g.edge(e).weight;
     }
-    return sucs;
-  });
-  return _.zipObject(g.nodes(), weightMap);
+    result[v] = sucs;
+  }
+  return result;
 }
 
 export function predecessorWeights(g: DagreGraph): Record<string, Record<string, number>> {
-  var weightMap = g.nodes().map(function(v) {
+  var result: Record<string, Record<string, number>> = {};
+  for (var v of g.nodes()) {
     var preds: Record<string, number> = {};
     for (var e of g.inEdges(v)) {
       preds[e.v] = (preds[e.v] || 0) + g.edge(e).weight;
     }
-    return preds;
-  });
-  return _.zipObject(g.nodes(), weightMap);
+    result[v] = preds;
+  }
+  return result;
 }
 
 /*
