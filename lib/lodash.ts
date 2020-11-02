@@ -1,6 +1,4 @@
 import {
-  cloneDeep,
-  find,
   flatten,
   flattenDeep,
   forIn,
@@ -14,8 +12,6 @@ import {
 const idCounter: Record<string, number> = {};
 
 export default {
-  cloneDeep,
-  find,
   flatten,
   flattenDeep,
   forIn,

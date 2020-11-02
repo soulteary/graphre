@@ -50,7 +50,7 @@ export function order(g: DagreGraph) {
     var cc = crossCount(g, layering);
     if (cc < bestCC) {
       lastBest = 0;
-      best = _.cloneDeep(layering);
+      best = layering.map(layer => layer.slice(0));
       bestCC = cc;
     }
   }

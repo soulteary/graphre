@@ -156,9 +156,12 @@ function dfsAssignLowLim(tree: SimplexTree, visited: Record<string, boolean>, ne
 }
 
 function leaveEdge(tree: SimplexTree) {
-  return _.find(tree.edges(), function(e) {
-    return tree.edge(e).cutvalue < 0;
-  });
+  for (var e of tree.edges()) {
+    if (tree.edge(e).cutvalue < 0) {
+      return e;
+    }
+  }
+  return undefined;
 }
 
 function enterEdge(t: SimplexTree, g: DagreGraph, edge: Edge) {
@@ -203,8 +206,13 @@ function exchangeEdges(t: SimplexTree, g: DagreGraph, e: Edge, f: Edge) {
   updateRanks(t, g);
 }
 
+function findRoot(t: SimplexTree, g: DagreGraph): string {
+  for (var v of t.nodes()) if (!g.node(v).parent) return v;
+  return undefined;
+}
+
 function updateRanks(t: SimplexTree, g: DagreGraph) {
-  var root = _.find(t.nodes(), function(v) { return !g.node(v).parent; });
+  var root = findRoot(t, g);
   var vs = preorder(t, root);
   vs = vs.slice(1);
   for (var v of vs) {

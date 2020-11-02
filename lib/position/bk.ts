@@ -118,12 +118,15 @@ export function findType2Conflicts(g: DagreGraph, layering: Layer[]) {
   return conflicts;
 }
 
-export function findOtherInnerSegmentNode(g: DagreGraph, v: string): any {
+export function findOtherInnerSegmentNode(g: DagreGraph, v: string): string {
   if (g.node(v).dummy) {
-    return _.find(g.predecessors(v), function(u) {
-      return g.node(u).dummy;
-    });
+    for (var u of g.predecessors(v)) {
+      if (g.node(u).dummy) {
+        return u;
+      }
+    }
   }
+  return undefined;
 }
 
 export function addConflict(conflicts: Conflicts, v: string, w: string) {
