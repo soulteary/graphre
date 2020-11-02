@@ -60,7 +60,7 @@ export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): 
       vs: [entry.v],
       i: i
     };
-    if (!_.isUndefined(entry.barycenter)) {
+    if ((undefined !== entry.barycenter)) {
       tmp.barycenter = entry.barycenter;
       tmp.weight = entry.weight;
     }
@@ -69,7 +69,7 @@ export function resolveConflicts(entries: ForsterEntry[], cg: ConstraintGraph): 
   _.forEach(cg.edges(), function(e) {
     var entryV = mappedEntries[e.v];
     var entryW = mappedEntries[e.w];
-    if (!_.isUndefined(entryV) && !_.isUndefined(entryW)) {
+    if ((undefined !== entryV) && (undefined !== entryW)) {
       entryW.indegree++;
       entryV.out.push(mappedEntries[e.w]);
     }
@@ -90,8 +90,8 @@ export function doResolveConflicts(sourceSet: MappedEntry[]): XEntry[] {
       if (uEntry.merged) {
         return;
       }
-      if (_.isUndefined(uEntry.barycenter) ||
-          _.isUndefined(vEntry.barycenter) ||
+      if ((undefined === uEntry.barycenter) ||
+          (undefined === vEntry.barycenter) ||
           uEntry.barycenter >= vEntry.barycenter) {
         mergeEntries(vEntry, uEntry);
       }

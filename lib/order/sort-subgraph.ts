@@ -62,7 +62,7 @@ function expandSubgraphs(entries: XEntry[], subgraphs: Record<string, SortResult
 }
 
 function mergeBarycenters(target: Barycenter, other: SortResult) {
-  if (!_.isUndefined(target.barycenter)) {
+  if ((undefined !== target.barycenter)) {
     target.barycenter = (target.barycenter * target.weight +
                          other.barycenter * other.weight) /
                         (target.weight + other.weight);

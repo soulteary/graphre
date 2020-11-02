@@ -33,9 +33,6 @@ export default {
   has(object: any, key: string): boolean {
     return object != null && object.hasOwnProperty(key)
   },
-  isUndefined(value: unknown) {
-    return value === undefined;
-  },
   last<T>(array: T[]): T {
     const length = array == null ? 0 : array.length
     return length ? array[length - 1] : undefined

@@ -117,7 +117,7 @@ export function buildLayerMatrix(g: DagreGraph): string[][] {
   for (var v of g.nodes()) {
     var node = g.node(v);
     var rank = node.rank;
-    if (!_.isUndefined(rank)) {
+    if ((undefined !== rank)) {
       layering[rank][node.order] = v;
     }
   }
@@ -155,7 +155,7 @@ export function removeEmptyRanks(g: DagreGraph) {
   var nodeRankFactor = g.graph().nodeRankFactor;
   for(var i = 0; i<layers.length; i++) {
     var vs = layers[i];
-    if (_.isUndefined(vs) && i % nodeRankFactor !== 0) {
+    if ((undefined === vs) && i % nodeRankFactor !== 0) {
       --delta;
     } else if (delta && (vs != undefined)) {
       for (var v of vs) { g.node(v).rank += delta; }
@@ -178,7 +178,7 @@ export function addBorderNode(g: DagreGraph, prefix: string, rank?: number, orde
 export function maxRank(g: DagreGraph): number {
   return _.max(g.nodes().map(function(v) {
     var rank = g.node(v).rank;
-    if (!_.isUndefined(rank)) {
+    if ((undefined !== rank)) {
       return rank;
     }
   }));

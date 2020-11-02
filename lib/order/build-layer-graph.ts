@@ -56,7 +56,7 @@ export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEd
       for (var e of g[relationship](v)) {
         var u = e.v === v ? e.w : e.v;
         var edge = result.edge(u, v);
-        var weight = !_.isUndefined(edge) ? edge.weight : 0;
+        var weight = (undefined !== edge) ? edge.weight : 0;
         result.setEdge(u, v, { weight: g.edge(e).weight + weight });
       }
 
