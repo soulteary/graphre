@@ -42,7 +42,7 @@ type LayeredNode = Omit<GraphNode, 'borderLeft'|'borderRight'> & {
 export function buildLayerGraph(g: DagreGraph, rank: number, relationship: 'inEdges'|'outEdges'): LayerGraph {
   var root = createRootNode(g);
   var result = new Graph<unknown, LayeredNode, EdgeLabel>({ compound: true }).setGraph({ root: root })
-      .setDefaultNodeLabel(function(v) { return g.node(v) as unknown as LayeredNode; }); // TODO solve type incompatibility
+      .setDefaultNodeLabel(v => g.node(v) as unknown as LayeredNode); // TODO solve type incompatibility
 
   for (var v of g.nodes()) {
     var node = g.node(v);

@@ -115,7 +115,7 @@ export function intersectRect(rect: Rect, point: Vector) {
  * function will produce a matrix with the ids of each node.
 */
 export function buildLayerMatrix(g: DagreGraph): string[][] {
-  var layering: string[][] = array(maxRank(g) + 1, function() { return []; });
+  var layering: string[][] = array(maxRank(g) + 1, () => []);
   for (var v of g.nodes()) {
     var node = g.node(v);
     var rank = node.rank;

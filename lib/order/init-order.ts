@@ -16,7 +16,7 @@ export function initOrder(g: DagreGraph): string[][] {
   var visited: Record<string, boolean> = {};
   var simpleNodes = g.nodes().filter(v => !g.children(v).length);
   var maxRank = Math.max(...simpleNodes.map(v => g.node(v).rank));
-  var layers: string[][] = array(maxRank + 1, function() { return []; });
+  var layers: string[][] = array(maxRank + 1, () => []);
 
   function dfs(v: string) {
     if (has(visited, v)) return;
@@ -26,7 +26,7 @@ export function initOrder(g: DagreGraph): string[][] {
     g.successors(v).forEach(dfs);
   }
 
-  var orderedVs = sortBy(simpleNodes, function(v: string) { return g.node(v).rank; });
+  var orderedVs = sortBy(simpleNodes, (v: string) => g.node(v).rank);
   orderedVs.forEach(dfs);
 
   return layers;

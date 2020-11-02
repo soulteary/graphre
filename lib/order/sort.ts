@@ -13,7 +13,7 @@ export function sort(entries: XEntry[], biasRight: boolean): SortResult {
     return has(entry, "barycenter");
   });
   var sortable = parts.lhs;
-  var unsortable = sortBy(parts.rhs, function(entry: XEntry) { return -entry.i; });
+  var unsortable = sortBy(parts.rhs, (entry: XEntry) => -entry.i);
   var vss: string[][] = [];
   var sum = 0;
   var weight = 0;

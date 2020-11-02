@@ -59,9 +59,7 @@ export function order(g: DagreGraph) {
 }
 
 function buildLayerGraphs(g: DagreGraph, ranks: number[], relationship: 'inEdges'|'outEdges'): Array<LayerGraph> {
-  return ranks.map(function(rank) {
-    return buildLayerGraph(g, rank, relationship);
-  });
+  return ranks.map(rank => buildLayerGraph(g, rank, relationship));
 }
 
 function sweepLayerGraphs(layerGraphs: Array<LayerGraph>, biasRight: boolean) {

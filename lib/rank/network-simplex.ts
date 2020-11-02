@@ -193,7 +193,7 @@ function enterEdge(t: SimplexTree, g: DagreGraph, edge: Edge) {
            flip !== isDescendant(t, t.node(edge.w), tailLabel);
   });
 
-  return minBy(candidates, function(edge: Edge) { return slack(g, edge); });
+  return minBy(candidates, (edge: Edge) => slack(g, edge));
 }
 
 function exchangeEdges(t: SimplexTree, g: DagreGraph, e: Edge, f: Edge) {

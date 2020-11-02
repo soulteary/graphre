@@ -22,9 +22,7 @@ export function greedyFAS(g: DagreGraph, weightFn: (e: Edge) => number): Edge[] 
   var results = doGreedyFAS(state.graph, state.buckets, state.zeroIdx);
 
   // Expand multi-edges
-  return flattenDeep(results.map(function(e: Edge) {
-    return g.outEdges(e.v, e.w);
-  }));
+  return flattenDeep(results.map((e: Edge) => g.outEdges(e.v, e.w)));
 }
 
 function doGreedyFAS(g: FasGraph, buckets: Array<List<FasNode>>, zeroIdx: number): Edge[] {
@@ -104,7 +102,7 @@ function buildState(g: DagreGraph, weightFn: (e: Edge) => number): { graph: FasG
     maxIn  = Math.max(maxIn,  fasGraph.node(e.w)["in"]  += weight);
   }
 
-  var buckets = array(maxOut + maxIn + 3, function() { return new List<FasNode>(); });
+  var buckets = array(maxOut + maxIn + 3, () => new List<FasNode>());
   var zeroIdx = maxIn + 1;
 
   for (var v of fasGraph.nodes()) {

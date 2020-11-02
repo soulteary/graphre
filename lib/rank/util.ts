@@ -33,9 +33,7 @@ export function longestPath(g: DagreGraph) {
     }
     visited[v] = true;
 
-    var rank = Math.min(...g.outEdges(v).map(function(e) {
-      return dfs(e.w) - g.edge(e).minlen;
-    }));
+    var rank = Math.min(...g.outEdges(v).map((e) => dfs(e.w) - g.edge(e).minlen));
 
     if (rank === Number.POSITIVE_INFINITY || // return value of _.map([]) for Lodash 3
         rank === undefined || // return value of _.map([]) for Lodash 4

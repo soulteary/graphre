@@ -182,7 +182,7 @@ export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: C
     for (var v of layer) {
       var ws = neighborFn(v);
       if (ws.length) {
-        ws = sortBy(ws, function(w) { return pos[w]; });
+        ws = sortBy(ws, w => pos[w]);
         var mp = (ws.length - 1) / 2;
         for (var i = Math.floor(mp), il = Math.ceil(mp); i <= il; ++i) {
           var w = ws[i];
@@ -321,7 +321,7 @@ export function alignCoordinates(xss: Xss, alignTo: Record<string, number>) {
     var delta = horiz === "l" ? alignToMin - Math.min(...xsVals) : alignToMax - Math.max(...xsVals);
 
     if (delta) {
-      xss[alignment as Alignment] = mapValues(xs, function(x) { return x + delta; });
+      xss[alignment as Alignment] = mapValues(xs, x => x + delta);
     }
   }
 }
@@ -358,7 +358,7 @@ export function positionX(g: DagreGraph) {
       var xs = horizontalCompaction(g, adjustedLayering,
         align.root, align.align, horiz === "r");
       if (horiz === "r") {
-        xs = mapValues(xs, function(x) { return -x; });
+        xs = mapValues(xs, (x) => -x);
       }
       xss[(vert + horiz) as Alignment] = xs;
     }

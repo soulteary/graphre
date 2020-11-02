@@ -116,9 +116,7 @@ function treeDepths(g: DagreGraph): Record<string, number> {
 }
 
 function sumWeights(g: DagreGraph) {
-  return g.edges().reduce(function(acc, e) {
-    return acc + g.edge(e).weight;
-  }, 0);
+  return g.edges().reduce((acc, e) => acc + g.edge(e).weight, 0);
 }
 
 function cleanup(g: DagreGraph) {
