@@ -21,8 +21,8 @@ interface MappedEntry extends ForsterEntry {
 export interface XEntry {
   vs: string[]
   i: number
-  barycenter: number
-  weight: number
+  barycenter?: number
+  weight?: number
 }
 
 /*
@@ -115,7 +115,10 @@ export function doResolveConflicts(sourceSet: MappedEntry[]): XEntry[] {
 
   return entries.filter((e) => !e.merged).map(
     function(entry) {
-      return _.pick(entry, ["vs", "i", "barycenter", "weight"]) as XEntry;
+      var xentry: XEntry = { vs: entry.vs, i: entry.i };
+      if ('barycenter' in entry) xentry.barycenter = entry.barycenter;
+      if ('weight' in entry) xentry.weight = entry.weight;
+      return xentry;
     });
 
 }

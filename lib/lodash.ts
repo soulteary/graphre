@@ -1,6 +1,5 @@
 import {
   minBy,
-  pick,
   range,
   sortBy
 } from "lodash";
@@ -31,7 +30,6 @@ export default {
     return result
   },
   minBy,
-  pick,
   range,
   sortBy,
   uniqueId(prefix: string): string {
