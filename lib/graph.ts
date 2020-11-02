@@ -21,26 +21,26 @@ export interface Edge {
 }
 
 export class Graph<TGraph, TNode, TEdge> {
-  _isDirected: boolean
-  _isMultigraph: boolean
-  _isCompound: boolean
+  private _isDirected: boolean
+  private _isMultigraph: boolean
+  private _isCompound: boolean
   // Label for the graph itself
-  _label: TGraph = undefined;
-  _defaultNodeLabelFn: (name?: string) => TNode
-  _defaultEdgeLabelFn: (v?: string, w?: string, name?: string) => TEdge
-  _nodes: { [key: string]: TNode }
-  _parent: Record<string, string>;
-  _children: Record<string, Record<string, boolean>>;
-  _in: Record<string, Record<string, Edge>>
-  _preds: Record<string, Record<string, number>>
-  _out: Record<string, Record<string, Edge>>
-  _sucs: Record<string, Record<string, number>>
-  _edgeObjs: Record<string, Edge>
-  _edgeLabels: Record<string, TEdge>
+  private _label: TGraph = undefined;
+  private _defaultNodeLabelFn: (name?: string) => TNode
+  private _defaultEdgeLabelFn: (v?: string, w?: string, name?: string) => TEdge
+  private _nodes: { [key: string]: TNode }
+  private _parent: Record<string, string>;
+  private _children: Record<string, Record<string, boolean>>;
+  private _in: Record<string, Record<string, Edge>>
+  private _preds: Record<string, Record<string, number>>
+  private _out: Record<string, Record<string, Edge>>
+  private _sucs: Record<string, Record<string, number>>
+  private _edgeObjs: Record<string, Edge>
+  private _edgeLabels: Record<string, TEdge>
   /* Number of nodes in the graph. Should only be changed by the implementation. */
-  _nodeCount: number = 0;
+  private _nodeCount: number = 0;
   /* Number of edges in the graph. Should only be changed by the implementation. */
-  _edgeCount: number = 0;
+  private _edgeCount: number = 0;
 
   constructor(opts: { directed?: boolean, multigraph?: boolean, compound?: boolean } = {}) {
     this._isDirected = has(opts, "directed") ? opts.directed : true;
