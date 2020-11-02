@@ -1,5 +1,4 @@
 import {
-  minBy,
   range,
   sortBy
 } from "lodash";
@@ -29,7 +28,18 @@ export default {
     })
     return result
   },
-  minBy,
+  minBy<T>(list: T[], fn: (e: T) => number): T {
+    var minWeight = Number.POSITIVE_INFINITY;
+    var minima = undefined;
+    for (var e of list) {
+      var weight = fn(e);
+      if (weight < minWeight) {
+        minWeight = weight;
+        minima = e;
+      }
+    }
+    return minima;
+  },
   range,
   sortBy,
   uniqueId(prefix: string): string {
