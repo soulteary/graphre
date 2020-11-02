@@ -35,7 +35,7 @@ export { sort } from './sort';
 export function order(g: DagreGraph) {
   var maximumRank = maxRank(g);
   var downLayerGraphs = buildLayerGraphs(g, _.range(1, maximumRank + 1), "inEdges");
-  var upLayerGraphs = buildLayerGraphs(g, _.range(maximumRank - 1, -1, -1), "outEdges");
+  var upLayerGraphs = buildLayerGraphs(g, _.range(maximumRank - 1, -1), "outEdges");
 
   var layering = initOrder(g);
   assignOrder(g, layering);
