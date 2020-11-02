@@ -188,15 +188,16 @@ export function maxRank(g: DagreGraph): number {
  * into `rhs.
 */
 export function partition<T>(collection: T[], fn: (e: T) => boolean): { lhs: T[], rhs: T[] } {
-  var result = { lhs: [] as T[], rhs: [] as T[] };
+  var lhs: T[] = [];
+  var rhs: T[] = [];
   for (var value of collection) {
     if (fn(value)) {
-      result.lhs.push(value);
+      lhs.push(value);
     } else {
-      result.rhs.push(value);
+      rhs.push(value);
     }
   }
-  return result;
+  return { lhs, rhs };
 }
 
 /*

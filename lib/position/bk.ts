@@ -39,7 +39,7 @@ export function findType1Conflicts(g: DagreGraph, layering: Layer[]): Conflicts 
     var k0 = 0;
     // Tracks the last node in this layer scanned for crossings with a type-1
     // segment.
-    var scanPos: any = 0;
+    var scanPos: number = 0;
     var prevLayerLength = prevLayer.length;
     var lastNode = _.last(layer);
 
@@ -207,14 +207,14 @@ export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Rec
   // sweeps. The first sweep places blocks with the smallest possible
   // coordinates. The second sweep removes unused space by moving blocks to the
   // greatest coordinates without violating separation.
-  var xs: Xs = {} as Xs,
+  var xs: Xs = {},
     blockG = buildBlockGraph(g, layering, root, reverseSep),
     borderType = reverseSep ? "borderLeft" : "borderRight";
 
   function iterate(setXsFunc: (e: string) => void, nextNodesFunc: (s: string) => string[]) {
     var stack = blockG.nodes();
     var elem = stack.pop();
-    var visited = {} as Record<string, boolean>;
+    var visited: Record<string, boolean> = {};
     while (elem) {
       if (visited[elem]) {
         setXsFunc(elem);
@@ -238,7 +238,7 @@ export function horizontalCompaction(g: DagreGraph, layering: Layer[], root: Rec
   // Second pass, assign greatest coordinates
   function pass2(elem: string) {
     var min = blockG.outEdges(elem).reduce(function(acc, e) {
-      return Math.min(acc, xs[e.w] - (blockG.edge(e) as any));
+      return Math.min(acc, xs[e.w] - blockG.edge(e));
     }, Number.POSITIVE_INFINITY);
 
     var node = g.node(elem);
@@ -272,7 +272,7 @@ export function buildBlockGraph(g: DagreGraph, layering: Layer[], root: Record<s
       blockGraph.setNode(vRoot);
       if (u) {
         var uRoot = root[u];
-        var prevMax: any = blockGraph.edge(uRoot, vRoot);
+        var prevMax: number = blockGraph.edge(uRoot, vRoot);
         blockGraph.setEdge(uRoot, vRoot, Math.max(sepFn(g, v, u), prevMax || 0));
       }
       u = v;

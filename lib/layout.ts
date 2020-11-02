@@ -119,8 +119,8 @@ export function updateInputGraph(inputGraph: DagreGraph, layoutGraph: LayoutGrap
   inputGraph.graph().width = layoutGraph.graph().width;
   inputGraph.graph().height = layoutGraph.graph().height;
 }
-
-var graphDefaults = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: "tb" as 'tb' };
+var tb: 'tb' = 'tb';
+var graphDefaults = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: tb };
 var edgeDefaults = {
   minlen: 1, weight: 1, width: 0, height: 0,
   labeloffset: 10, labelpos: "r"
@@ -134,7 +134,7 @@ var edgeDefaults = {
 */
 export function buildLayoutGraph(inputGraph: DagreGraph) {
   var g = new Graph<LayoutGraphConfig, LayoutNode, LayoutEdge>({ multigraph: true, compound: true });
-  var graph = canonicalize(inputGraph.graph()) as GraphLabel;
+  var graph = canonicalize<GraphLabel>(inputGraph.graph());
 
   var layoutGraphConfig: LayoutGraphConfig = {
     nodesep: (graph.nodesep || graphDefaults.nodesep),
@@ -150,7 +150,7 @@ export function buildLayoutGraph(inputGraph: DagreGraph) {
   g.setGraph(layoutGraphConfig);
 
   for (var v of inputGraph.nodes()) {
-    var node = canonicalize(inputGraph.node(v)) as GraphNode;
+    var node = canonicalize<GraphNode>(inputGraph.node(v));
     var layoutNode: LayoutNode = {
       width: +((node && node.width) || 0),
       height: +((node && node.height) || 0)
@@ -160,7 +160,7 @@ export function buildLayoutGraph(inputGraph: DagreGraph) {
   }
 
   for (var e of inputGraph.edges()) {
-    var edge = canonicalize(inputGraph.edge(e)) as EdgeLabel;
+    var edge = canonicalize<EdgeLabel>(inputGraph.edge(e));
     var layoutEdge = {
       minlen: (edge.minlen || edgeDefaults.minlen),
       weight: (edge.weight || edgeDefaults.weight),
@@ -418,10 +418,10 @@ function positionSelfEdges(g: DagreGraph) {
   }
 }
 
-function canonicalize(attrs: any = {}): unknown {
+function canonicalize<T>(attrs: any = {}): T {
   var newAttrs: any = {};
   Object.keys(attrs).map(function(key) {
     newAttrs[key.toLowerCase()] = attrs[key];
   });
-  return newAttrs;
+  return newAttrs as T;
 }

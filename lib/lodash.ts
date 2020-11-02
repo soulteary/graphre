@@ -8,7 +8,7 @@ export default {
     }
     return result;
   },
-  has(object: any, key: string): boolean {
+  has(object: unknown, key: string): boolean {
     return object != null && object.hasOwnProperty(key)
   },
   last<T>(array: T[]): T {
