@@ -160,7 +160,7 @@ export function hasConflict(conflicts: Conflicts, v: string, w: string) {
  * we're trying to form a block with, we also ignore that possibility - our
  * blocks would be split in that scenario.
 */
-export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: Conflicts, neighborFn: Function) {
+export function verticalAlignment(g: DagreGraph, layering: Layer[], conflicts: Conflicts, neighborFn: (e: string) => string[]) {
   var root: Record<string, string> = {};
   var align: Record<string, string> = {};
   var pos: Record<string, number> = {};
@@ -332,7 +332,7 @@ export function balance(xss: Xss, align: Alignment) {
     if (align) {
       return xss[align.toLowerCase() as Alignment][v];
     } else {
-      var xs = _.sortBy([xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]]);
+      var xs = _.sortBy([xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]], e => e);
       return (xs[1] + xs[2]) / 2;
     }
   });

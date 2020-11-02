@@ -1,9 +1,16 @@
-import {
-  range,
-  sortBy
-} from "lodash";
-
 const idCounter: Record<string, number> = {};
+
+function baseRange(start: number, end: number, step: number, fromRight: boolean) {
+  let index = -1
+  let length = Math.max(Math.ceil((end - start) / (step || 1)), 0)
+  const result = new Array(length)
+
+  while (length--) {
+    result[fromRight ? length : ++index] = start
+    start += step
+  }
+  return result
+}
 
 export default {
   flattenDeep<T>(matrix: T[][]) {
@@ -40,8 +47,13 @@ export default {
     }
     return minima;
   },
-  range,
-  sortBy,
+  range(start: number, end: number, step?: number) {
+    step = step ?? (start < end ? 1 : -1)
+    return baseRange(start, end, step, false)
+  },
+  sortBy<T>(list: T[], fn: (e: T) => number): T[] {
+    return list.slice().sort((a, b) => fn(a) - fn(b));
+  },
   uniqueId(prefix: string): string {
     if (!idCounter[prefix]) {
       idCounter[prefix] = 0

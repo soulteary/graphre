@@ -36,7 +36,7 @@ function twoLayerCrossCount(g: DagreGraph, northLayer: string[], southLayer: str
   var southEntries = _.flattenDeep(northLayer.map(function(v) {
     return _.sortBy(g.outEdges(v).map(function(e) {
       return { pos: southPos[e.w], weight: g.edge(e).weight };
-    }), "pos");
+    }), e => e.pos);
   }));
 
   // Build the accumulator tree
