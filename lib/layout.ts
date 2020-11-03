@@ -137,14 +137,14 @@ export function buildLayoutGraph(inputGraph: DaGraph) {
   var graph = canonicalize<GraphLabel>(inputGraph.graph());
 
   var layoutGraphConfig: LayoutGraphConfig = {
-    nodesep: (graph.nodesep || graphDefaults.nodesep),
-    edgesep: (graph.edgesep || graphDefaults.edgesep),
-    ranksep: (graph.ranksep || graphDefaults.ranksep),
-    marginx: +(graph.marginx),
-    marginy: +(graph.marginy),
+    nodesep: (graph.nodesep ?? graphDefaults.nodesep),
+    edgesep: (graph.edgesep ?? graphDefaults.edgesep),
+    ranksep: (graph.ranksep ?? graphDefaults.ranksep),
+    marginx: +(graph.marginx ?? 0),
+    marginy: +(graph.marginy ?? 0),
     acyclicer: graph.acyclicer,
-    ranker: graph.ranker,
-    rankdir: graph.rankdir || graphDefaults.rankdir,
+    ranker: graph.ranker ?? 'network-simplex',
+    rankdir: graph.rankdir ?? graphDefaults.rankdir,
     align: graph.align,
   };
   g.setGraph(layoutGraphConfig);
@@ -152,8 +152,8 @@ export function buildLayoutGraph(inputGraph: DaGraph) {
   for (var v of inputGraph.nodes()) {
     var node = canonicalize<GraphNode>(inputGraph.node(v));
     var layoutNode: LayoutNode = {
-      width: +((node && node.width) || 0),
-      height: +((node && node.height) || 0)
+      width: +((node && node.width) ?? 0),
+      height: +((node && node.height) ?? 0)
     };
     g.setNode(v, layoutNode);
     g.setParent(v, inputGraph.parent(v));
@@ -162,12 +162,12 @@ export function buildLayoutGraph(inputGraph: DaGraph) {
   for (var e of inputGraph.edges()) {
     var edge = canonicalize<EdgeLabel>(inputGraph.edge(e));
     var layoutEdge = {
-      minlen: (edge.minlen || edgeDefaults.minlen),
-      weight: (edge.weight || edgeDefaults.weight),
-      width: (edge.width || edgeDefaults.width),
-      height: (edge.height || edgeDefaults.height),
-      labeloffset: (edge.labeloffset || edgeDefaults.labeloffset),
-      labelpos: edge.labelpos || edgeDefaults.labelpos
+      minlen: (edge.minlen ?? edgeDefaults.minlen),
+      weight: (edge.weight ?? edgeDefaults.weight),
+      width: (edge.width ?? edgeDefaults.width),
+      height: (edge.height ?? edgeDefaults.height),
+      labeloffset: (edge.labeloffset ?? edgeDefaults.labeloffset),
+      labelpos: edge.labelpos ?? edgeDefaults.labelpos
     }
     g.setEdge(e, layoutEdge);
   }
@@ -246,8 +246,8 @@ function translateGraph(g: DaGraph) {
   var minY = Number.POSITIVE_INFINITY;
   var maxY = 0;
   var graphLabel = g.graph();
-  var marginX: number = graphLabel.marginx || 0;
-  var marginY: number = graphLabel.marginy || 0;
+  var marginX: number = graphLabel.marginx ?? 0;
+  var marginY: number = graphLabel.marginy ?? 0;
 
   function getExtremes(attrs: { x?:number, y?:number, width?:number, height?:number }) {
     var x = attrs.x;
@@ -279,7 +279,7 @@ function translateGraph(g: DaGraph) {
 
   for (var e of g.edges()) {
     var edge = g.edge(e);
-    for (var p of edge.points) {
+    for (var p of edge.points ?? []) {
       p.x -= minX;
       p.y -= minY;
     }
@@ -379,7 +379,7 @@ function insertSelfEdges(g: DaGraph) {
       var v = layer[i];
       var node = g.node(v);
       node.order = i + orderShift;
-      for (var selfEdge of node.selfEdges || []) {
+      for (var selfEdge of node.selfEdges ?? []) {
         util.addDummyNode(g, "selfedge", {
           width: selfEdge.label.width,
           height: selfEdge.label.height,

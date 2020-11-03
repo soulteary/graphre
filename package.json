@@ -1,6 +1,6 @@
 {
   "name": "graphre",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Graph layout for JavaScript",
   "author": "Daniel Kallin <daniel.kallin@gmail.com>",
   "license": "MIT",
@@ -16,8 +16,9 @@
   ],
   "types": "decl/index.d.ts",
   "scripts": {
-    "build": "tsc && rollup -c && mocha --recursive --reporter progress",
-    "pack": "tsc && MINIFY=1 rollup -c && mocha --recursive --reporter progress"
+    "build": "tsc && rollup -c && npm run test",
+    "pack": "tsc && MINIFY=1 rollup -c && npm run test",
+    "test": "mocha --recursive --reporter progress"
   },
   "dependencies": {},
   "devDependencies": {

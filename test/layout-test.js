@@ -124,6 +124,28 @@ describe("layout", function() {
       .to.be.lt(g.node("b").y);
   });
 
+  it("can layout an edge", function() {
+    g.setNode("a", { width: 10, height: 10 });
+    g.setNode("b", { width: 10, height: 10 });
+    g.setEdge("a", "b");
+    layout(g);
+    expect(g.node("a").y).to.lessThan(g.node("b").y);
+  });
+
+  it("can layout a short edge", function() {
+    var normal = new Graph().setGraph({});
+    normal.setNode("a", { width: 10, height: 10 });
+    normal.setNode("b", { width: 10, height: 10 });
+    normal.setEdge("a", "b", { id: 'ab', minlen: 1 });
+    layout(normal);
+    var short = new Graph().setGraph({});
+    short.setNode("a", { width: 10, height: 10 });
+    short.setNode("b", { width: 10, height: 10 });
+    short.setEdge("a", "b", { id: 'ab', minlen: 0 });
+    layout(short);
+    expect(short.node("a").y).to.lessThan(normal.node("b").y);
+  });
+
   it("can layout out a short cycle", function() {
     g.graph().ranksep = 200;
     g.setNode("a", { width: 100, height: 100 });
