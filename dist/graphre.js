@@ -1,6 +1,6 @@
 'use strict';
 
-Object.defineProperty(exports, '__esModule', { value: true });
+
 
 class List {
     constructor() {
@@ -3054,24 +3054,24 @@ var graphlib = {
     PriorityQueue
 };
 
-exports.Graph = Graph;
-exports.GraphLike = GraphLike;
-exports.PriorityQueue = PriorityQueue;
-exports.acyclic = acyclic;
-exports.addBorderSegments = addBorderSegments;
-exports.alg = alg;
-exports.coordinateSystem = coordinateSystem;
-exports.data = list;
-exports.debug = debug;
-exports.graphlib = graphlib;
-exports.greedyFAS = greedyFAS;
-exports.json = json;
-exports.layout = layout;
-exports.nestingGraph = nestingGraph;
-exports.normalize = normalize;
-exports.order = index;
-exports.parentDummyChains = parentDummyChains;
-exports.position = index$1;
-exports.rank = index$2;
-exports.util = util;
-exports.version = version;
+module.exports.Graph = Graph;
+module.exports.GraphLike = GraphLike;
+module.exports.PriorityQueue = PriorityQueue;
+module.exports.acyclic = acyclic;
+module.exports.addBorderSegments = addBorderSegments;
+module.exports.alg = alg;
+module.exports.coordinateSystem = coordinateSystem;
+module.exports.data = list;
+module.exports.debug = debug;
+module.exports.graphlib = graphlib;
+module.exports.greedyFAS = greedyFAS;
+module.exports.json = json;
+module.exports.layout = layout;
+module.exports.nestingGraph = nestingGraph;
+module.exports.normalize = normalize;
+module.exports.order = index;
+module.exports.parentDummyChains = parentDummyChains;
+module.exports.position = index$1;
+module.exports.rank = index$2;
+module.exports.util = util;
+module.exports.version = version;

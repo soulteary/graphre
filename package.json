@@ -17,6 +17,7 @@
   "types": "decl/index.d.ts",
   "scripts": {
     "build": "tsc && rollup -c && npm run test",
+    "postbuild": "node post-build.js",
     "pack": "tsc && MINIFY=1 rollup -c && npm run test",
     "test": "mocha --recursive --reporter progress"
   },
