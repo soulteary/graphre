@@ -1,1 +1,3077 @@
-!function(e,r){"object"==typeof exports&&"undefined"!=typeof module?r(exports):"function"==typeof define&&define.amd?define(["exports"],r):r((e="undefined"!=typeof globalThis?globalThis:e||self).graphre={})}(this,(function(e){"use strict";class r{constructor(){var e={};e._next=e._prev=e,this._sentinel=e}dequeue(){var e=this._sentinel,r=e._prev;if(r!==e)return n(r),r}enqueue(e){var r=this._sentinel,t=e;t._prev&&t._next&&n(t),t._next=r._next,r._next._prev=t,r._next=t,t._prev=r}toString(){for(var e=[],r=this._sentinel,n=r._prev;n!==r;)e.push(JSON.stringify(n,t)),n=n._prev;return"["+e.join(", ")+"]"}}function n(e){e._prev._next=e._next,e._next._prev=e._prev,delete e._next,delete e._prev}function t(e,r){if("_next"!==e&&"_prev"!==e)return r}var o=Object.freeze({__proto__:null,List:r});const i={};function a(e){var r=[];for(var n of e)r.push(...n);return r}function s(e,r){return null!=e&&e.hasOwnProperty(r)}function d(e){const r=null==e?0:e.length;return r?e[r-1]:void 0}function u(e,r){e=Object(e);const n={};return Object.keys(e).forEach((t=>{n[t]=r(e[t],t)})),n}function f(e,r){var n=Number.POSITIVE_INFINITY,t=void 0;for(var o of e){var i=r(o);i<n&&(n=i,t=o)}return t}function h(e,r){var n=e<r?1:-1;let t=-1,o=Math.max(Math.ceil((r-e)/(n||1)),0);const i=new Array(o);for(;o--;)i[++t]=e,e+=n;return i}function c(e,r){return e.slice().sort(((e,n)=>r(e)-r(n)))}function v(e){i[e]||(i[e]=0);return`${e}${++i[e]}`}function l(e){return e?Object.keys(e).map((r=>e[r])):[]}function g(e,r){for(var n=[],t=0;t<e;t++)n.push(r());return n}function p(e){return void 0===e}function m(e,r){for(var n of Object.keys(e))r(e[n],n)}function w(e){return 0===Object.keys(e).length}function _(e){var r={},n=e.nodes().filter((r=>!e.children(r).length)),t=g(Math.max(...n.map((r=>e.node(r).rank)))+1,(()=>[]));return c(n,(r=>e.node(r).rank)).forEach((function n(o){if(!s(r,o)){r[o]=!0;var i=e.node(o);t[i.rank].push(o),e.successors(o).forEach(n)}})),t}function b(e,r){for(var n=0,t=1;t<r.length;++t)n+=y(e,r[t-1],r[t]);return n}function y(e,r,n){for(var t={},o=0;o<n.length;o++)t[n[o]]=o;for(var i=a(r.map((function(r){return c(e.outEdges(r).map((function(r){return{pos:t[r.w],weight:e.edge(r).weight}})),(e=>e.pos))}))),s=1;s<n.length;)s<<=1;var d=2*s-1;s-=1;var u=g(d,(()=>0)),f=0;return i.forEach((function(e){var r=e.pos+s;u[r]+=e.weight;for(var n=0;r>0;)r%2&&(n+=u[r+1]),u[r=r-1>>1]+=e.weight;f+=e.weight*n})),f}function k(e,r){return r?r.map((function(r){var n=e.inEdges(r);if(n.length){var t=n.reduce((function(r,n){var t=e.edge(n),o=e.node(n.v);return{sum:r.sum+t.weight*o.order,weight:r.weight+t.weight}}),{sum:0,weight:0});return{v:r,barycenter:t.sum/t.weight,weight:t.weight}}return{v:r}})):[]}function E(e,r){for(var n={},t=0;t<e.length;t++){var o=e[t],i=n[o.v]={indegree:0,in:[],out:[],vs:[o.v],i:t};void 0!==o.barycenter&&(i.barycenter=o.barycenter,i.weight=o.weight)}for(var a of r.edges()){var s=n[a.v],d=n[a.w];void 0!==s&&void 0!==d&&(d.indegree++,s.out.push(n[a.w]))}return function(e){var r=[];function n(e){return function(r){r.merged||(void 0===r.barycenter||void 0===e.barycenter||r.barycenter>=e.barycenter)&&function(e,r){var n=0,t=0;e.weight&&(n+=e.barycenter*e.weight,t+=e.weight);r.weight&&(n+=r.barycenter*r.weight,t+=r.weight);e.vs=r.vs.concat(e.vs),e.barycenter=n/t,e.weight=t,e.i=Math.min(r.i,e.i),r.merged=!0}(e,r)}}function t(r){return function(n){n.in.push(r),0==--n.indegree&&e.push(n)}}for(;e.length;){var o=e.pop();r.push(o),o.in.reverse().forEach(n(o)),o.out.forEach(t(o))}return r.filter((e=>!e.merged)).map((function(e){var r={vs:e.vs,i:e.i};return"barycenter"in e&&(r.barycenter=e.barycenter),"weight"in e&&(r.weight=e.weight),r}))}(l(n).filter((e=>!e.indegree)))}var N="\0";class x{constructor(e={}){this._label=void 0,this._nodeCount=0,this._edgeCount=0,this._isDirected=!s(e,"directed")||e.directed,this._isMultigraph=!!s(e,"multigraph")&&e.multigraph,this._isCompound=!!s(e,"compound")&&e.compound,this._defaultNodeLabelFn=()=>{},this._defaultEdgeLabelFn=()=>{},this._nodes={},this._isCompound&&(this._parent={},this._children={},this._children["\0"]={}),this._in={},this._preds={},this._out={},this._sucs={},this._edgeObjs={},this._edgeLabels={}}isDirected(){return this._isDirected}isMultigraph(){return this._isMultigraph}isCompound(){return this._isCompound}setGraph(e){return this._label=e,this}graph(){return this._label}setDefaultNodeLabel(e){var r;return r=e,this._defaultNodeLabelFn="function"!=typeof r?()=>e:e,this}nodeCount(){return this._nodeCount}nodes(){return Object.keys(this._nodes)}sources(){var e=this;return this.nodes().filter((function(r){return w(e._in[r])}))}sinks(){var e=this;return this.nodes().filter((r=>w(e._out[r])))}setNodes(e,r){for(var n of e)void 0!==r?this.setNode(n,r):this.setNode(n);return this}setNode(e,r){return s(this._nodes,e)?(arguments.length>1&&(this._nodes[e]=r),this):(this._nodes[e]=arguments.length>1?r:this._defaultNodeLabelFn(e),this._isCompound&&(this._parent[e]=N,this._children[e]={},this._children["\0"][e]=!0),this._in[e]={},this._preds[e]={},this._out[e]={},this._sucs[e]={},++this._nodeCount,this)}node(e){return this._nodes[e]}hasNode(e){return s(this._nodes,e)}removeNode(e){var r=this;if(s(this._nodes,e)){var n=e=>{r.removeEdge(this._edgeObjs[e])};if(delete this._nodes[e],this._isCompound){for(var t of(this._removeFromParentsChildList(e),delete this._parent[e],this.children(e)))r.setParent(t);delete this._children[e]}for(var o of Object.keys(this._in[e]))n(o);for(var o of(delete this._in[e],delete this._preds[e],Object.keys(this._out[e])))n(o);delete this._out[e],delete this._sucs[e],--this._nodeCount}return this}setParent(e,r){if(!this._isCompound)throw new Error("Cannot set parent in a non-compound graph");if(void 0===r)r=N;else{for(var n=r+="";!p(n);n=this.parent(n))if(n===e)throw new Error(`Setting ${r} as parent of ${e} would create a cycle`);this.setNode(r)}return this.setNode(e),this._removeFromParentsChildList(e),this._parent[e]=r,this._children[r][e]=!0,this}_removeFromParentsChildList(e){delete this._children[this._parent[e]][e]}parent(e){if(this._isCompound){var r=this._parent[e];if(r!==N)return r}}children(e){if(p(e)&&(e=N),this._isCompound){var r=this._children[e];return r?Object.keys(r):void 0}return e===N?this.nodes():this.hasNode(e)?[]:void 0}predecessors(e){var r=this._preds[e];if(r)return Object.keys(r)}successors(e){var r=this._sucs[e];if(r)return Object.keys(r)}neighbors(e){var r=this.predecessors(e);if(r)return function(e,r){var n=[...e];for(var t of r)-1===n.indexOf(t)&&n.push(t);return n}(r,this.successors(e))}isLeaf(e){return 0===(this.isDirected()?this.successors(e):this.neighbors(e)).length}filterNodes(e){var r=new x({directed:this._isDirected,multigraph:this._isMultigraph,compound:this._isCompound});r.setGraph(this.graph());var n=this;m(this._nodes,(function(n,t){e(t)&&r.setNode(t,n)})),m(this._edgeObjs,(function(e){r.hasNode(e.v)&&r.hasNode(e.w)&&r.setEdge(e,n.edge(e))}));var t={};function o(e){var i=n.parent(e);return void 0===i||r.hasNode(i)?(t[e]=i,i):i in t?t[i]:o(i)}if(this._isCompound)for(var i of r.nodes())r.setParent(i,o(i));return r}setDefaultEdgeLabel(e){var r;return r=e,this._defaultEdgeLabelFn="function"!=typeof r?()=>e:e,this}edgeCount(){return this._edgeCount}edges(){return Object.values(this._edgeObjs)}setPath(e,r){var n=this,t=arguments;return e.reduce((function(e,o){return t.length>1?n.setEdge(e,o,r):n.setEdge(e,o),o})),this}setEdge(e,r,n,t){var o=!1,i=e;"object"==typeof i&&null!==i&&"v"in i?(e=i.v,r=i.w,t=i.name,2===arguments.length&&(n=arguments[1],o=!0)):(e=i,r=arguments[1],t=arguments[3],arguments.length>2&&(n=arguments[2],o=!0)),e=""+e,r=""+r,p(t)||(t=""+t);var a=j(this._isDirected,e,r,t);if(s(this._edgeLabels,a))return o&&(this._edgeLabels[a]=n),this;if(!p(t)&&!this._isMultigraph)throw new Error("Cannot set a named edge when isMultigraph = false");this.setNode(e),this.setNode(r),this._edgeLabels[a]=o?n:this._defaultEdgeLabelFn(e,r,t);var d=function(e,r,n,t){var o=""+r,i=""+n;if(!e&&o>i){var a=o;o=i,i=a}var s={v:o,w:i};t&&(s.name=t);return s}(this._isDirected,e,r,t);return e=d.v,r=d.w,Object.freeze(d),this._edgeObjs[a]=d,C(this._preds[r],e),C(this._sucs[e],r),this._in[r][a]=d,this._out[e][a]=d,this._edgeCount++,this}edge(e,r,n){var t="object"==typeof e?M(this._isDirected,e):j(this._isDirected,e,r,n);return this._edgeLabels[t]}hasEdge(e,r,n){var t=1===arguments.length?M(this._isDirected,arguments[0]):j(this._isDirected,e,r,n);return s(this._edgeLabels,t)}removeEdge(e,r,n){var t="object"==typeof e?M(this._isDirected,e):j(this._isDirected,e,r,n),o=this._edgeObjs[t];return o&&(e=o.v,r=o.w,delete this._edgeLabels[t],delete this._edgeObjs[t],O(this._preds[r],e),O(this._sucs[e],r),delete this._in[r][t],delete this._out[e][t],this._edgeCount--),this}inEdges(e,r){var n=this._in[e];if(n){var t=Object.values(n);return r?t.filter((function(e){return e.v===r})):t}}outEdges(e,r){var n=this._out[e];if(n){var t=Object.values(n);return r?t.filter((function(e){return e.w===r})):t}}nodeEdges(e,r){var n=this.inEdges(e,r);if(n)return n.concat(this.outEdges(e,r))}}class I extends x{}function C(e,r){e[r]?e[r]++:e[r]=1}function O(e,r){--e[r]||delete e[r]}function j(e,r,n,t){var o=""+r,i=""+n;if(!e&&o>i){var a=o;o=i,i=a}return o+""+i+""+(p(t)?"\0":t)}function M(e,r){return j(e,r.v,r.w,r.name)}function L(e,r,n,t){var o;do{o=v(t)}while(e.hasNode(o));return n.dummy=r,e.setNode(o,n),o}function T(e){var r=(new x).setGraph(e.graph());for(var n of e.nodes())r.setNode(n,e.node(n));for(var t of e.edges()){var o=r.edge(t.v,t.w)||{weight:0,minlen:1},i=e.edge(t);r.setEdge(t.v,t.w,{weight:o.weight+i.weight,minlen:Math.max(o.minlen,i.minlen)})}return r}function S(e){var r=new x({multigraph:e.isMultigraph()}).setGraph(e.graph());for(var n of e.nodes())e.children(n).length||r.setNode(n,e.node(n));for(var t of e.edges())r.setEdge(t,e.edge(t));return r}function P(e,r){var n,t,o=e.x,i=e.y,a=r.x-o,s=r.y-i,d=e.width/2,u=e.height/2;if(!a&&!s)throw new Error("Not possible to find intersection inside of the rectangle");return Math.abs(s)*d>Math.abs(a)*u?(s<0&&(u=-u),n=u*a/s,t=u):(a<0&&(d=-d),n=d,t=d*s/a),{x:o+n,y:i+t}}function R(e){var r=g(G(e)+1,(()=>[]));for(var n of e.nodes()){var t=e.node(n),o=t.rank;void 0!==o&&(r[o][t.order]=n)}return r}function F(e){var r=Math.min(...e.nodes().map((r=>e.node(r).rank)).filter((e=>void 0!==e)));for(var n of e.nodes()){var t=e.node(n);s(t,"rank")&&(t.rank-=r)}}function D(e){var r=Math.min(...e.nodes().map((r=>e.node(r).rank)).filter((e=>void 0!==e))),n=[];for(var t of e.nodes()){var o=e.node(t).rank-r;n[o]||(n[o]=[]),n[o].push(t)}for(var i=0,a=e.graph().nodeRankFactor,s=0;s<n.length;s++){var d=n[s];if(void 0===d&&s%a!=0)--i;else if(i&&null!=d)for(var t of d)e.node(t).rank+=i}}function z(e,r,n,t){var o={width:0,height:0};return arguments.length>=4&&(o.rank=n,o.order=t),L(e,"border",o,r)}function G(e){var r=e.nodes().map((r=>e.node(r).rank)).filter((e=>void 0!==e));return Math.max(...r)}function V(e,r){var n=[],t=[];for(var o of e)r(o)?n.push(o):t.push(o);return{lhs:n,rhs:t}}function Y(e,r){var n=Date.now();try{return r()}finally{console.log(e+" time: "+(Date.now()-n)+"ms")}}function B(e,r){return r()}var A=Object.freeze({__proto__:null,addDummyNode:L,simplify:T,asNonCompoundGraph:S,successorWeights:function(e){var r={};for(var n of e.nodes()){var t={};for(var o of e.outEdges(n))t[o.w]=(t[o.w]||0)+e.edge(o).weight;r[n]=t}return r},predecessorWeights:function(e){var r={};for(var n of e.nodes()){var t={};for(var o of e.inEdges(n))t[o.v]=(t[o.v]||0)+e.edge(o).weight;r[n]=t}return r},intersectRect:P,buildLayerMatrix:R,normalizeRanks:F,removeEmptyRanks:D,addBorderNode:z,maxRank:G,partition:V,time:Y,notime:B});function q(e,r){var n,t=V(e,(function(e){return s(e,"barycenter")})),o=t.lhs,i=c(t.rhs,(e=>-e.i)),d=[],u=0,f=0,h=0;for(var v of(o.sort((n=!!r,function(e,r){return e.barycenter<r.barycenter?-1:e.barycenter>r.barycenter?1:n?r.i-e.i:e.i-r.i})),h=W(d,i,h),o))h+=v.vs.length,d.push(v.vs),u+=v.barycenter*v.weight,f+=v.weight,h=W(d,i,h);var l={vs:a(d)};return f&&(l.barycenter=u/f,l.weight=f),l}function W(e,r,n){for(var t;r.length&&(t=d(r)).i<=n;)r.pop(),e.push(t.vs),n++;return n}function $(e,r,n,t){var o=e.children(r),i=e.node(r),d=i?i.borderLeft:void 0,u=i?i.borderRight:void 0,f={};d&&(o=o.filter((e=>e!==d&&e!==u)));var h=k(e,o);for(var c of h)if(e.children(c.v).length){var v=$(e,c.v,n,t);f[c.v]=v,s(v,"barycenter")&&J(c,v)}var l=E(h,n);!function(e,r){for(var n of e)n.vs=a(n.vs.map((function(e){return r[e]?r[e].vs:[e]})))}(l,f);var g=q(l,t);if(d&&(g.vs=[d,...g.vs,u],e.predecessors(d).length)){var p=e.node(e.predecessors(d)[0]),m=e.node(e.predecessors(u)[0]);s(g,"barycenter")||(g.barycenter=0,g.weight=0),g.barycenter=(g.barycenter*g.weight+p.order+m.order)/(g.weight+2),g.weight+=2}return g}function J(e,r){void 0!==e.barycenter?(e.barycenter=(e.barycenter*e.weight+r.barycenter*r.weight)/(e.weight+r.weight),e.weight+=r.weight):(e.barycenter=r.barycenter,e.weight=r.weight)}function Q(e,r,n){var t=function(e){var r;for(;e.hasNode(r=v("_root")););return r}(e),o=new x({compound:!0}).setGraph({root:t}).setDefaultNodeLabel((r=>e.node(r)));for(var i of e.nodes()){var a=e.node(i),d=e.parent(i);if(a.rank===r||a.minRank<=r&&r<=a.maxRank){for(var u of(o.setNode(i),o.setParent(i,d||t),e[n](i))){var f=u.v===i?u.w:u.v,h=o.edge(f,i),c=void 0!==h?h.weight:0;o.setEdge(f,i,{weight:e.edge(u).weight+c})}s(a,"minRank")&&o.setNode(i,{borderLeft:a.borderLeft[r],borderRight:a.borderRight[r]})}}return o}function K(e,r,n){var t,o={};for(var i of n)!function(){for(var n,a=e.parent(i);a;){var s=e.parent(a);if(s?(n=o[s],o[s]=a):(n=t,t=a),n&&n!==a)return void r.setEdge(n,a);a=s}}()}function X(e){var r=G(e),n=H(e,h(1,r+1),"inEdges"),t=H(e,h(r-1,-1),"outEdges"),o=_(e);Z(e,o);for(var i,a=Number.POSITIVE_INFINITY,s=0,d=0;d<4;++s,++d){U(s%2?n:t,s%4>=2);var u=b(e,o=R(e));u<a&&(d=0,i=o.map((e=>e.slice(0))),a=u)}Z(e,i)}function H(e,r,n){return r.map((r=>Q(e,r,n)))}function U(e,r){var n=new x;for(var t of e){var o=t.graph().root,i=$(t,o,n,r);i.vs.map((function(e,r){t.node(e).order=r})),K(t,n,i.vs)}}function Z(e,r){for(var n of r)n.map((function(r,n){e.node(r).order=n}))}var ee=Object.freeze({__proto__:null,order:X,addSubgraphConstraints:K,barycenter:k,buildLayerGraph:Q,crossCount:b,initOrder:_,resolveConflicts:E,sortSubgraph:$,sort:q});function re(e,r){var n={};return r.reduce((function(r,t){for(var o=0,i=0,a=r.length,s=d(t),u=0;u<t.length;u++){var f=t[u],h=te(e,f),c=h?e.node(h).order:a;if(h||f===s){for(var v of t.slice(i,u+1))for(var l of e.predecessors(v)){var g=e.node(l),p=g.order;!(p<o||c<p)||g.dummy&&e.node(v).dummy||oe(n,l,v)}i=u+1,o=c}}return t})),n}function ne(e,r){var n={};function t(r,t,o,i,a){var s;for(var d of h(t,o))if(s=r[d],e.node(s).dummy)for(var u of e.predecessors(s)){var f=e.node(u);f.dummy&&(f.order<i||f.order>a)&&oe(n,u,s)}}return r.reduce((function(r,n){for(var o,i=-1,a=0,s=0;s<n.length;s++){var d=s,u=n[s];if(void 0!==u){if("border"===e.node(u).dummy){var f=e.predecessors(u);f.length&&(t(n,a,d,i,o=e.node(f[0]).order),a=d,i=o)}t(n,a,n.length,o,r.length)}}return n})),n}function te(e,r){if(e.node(r).dummy)for(var n of e.predecessors(r))if(e.node(n).dummy)return n}function oe(e,r,n){if(r>n){var t=r;r=n,n=t}var o=e[r];o||(e[r]=o={}),o[n]=!0}function ie(e,r,n){if(r>n){var t=r;r=n,n=t}return s(e[r],n)}function ae(e,r,n,t){var o={},i={},a={};for(var s of r)for(var d=0;d<s.length;d++){o[f=s[d]]=f,i[f]=f,a[f]=d}for(var s of r){var u=-1;for(var f of s){var h=t(f);if(h.length)for(var v=((h=c(h,(e=>a[e]))).length-1)/2,l=Math.floor(v),g=Math.ceil(v);l<=g;++l){var p=h[l];i[f]===f&&u<a[p]&&!ie(n,f,p)&&(i[p]=f,i[f]=o[f]=o[p],u=a[p])}}}return{root:o,align:i}}function se(e,r,n,t,o){var i={},a=function(e,r,n,t){var o=new x,i=e.graph(),a=ce(i.nodesep,i.edgesep,t);for(var s of r){var d=null;for(var u of s){var f=n[u];if(o.setNode(f),d){var h=n[d],c=o.edge(h,f);o.setEdge(h,f,Math.max(a(e,u,d),c||0))}d=u}}return o}(e,r,n,o),s=o?"borderLeft":"borderRight";function d(e,r){for(var n=a.nodes(),t=n.pop(),o={};t;)o[t]?e(t):(o[t]=!0,n.push(t),n=n.concat(r(t))),t=n.pop()}for(var u of(d((function(e){i[e]=a.inEdges(e).reduce((function(e,r){return Math.max(e,i[r.v]+a.edge(r))}),0)}),(e=>a.predecessors(e))),d((function(r){var n=a.outEdges(r).reduce((function(e,r){return Math.min(e,i[r.w]-a.edge(r))}),Number.POSITIVE_INFINITY),t=e.node(r);n!==Number.POSITIVE_INFINITY&&t.borderType!==s&&(i[r]=Math.max(i[r],n))}),(e=>a.successors(e))),Object.keys(t))){var f=t[u];i[f]=i[n[f]]}return i}function de(e,r){return f(l(r),(function(r){var n=Number.NEGATIVE_INFINITY,t=Number.POSITIVE_INFINITY;for(var o in r){var i=r[o],a=ve(e,o)/2;n=Math.max(i+a,n),t=Math.min(i-a,t)}return n-t}))}function ue(e,r){var n=l(r),t=Math.min(...n),o=Math.max(...n);for(var i of["ul","ur","dl","dr"]){var a=i[1],s=e[i];if(s!==r){var d=l(s),f="l"===a?t-Math.min(...d):o-Math.max(...d);f&&(e[i]=u(s,(e=>e+f)))}}}function fe(e,r){return u(e.ul,(function(n,t){if(r)return e[r.toLowerCase()][t];var o=c([e.ul[t],e.ur[t],e.dl[t],e.dr[t]],(e=>e));return(o[1]+o[2])/2}))}function he(e){var r,n=R(e),t=Object.assign(Object.assign({},re(e,n)),ne(e,n)),o={ul:{},ur:{},dl:{},dr:{}};for(var i of["u","d"])for(var a of(r="u"===i?n:n.map((e=>e)).reverse(),["l","r"])){"r"===a&&(r=r.map((e=>e.map((e=>e)).reverse())));var s=ae(0,r,t,("u"===i?e.predecessors:e.successors).bind(e)),d=se(e,r,s.root,s.align,"r"===a);"r"===a&&(d=u(d,(e=>-e))),o[i+a]=d}return ue(o,de(e,o)),fe(o,e.graph().align)}function ce(e,r,n){return function(t,o,i){var a,d=t.node(o),u=t.node(i),f=0;if(f+=d.width/2,s(d,"labelpos"))switch(d.labelpos.toLowerCase()){case"l":a=-d.width/2;break;case"r":a=d.width/2}if(a&&(f+=n?a:-a),a=0,f+=(d.dummy?r:e)/2,f+=(u.dummy?r:e)/2,f+=u.width/2,s(u,"labelpos"))switch(u.labelpos.toLowerCase()){case"l":a=u.width/2;break;case"r":a=-u.width/2}return a&&(f+=n?a:-a),a=0,f}}function ve(e,r){return e.node(r).width}var le=Object.freeze({__proto__:null,findType1Conflicts:re,findType2Conflicts:ne,findOtherInnerSegmentNode:te,addConflict:oe,hasConflict:ie,verticalAlignment:ae,horizontalCompaction:se,findSmallestWidthAlignment:de,alignCoordinates:ue,balance:fe,positionX:he,sep:ce,width:ve});function ge(e){!function(e){var r=R(e),n=e.graph().ranksep,t=0;for(var o of r){var i=Math.max(...o.map((r=>e.node(r).height)));for(var a of o)e.node(a).y=t+i/2;t+=i+n}}(e=S(e));var r=he(e);for(var n in r)e.node(n).x=r[n]}var pe=Object.freeze({__proto__:null,bk:le,position:ge});function me(e){var r={};e.sources().forEach((function n(t){var o=e.node(t);if(s(r,t))return o.rank;r[t]=!0;var i=Math.min(...e.outEdges(t).map((r=>n(r.w)-e.edge(r).minlen)));return i!==Number.POSITIVE_INFINITY&&null!=i||(i=0),o.rank=i}))}function we(e,r){return e.node(r.w).rank-e.node(r.v).rank-e.edge(r).minlen}function _e(e){var r,n=new x({directed:!1}),t=e.nodes()[0],o=e.nodeCount();for(n.setNode(t,{});i(e)<o;)r=a(e),s(e,n.hasNode(r.v)?we(e,r):-we(e,r));return n;function i(e){return n.nodes().forEach((function r(t){for(var o of e.nodeEdges(t)){var i=o.v,a=t===i?o.w:i;n.hasNode(a)||we(e,o)||(n.setNode(a,{}),n.setEdge(t,a,{}),r(a))}})),n.nodeCount()}function a(e){return f(e.edges(),(function(r){if(n.hasNode(r.v)!==n.hasNode(r.w))return we(e,r)}))}function s(e,r){for(var t of n.nodes())e.node(t).rank+=r}}class be{constructor(){this._arr=[],this._keyIndices={}}size(){return this._arr.length}keys(){return this._arr.map((function(e){return e.key}))}has(e){return e in this._keyIndices}priority(e){var r=this._keyIndices[e];if(void 0!==r)return this._arr[r].priority}min(){if(0===this.size())throw new Error("Queue underflow");return this._arr[0].key}add(e,r){var n=this._keyIndices;if(!((e=String(e))in n)){var t=this._arr,o=t.length;return n[e]=o,t.push({key:e,priority:r}),this._decrease(o),!0}return!1}removeMin(){this._swap(0,this._arr.length-1);var e=this._arr.pop();return delete this._keyIndices[e.key],this._heapify(0),e.key}decrease(e,r){var n=this._keyIndices[e];if(r>this._arr[n].priority)throw new Error("New priority is greater than current priority. Key: "+e+" Old: "+this._arr[n].priority+" New: "+r);this._arr[n].priority=r,this._decrease(n)}_heapify(e){var r=this._arr,n=2*e,t=n+1,o=e;n<r.length&&(o=r[n].priority<r[o].priority?n:o,t<r.length&&(o=r[t].priority<r[o].priority?t:o),o!==e&&(this._swap(e,o),this._heapify(o)))}_decrease(e){for(var r,n=this._arr,t=n[e].priority;0!==e&&!(n[r=e>>1].priority<t);)this._swap(e,r),e=r}_swap(e,r){var n=this._arr,t=this._keyIndices,o=n[e],i=n[r];n[e]=i,n[r]=o,t[i.key]=e,t[o.key]=r}}var ye=()=>1;function ke(e,r,n,t){return function(e,r,n,t){var o,i,a={},s=new be,d=function(e){var r=e.v!==o?e.v:e.w,t=a[r],d=n(e),u=i.distance+d;if(d<0)throw new Error("dijkstra does not allow negative edge weights. Bad edge: "+e+" Weight: "+d);u<t.distance&&(t.distance=u,t.predecessor=o,s.decrease(r,u))};e.nodes().forEach((function(e){var n=e===r?0:Number.POSITIVE_INFINITY;a[e]={distance:n},s.add(e,n)}));for(;s.size()>0&&(o=s.removeMin(),(i=a[o]).distance!==Number.POSITIVE_INFINITY);)t(o).forEach(d);return a}(e,String(r),n||ye,t||function(r){return e.outEdges(r)})}function Ee(e){var r=0,n=[],t={},o=[];function i(a){var s=t[a]={onStack:!0,lowlink:r,index:r++};if(n.push(a),e.successors(a).forEach((function(e){e in t?t[e].onStack&&(s.lowlink=Math.min(s.lowlink,t[e].index)):(i(e),s.lowlink=Math.min(s.lowlink,t[e].lowlink))})),s.lowlink===s.index){var d,u=[];do{d=n.pop(),t[d].onStack=!1,u.push(d)}while(a!==d);o.push(u)}}return e.nodes().forEach((function(e){e in t||i(e)})),o}var Ne=()=>1;class xe extends Error{}function Ie(e){var r={},n={},t=[];function o(i){if(i in n)throw new xe;if(!(i in r)){for(var a of(n[i]=!0,r[i]=!0,e.predecessors(i)))o(a);delete n[i],t.push(i)}}for(var i of e.sinks())o(i);if(Object.keys(r).length!==e.nodeCount())throw new xe;return t}function Ce(e,r,n){var t=Array.isArray(r)?r:[r],o=(e.isDirected()?e.successors:e.neighbors).bind(e),i=[],a={};for(var s of t){if(!e.hasNode(s))throw new Error("Graph does not have node: "+s);Oe(e,s,"post"===n,a,o,i)}return i}function Oe(e,r,n,t,o,i){if(!(r in t)){for(var a of(t[r]=!0,n||i.push(r),o(r)))Oe(e,a,n,t,o,i);n&&i.push(r)}}function je(e,r){return Ce(e,r,"post")}function Me(e,r){return Ce(e,r,"pre")}var Le=Object.freeze({__proto__:null,components:function(e){var r,n={},t=[];function o(t){if(!(t in n)){for(var i of(n[t]=!0,r.push(t),e.successors(t)))o(i);for(var a of e.predecessors(t))o(a)}}for(var i of e.nodes())r=[],o(i),r.length&&t.push(r);return t},dijkstra:ke,dijkstraAll:function(e,r,n){var t={};for(var o of e.nodes())t[o]=ke(e,o,r,n);return t},findCycles:function(e){return Ee(e).filter((function(r){return r.length>1||1===r.length&&e.hasEdge(r[0],r[0])}))},floydWarshall:function(e,r,n){return function(e,r,n){var t={},o=e.nodes();return o.forEach((function(e){t[e]={},t[e][e]={distance:0},o.forEach((function(r){e!==r&&(t[e][r]={distance:Number.POSITIVE_INFINITY})})),n(e).forEach((function(n){var o=n.v===e?n.w:n.v,i=r(n);t[e][o]={distance:i,predecessor:e}}))})),o.forEach((function(e){var r=t[e];o.forEach((function(n){var i=t[n];o.forEach((function(n){var t=i[e],o=r[n],a=i[n],s=t.distance+o.distance;s<a.distance&&(a.distance=s,a.predecessor=o.predecessor)}))}))})),t}(e,r||Ne,n||function(r){return e.outEdges(r)})},isAcyclic:function(e){try{Ie(e)}catch(e){if(e instanceof xe)return!1;throw e}return!0},postorder:je,preorder:Me,prim:function(e,r){var n,t=new I({}),o={},i=new be;function a(e){var t=e.v===n?e.w:e.v,a=i.priority(t);if(void 0!==a){var s=r(e);s<a&&(o[t]=n,i.decrease(t,s))}}if(0===e.nodeCount())return t;for(n of e.nodes())i.add(n,Number.POSITIVE_INFINITY),t.setNode(n);i.decrease(e.nodes()[0],0);for(var s=!1;i.size()>0;){if((n=i.removeMin())in o)t.setEdge(n,o[n]);else{if(s)throw new Error("Input graph is not connected: "+e);s=!0}e.nodeEdges(n).forEach(a)}return t},tarjan:Ee,topsort:Ie});function Te(e){me(e=T(e));var r,n=_e(e);for(Fe(n),Se(n,e);r=ze(n);)Ve(n,e,r,Ge(n,e,r))}function Se(e,r){var n=je(e,e.nodes());for(var t of n=n.slice(0,n.length-1))Pe(e,r,t)}function Pe(e,r,n){var t=e.node(n).parent;e.edge(n,t).cutvalue=Re(e,r,n)}function Re(e,r,n){var t,o,i=e.node(n).parent,a=!0,s=r.edge(n,i),d=0;for(var u of(s||(a=!1,s=r.edge(i,n)),d=s.weight,r.nodeEdges(n))){var f=u.v===n,h=f?u.w:u.v;if(h!==i){var c=f===a,v=r.edge(u).weight;if(d+=c?v:-v,t=n,o=h,e.hasEdge(t,o)){var l=e.edge(n,h).cutvalue;d+=c?-l:l}}}return d}function Fe(e,r){arguments.length<2&&(r=e.nodes()[0]),De(e,{},1,r)}function De(e,r,n,t,o){var i=n,a=e.node(t);for(var d of(r[t]=!0,e.neighbors(t)))s(r,d)||(n=De(e,r,n,d,t));return a.low=i,a.lim=n++,o?a.parent=o:delete a.parent,n}function ze(e){for(var r of e.edges())if(e.edge(r).cutvalue<0)return r}function Ge(e,r,n){var t=n.v,o=n.w;r.hasEdge(t,o)||(t=n.w,o=n.v);var i=e.node(t),a=e.node(o),s=i,d=!1;return i.lim>a.lim&&(s=a,d=!0),f(r.edges().filter((function(r){return d===Ye(e,e.node(r.v),s)&&d!==Ye(e,e.node(r.w),s)})),(e=>we(r,e)))}function Ve(e,r,n,t){var o=n.v,i=n.w;e.removeEdge(o,i),e.setEdge(t.v,t.w,{}),Fe(e),Se(e,r),function(e,r){var n=function(e,r){for(var n of e.nodes())if(!r.node(n).parent)return n;return}(e,r),t=Me(e,n);for(var o of t=t.slice(1)){var i=e.node(o).parent,a=r.edge(o,i),s=!1;a||(a=r.edge(i,o),s=!0),r.node(o).rank=r.node(i).rank+(s?a.minlen:-a.minlen)}}(e,r)}function Ye(e,r,n){return n.low<=r.lim&&r.lim<=n.lim}function Be(e){switch(e.graph().ranker){case"network-simplex":We(e);break;case"tight-tree":qe(e);break;case"longest-path":Ae(e);break;default:We(e)}}Te.initLowLimValues=Fe,Te.initCutValues=Se,Te.calcCutValue=Re,Te.leaveEdge=ze,Te.enterEdge=Ge,Te.exchangeEdges=Ve;var Ae=me;function qe(e){me(e),_e(e)}function We(e){Te(e)}var $e=Object.freeze({__proto__:null,rank:Be,tightTreeRanker:qe,networkSimplexRanker:We,networkSimplex:Te,feasibleTree:_e,longestPath:me}),Je=e=>1;function Qe(e,n){if(e.nodeCount()<=1)return[];var t=function(e,n){var t=new x,o=0,i=0;for(var a of e.nodes())t.setNode(a,{v:a,in:0,out:0});for(var s of e.edges()){var d=t.edge(s.v,s.w)||0,u=n(s),f=d+u;t.setEdge(s.v,s.w,f),i=Math.max(i,t.node(s.v).out+=u),o=Math.max(o,t.node(s.w).in+=u)}var h=g(i+o+3,(()=>new r)),c=o+1;for(var a of t.nodes())Xe(h,c,t.node(a));return{graph:t,buckets:h,zeroIdx:c}}(e,n||Je);return a(function(e,r,n){var t,o=[],i=r[r.length-1],a=r[0];for(;e.nodeCount();){for(;t=a.dequeue();)Ke(e,r,n,t);for(;t=i.dequeue();)Ke(e,r,n,t);if(e.nodeCount())for(var s=r.length-2;s>0;--s)if(t=r[s].dequeue()){o=o.concat(Ke(e,r,n,t,!0));break}}return o}(t.graph,t.buckets,t.zeroIdx).map((r=>e.outEdges(r.v,r.w))))}function Ke(e,r,n,t,o){var i=o?[]:void 0;for(var a of e.inEdges(t.v)){var s=e.edge(a),d=e.node(a.v);o&&i.push({v:a.v,w:a.w}),d.out-=s,Xe(r,n,d)}for(var a of e.outEdges(t.v)){s=e.edge(a);var u=a.w,f=e.node(u);f.in-=s,Xe(r,n,f)}return e.removeNode(t.v),i}function Xe(e,r,n){n.out?n.in?e[n.out-n.in+r].enqueue(n):e[e.length-1].enqueue(n):e[0].enqueue(n)}var He={run:function(e){var r="greedy"===e.graph().acyclicer?Qe(e,function(e){return function(r){return e.edge(r).weight}}(e)):function(e){var r=[],n={},t={};function o(i){if(!s(t,i)){for(var a of(t[i]=!0,n[i]=!0,e.outEdges(i)))s(n,a.w)?r.push(a):o(a.w);delete n[i]}}return e.nodes().forEach(o),r}(e);for(var n of r){var t=e.edge(n);e.removeEdge(n),t.forwardName=n.name,t.reversed=!0,e.setEdge(n.w,n.v,t,v("rev"))}},undo:function(e){for(var r of e.edges()){var n=e.edge(r);if(n.reversed){e.removeEdge(r);var t=n.forwardName;delete n.reversed,delete n.forwardName,e.setEdge(r.w,r.v,n,t)}}}};function Ue(e){e.children().forEach((function r(n){var t=e.children(n),o=e.node(n);if(t.length&&t.forEach(r),s(o,"minRank")){o.borderLeft=[],o.borderRight=[];for(var i=o.minRank,a=o.maxRank+1;i<a;++i)Ze(e,"borderLeft","_bl",n,o,i),Ze(e,"borderRight","_br",n,o,i)}}))}function Ze(e,r,n,t,o,i){var a={width:0,height:0,rank:i,borderType:r},s=o[r][i-1],d=L(e,"border",a,n);o[r][i]=d,e.setParent(d,t),s&&e.setEdge(s,d,{weight:1})}var er={adjust:function(e){var r=e.graph().rankdir.toLowerCase();"lr"!==r&&"rl"!==r||rr(e)},undo:function(e){var r=e.graph().rankdir.toLowerCase();"bt"!==r&&"rl"!==r||function(e){for(var r of e.nodes())tr(e.node(r));for(var n of e.edges()){var t=e.edge(n);t.points.forEach(tr),s(t,"y")&&tr(t)}}(e);"lr"!==r&&"rl"!==r||(!function(e){for(var r of e.nodes())or(e.node(r));for(var n of e.edges()){var t=e.edge(n);t.points.forEach(or),s(t,"x")&&or(t)}}(e),rr(e))}};function rr(e){for(var r of e.nodes())nr(e.node(r));for(var n of e.edges())nr(e.edge(n))}function nr(e){var r=e.width;e.width=e.height,e.height=r}function tr(e){e.y=-e.y}function or(e){var r=e.x;e.x=e.y,e.y=r}var ir=Object.freeze({__proto__:null,debugOrdering:function(e){var r=R(e),n=new x({compound:!0,multigraph:!0}).setGraph({});for(var t of e.nodes())n.setNode(t,{label:t}),n.setParent(t,"layer"+e.node(t).rank);for(var o of e.edges())n.setEdge(o.v,o.w,{},o.name);var i=0;for(var a of r){var s="layer"+i;i++,n.setNode(s,{rank:"same"}),a.reduce((function(e,r){return n.setEdge(e.toString(),r,{style:"invis"}),r}))}return n}}),ar={run:function(e){for(var r of(e.graph().dummyChains=[],e.edges()))sr(e,r)},undo:function(e){for(var r of e.graph().dummyChains){var n,t=e.node(r),o=t.edgeLabel;for(e.setEdge(t.edgeObj,o);t.dummy;)n=e.successors(r)[0],e.removeNode(r),o.points.push({x:t.x,y:t.y}),"edge-label"===t.dummy&&(o.x=t.x,o.y=t.y,o.width=t.width,o.height=t.height),r=n,t=e.node(r)}}};function sr(e,r){var n=r.v,t=e.node(n).rank,o=r.w,i=e.node(o).rank,a=r.name,s=e.edge(r),d=s.labelRank;if(i!==t+1){var u,f,h;for(e.removeEdge(r),h=0,++t;t<i;++h,++t)s.points=[],u=L(e,"edge",f={width:0,height:0,edgeLabel:s,edgeObj:r,rank:t},"_d"),t===d&&(f.width=s.width,f.height=s.height,f.dummy="edge-label",f.labelpos=s.labelpos),e.setEdge(n,u,{weight:s.weight},a),0===h&&e.graph().dummyChains.push(u),n=u;e.setEdge(n,o,{weight:s.weight},a)}}function dr(e){var r=function(e){var r={},n=0;function t(o){var i=n;e.children(o).forEach(t),r[o]={low:i,lim:n++}}return e.children().forEach(t),r}(e);for(var n of e.graph().dummyChains)for(var t=e.node(n),o=t.edgeObj,i=ur(e,r,o.v,o.w),a=i.path,s=i.lca,d=0,u=a[d],f=!0;n!==o.w;){if(t=e.node(n),f){for(;(u=a[d])!==s&&e.node(u).maxRank<t.rank;)d++;u===s&&(f=!1)}if(!f){for(;d<a.length-1&&e.node(u=a[d+1]).minRank<=t.rank;)d++;u=a[d]}e.setParent(n,u),n=e.successors(n)[0]}}function ur(e,r,n,t){var o,i,a=[],s=[],d=Math.min(r[n].low,r[t].low),u=Math.max(r[n].lim,r[t].lim);o=n;do{o=e.parent(o),a.push(o)}while(o&&(r[o].low>d||u>r[o].lim));for(i=o,o=t;(o=e.parent(o))!==i;)s.push(o);return{path:a.concat(s.reverse()),lca:i}}var fr={run:function(e){var r=L(e,"root",{},"_root"),n=function(e){var r={};function n(t,o){var i=e.children(t);if(i&&i.length)for(var a of i)n(a,o+1);r[t]=o}for(var t of e.children())n(t,1);return r}(e),t=Math.max(...l(n))-1,o=2*t+1;for(var i of(e.graph().nestingRoot=r,e.edges()))e.edge(i).minlen*=o;var a=function(e){return e.edges().reduce(((r,n)=>r+e.edge(n).weight),0)}(e)+1;for(var s of e.children())hr(e,r,o,a,t,n,s);e.graph().nodeRankFactor=o},cleanup:function(e){var r=e.graph();for(var n of(e.removeNode(r.nestingRoot),delete r.nestingRoot,e.edges())){e.edge(n).nestingEdge&&e.removeEdge(n)}}};function hr(e,r,n,t,o,i,a){var s=e.children(a);if(s.length){var d=z(e,"_bt"),u=z(e,"_bb"),f=e.node(a);for(var h of(e.setParent(d,a),f.borderTop=d,e.setParent(u,a),f.borderBottom=u,s)){hr(e,r,n,t,o,i,h);var c=e.node(h),v=c.borderTop?c.borderTop:h,l=c.borderBottom?c.borderBottom:h,g=c.borderTop?t:2*t,p=v!==l?1:o-i[a]+1;e.setEdge(d,v,{weight:g,minlen:p,nestingEdge:!0}),e.setEdge(l,u,{weight:g,minlen:p,nestingEdge:!0})}e.parent(a)||e.setEdge(r,d,{weight:0,minlen:o+i[a]})}else a!==r&&e.setEdge(r,a,{weight:0,minlen:n})}function cr(e){return"edge-proxy"==e.dummy}function vr(e){return"selfedge"==e.dummy}var lr=50,gr=20,pr=50,mr="tb",wr=1,_r=1,br=0,yr=0,kr=10,Er="r";function Nr(e={}){var r={};for(var n of Object.keys(e))r[n.toLowerCase()]=e[n];return r}function xr(e){return e.nodes().map((function(r){var n=e.node(r),t=e.parent(r),o={v:r};return void 0!==n&&(o.value=n),void 0!==t&&(o.parent=t),o}))}function Ir(e){return e.edges().map((function(r){var n=e.edge(r),t={v:r.v,w:r.w};return void 0!==r.name&&(t.name=r.name),void 0!==n&&(t.value=n),t}))}var Cr=Object.freeze({__proto__:null,write:function(e){var r={options:{directed:e.isDirected(),multigraph:e.isMultigraph(),compound:e.isCompound()},nodes:xr(e),edges:Ir(e)};return void 0!==e.graph()&&(r.value=JSON.parse(JSON.stringify(e.graph()))),r},read:function(e){var r=new x(e.options).setGraph(e.value);for(var n of e.nodes)r.setNode(n.v,n.value),n.parent&&r.setParent(n.v,n.parent);for(var n of e.edges)r.setEdge({v:n.v,w:n.w,name:n.name},n.value);return r}}),Or={Graph:x,GraphLike:I,alg:Le,json:Cr,PriorityQueue:be};e.Graph=x,e.GraphLike=I,e.PriorityQueue=be,e.acyclic=He,e.addBorderSegments=Ue,e.alg=Le,e.coordinateSystem=er,e.data=o,e.debug=ir,e.graphlib=Or,e.greedyFAS=Qe,e.json=Cr,e.layout=function(e,r){var n=r&&r.debugTiming?Y:B;n("layout",(function(){var r=n("  buildLayoutGraph",(function(){return function(e){var r,n,t,o,i,a,s,d,u,f,h,c,v,l,g,p=new x({multigraph:!0,compound:!0}),m=Nr(e.graph()),w={nodesep:null!==(r=m.nodesep)&&void 0!==r?r:pr,edgesep:null!==(n=m.edgesep)&&void 0!==n?n:gr,ranksep:null!==(t=m.ranksep)&&void 0!==t?t:lr,marginx:+(null!==(o=m.marginx)&&void 0!==o?o:0),marginy:+(null!==(i=m.marginy)&&void 0!==i?i:0),acyclicer:m.acyclicer,ranker:null!==(a=m.ranker)&&void 0!==a?a:"network-simplex",rankdir:null!==(s=m.rankdir)&&void 0!==s?s:mr,align:m.align};for(var _ of(p.setGraph(w),e.nodes())){var b=Nr(e.node(_)),y={width:+(null!==(d=b&&b.width)&&void 0!==d?d:0),height:+(null!==(u=b&&b.height)&&void 0!==u?u:0)};p.setNode(_,y),p.setParent(_,e.parent(_))}for(var k of e.edges()){var E=Nr(e.edge(k)),N={minlen:null!==(f=E.minlen)&&void 0!==f?f:wr,weight:null!==(h=E.weight)&&void 0!==h?h:_r,width:null!==(c=E.width)&&void 0!==c?c:br,height:null!==(v=E.height)&&void 0!==v?v:yr,labeloffset:null!==(l=E.labeloffset)&&void 0!==l?l:kr,labelpos:null!==(g=E.labelpos)&&void 0!==g?g:Er};p.setEdge(k,N)}return p}(e)}));n("  runLayout",(function(){!function(e,r){r("    makeSpaceForEdgeLabels",(function(){!function(e){var r=e.graph();for(var n of(r.ranksep/=2,e.edges())){var t=e.edge(n);t.minlen*=2,"c"!==t.labelpos.toLowerCase()&&("TB"===r.rankdir||"BT"===r.rankdir?t.width+=t.labeloffset:t.height+=t.labeloffset)}}(e)})),r("    removeSelfEdges",(function(){!function(e){for(var r of e.edges())if(r.v===r.w){var n=e.node(r.v);n.selfEdges||(n.selfEdges=[]),n.selfEdges.push({e:r,label:e.edge(r)}),e.removeEdge(r)}}(e)})),r("    acyclic",(function(){He.run(e)})),r("    nestingGraph.run",(function(){fr.run(e)})),r("    rank",(function(){Be(S(e))})),r("    injectEdgeLabelProxies",(function(){!function(e){for(var r of e.edges()){var n=e.edge(r);if(n.width&&n.height){var t=e.node(r.v),o=e.node(r.w);L(e,"edge-proxy",{rank:(o.rank-t.rank)/2+t.rank,e:r},"_ep")}}}(e)})),r("    removeEmptyRanks",(function(){D(e)})),r("    nestingGraph.cleanup",(function(){fr.cleanup(e)})),r("    normalizeRanks",(function(){F(e)})),r("    assignRankMinMax",(function(){!function(e){var r=0;for(var n of e.nodes()){var t=e.node(n);t.borderTop&&(t.minRank=e.node(t.borderTop).rank,t.maxRank=e.node(t.borderBottom).rank,r=Math.max(r,t.maxRank))}e.graph().maxRank=r}(e)})),r("    removeEdgeLabelProxies",(function(){!function(e){for(var r of e.nodes()){var n=e.node(r);cr(n)&&(e.edge(n.e).labelRank=n.rank,e.removeNode(r))}}(e)})),r("    normalize.run",(function(){ar.run(e)})),r("    parentDummyChains",(function(){dr(e)})),r("    addBorderSegments",(function(){Ue(e)})),r("    order",(function(){X(e)})),r("    insertSelfEdges",(function(){!function(e){var r,n=R(e);for(var t of n)for(var o=0,i=0;i<t.length;i++){var a=t[i],s=e.node(a);for(var d of(s.order=i+o,null!==(r=s.selfEdges)&&void 0!==r?r:[]))L(e,"selfedge",{width:d.label.width,height:d.label.height,rank:s.rank,order:i+ ++o,e:d.e,label:d.label},"_se");delete s.selfEdges}}(e)})),r("    adjustCoordinateSystem",(function(){er.adjust(e)})),r("    position",(function(){ge(e)})),r("    positionSelfEdges",(function(){!function(e){for(var r of e.nodes()){var n=e.node(r);if(vr(n)){var t=e.node(n.e.v),o=t.x+t.width/2,i=t.y,a=n.x-o,s=t.height/2;e.setEdge(n.e,n.label),e.removeNode(r),n.label.points=[{x:o+2*a/3,y:i-s},{x:o+5*a/6,y:i-s},{x:o+a,y:i},{x:o+5*a/6,y:i+s},{x:o+2*a/3,y:i+s}],n.label.x=n.x,n.label.y=n.y}}}(e)})),r("    removeBorderNodes",(function(){!function(e){for(var r of e.nodes())if(e.children(r).length){var n=e.node(r),t=e.node(n.borderTop),o=e.node(n.borderBottom),i=e.node(d(n.borderLeft)),a=e.node(d(n.borderRight));n.width=Math.abs(a.x-i.x),n.height=Math.abs(o.y-t.y),n.x=i.x+n.width/2,n.y=t.y+n.height/2}for(var r of e.nodes())"border"===e.node(r).dummy&&e.removeNode(r)}(e)})),r("    normalize.undo",(function(){ar.undo(e)})),r("    fixupEdgeLabelCoords",(function(){!function(e){for(var r of e.edges()){var n=e.edge(r);if(s(n,"x"))switch("l"!==n.labelpos&&"r"!==n.labelpos||(n.width-=n.labeloffset),n.labelpos){case"l":n.x-=n.width/2+n.labeloffset;break;case"r":n.x+=n.width/2+n.labeloffset}}}(e)})),r("    undoCoordinateSystem",(function(){er.undo(e)})),r("    translateGraph",(function(){!function(e){var r,n,t,o=Number.POSITIVE_INFINITY,i=0,a=Number.POSITIVE_INFINITY,d=0,u=e.graph(),f=null!==(r=u.marginx)&&void 0!==r?r:0,h=null!==(n=u.marginy)&&void 0!==n?n:0;function c(e){var r=e.x,n=e.y,t=e.width,s=e.height;o=Math.min(o,r-t/2),i=Math.max(i,r+t/2),a=Math.min(a,n-s/2),d=Math.max(d,n+s/2)}for(var v of e.nodes())c(e.node(v));for(var l of e.edges()){s(p=e.edge(l),"x")&&c(p)}for(var v of(o-=f,a-=h,e.nodes())){var g=e.node(v);g.x-=o,g.y-=a}for(var l of e.edges()){var p=e.edge(l);for(var m of null!==(t=p.points)&&void 0!==t?t:[])m.x-=o,m.y-=a;p.hasOwnProperty("x")&&(p.x-=o),p.hasOwnProperty("y")&&(p.y-=a)}u.width=i-o+f,u.height=d-a+h}(e)})),r("    assignNodeIntersects",(function(){!function(e){for(var r of e.edges()){var n,t,o=e.edge(r),i=e.node(r.v),a=e.node(r.w);o.points?(n=o.points[0],t=o.points[o.points.length-1]):(o.points=[],n=a,t=i),o.points.unshift(P(i,n)),o.points.push(P(a,t))}}(e)})),r("    reversePoints",(function(){!function(e){for(var r of e.edges()){var n=e.edge(r);n.reversed&&n.points.reverse()}}(e)})),r("    acyclic.undo",(function(){He.undo(e)}))}(r,n)})),n("  updateInputGraph",(function(){!function(e,r){for(var n of e.nodes()){var t=e.node(n),o=r.node(n);t&&(t.x=o.x,t.y=o.y,r.children(n).length&&(t.width=o.width,t.height=o.height))}for(var i of e.edges()){var a=e.edge(i),d=r.edge(i);a.points=d.points,s(d,"x")&&(a.x=d.x,a.y=d.y)}e.graph().width=r.graph().width,e.graph().height=r.graph().height}(e,r)}))}))},e.nestingGraph=fr,e.normalize=ar,e.order=ee,e.parentDummyChains=dr,e.position=pe,e.rank=$e,e.util=A,e.version="0.1.3",Object.defineProperty(e,"__esModule",{value:!0})}));
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+class List {
+    constructor() {
+        var sentinel = {};
+        sentinel._next = sentinel._prev = sentinel;
+        this._sentinel = sentinel;
+    }
+    dequeue() {
+        var sentinel = this._sentinel;
+        var entry = sentinel._prev;
+        if (entry !== sentinel) {
+            unlink(entry);
+            return entry;
+        }
+        return undefined;
+    }
+    ;
+    enqueue(entry) {
+        var sentinel = this._sentinel;
+        var item = entry;
+        if (item._prev && item._next) {
+            unlink(item);
+        }
+        item._next = sentinel._next;
+        sentinel._next._prev = item;
+        sentinel._next = item;
+        item._prev = sentinel;
+    }
+    ;
+    toString() {
+        var strs = [];
+        var sentinel = this._sentinel;
+        var curr = sentinel._prev;
+        while (curr !== sentinel) {
+            strs.push(JSON.stringify(curr, filterOutLinks));
+            curr = curr._prev;
+        }
+        return "[" + strs.join(", ") + "]";
+    }
+    ;
+}
+function unlink(entry) {
+    entry._prev._next = entry._next;
+    entry._next._prev = entry._prev;
+    delete entry._next;
+    delete entry._prev;
+}
+function filterOutLinks(k, v) {
+    if (k !== "_next" && k !== "_prev") {
+        return v;
+    }
+}
+
+var list = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    List: List
+});
+
+const idCounter = {};
+function flattenDeep(matrix) {
+    var result = [];
+    for (var e of matrix) {
+        result.push(...e);
+    }
+    return result;
+}
+function has(object, key) {
+    return object != null && object.hasOwnProperty(key);
+}
+function last(array) {
+    const length = array == null ? 0 : array.length;
+    return length ? array[length - 1] : undefined;
+}
+function mapValues(object, iteratee) {
+    object = Object(object);
+    const result = {};
+    Object.keys(object).forEach((key) => {
+        result[key] = iteratee(object[key], key);
+    });
+    return result;
+}
+function minBy(list, fn) {
+    var minWeight = Number.POSITIVE_INFINITY;
+    var minima = undefined;
+    for (var e of list) {
+        var weight = fn(e);
+        if (weight < minWeight) {
+            minWeight = weight;
+            minima = e;
+        }
+    }
+    return minima;
+}
+function range(start, end) {
+    var step = (start < end ? 1 : -1);
+    let index = -1;
+    let length = Math.max(Math.ceil((end - start) / (step || 1)), 0);
+    const result = new Array(length);
+    while (length--) {
+        result[++index] = start;
+        start += step;
+    }
+    return result;
+}
+function sortBy(list, fn) {
+    return list.slice().sort((a, b) => fn(a) - fn(b));
+}
+function uniqueId(prefix) {
+    if (!idCounter[prefix]) {
+        idCounter[prefix] = 0;
+    }
+    const id = ++idCounter[prefix];
+    return `${prefix}${id}`;
+}
+function values(object) {
+    return object ? Object.keys(object).map(e => object[e]) : [];
+}
+function array(count, factory) {
+    var output = [];
+    for (var i = 0; i < count; i++)
+        output.push(factory());
+    return output;
+}
+function isUndefined(item) {
+    return undefined === item;
+}
+function each(obj, action) {
+    for (var key of Object.keys(obj)) {
+        action(obj[key], key);
+    }
+}
+function isEmpty(obj) {
+    return 0 === Object.keys(obj).length;
+}
+function union(a, b) {
+    var output = [...a];
+    for (var item of b) {
+        if (output.indexOf(item) === -1) {
+            output.push(item);
+        }
+    }
+    return output;
+}
+
+function initOrder(g) {
+    var visited = {};
+    var simpleNodes = g.nodes().filter(v => !g.children(v).length);
+    var maxRank = Math.max(...simpleNodes.map(v => g.node(v).rank));
+    var layers = array(maxRank + 1, () => []);
+    function dfs(v) {
+        if (has(visited, v))
+            return;
+        visited[v] = true;
+        var node = g.node(v);
+        layers[node.rank].push(v);
+        g.successors(v).forEach(dfs);
+    }
+    var orderedVs = sortBy(simpleNodes, (v) => g.node(v).rank);
+    orderedVs.forEach(dfs);
+    return layers;
+}
+
+function crossCount(g, layering) {
+    var cc = 0;
+    for (var i = 1; i < layering.length; ++i) {
+        cc += twoLayerCrossCount(g, layering[i - 1], layering[i]);
+    }
+    return cc;
+}
+function twoLayerCrossCount(g, northLayer, southLayer) {
+    var southPos = {};
+    for (var i = 0; i < southLayer.length; i++) {
+        southPos[southLayer[i]] = i;
+    }
+    var southEntries = flattenDeep(northLayer.map(function (v) {
+        return sortBy(g.outEdges(v).map(function (e) {
+            return { pos: southPos[e.w], weight: g.edge(e).weight };
+        }), e => e.pos);
+    }));
+    var firstIndex = 1;
+    while (firstIndex < southLayer.length)
+        firstIndex <<= 1;
+    var treeSize = 2 * firstIndex - 1;
+    firstIndex -= 1;
+    var tree = array(treeSize, () => 0);
+    var cc = 0;
+    southEntries.forEach(function (entry) {
+        var index = entry.pos + firstIndex;
+        tree[index] += entry.weight;
+        var weightSum = 0;
+        while (index > 0) {
+            if (index % 2) {
+                weightSum += tree[index + 1];
+            }
+            index = (index - 1) >> 1;
+            tree[index] += entry.weight;
+        }
+        cc += entry.weight * weightSum;
+    });
+    return cc;
+}
+
+function barycenter(g, movable) {
+    if (!movable)
+        return [];
+    return movable.map(function (v) {
+        var inV = g.inEdges(v);
+        if (!inV['length']) {
+            return { v: v };
+        }
+        else {
+            var result = inV.reduce(function (acc, e) {
+                var edge = g.edge(e);
+                var nodeU = g.node(e.v);
+                return {
+                    sum: acc.sum + (edge.weight * nodeU.order),
+                    weight: acc.weight + edge.weight
+                };
+            }, { sum: 0, weight: 0 });
+            return {
+                v: v,
+                barycenter: result.sum / result.weight,
+                weight: result.weight
+            };
+        }
+    });
+}
+
+function resolveConflicts(entries, cg) {
+    var mappedEntries = {};
+    for (var i = 0; i < entries.length; i++) {
+        var entry = entries[i];
+        var tmp = mappedEntries[entry.v] = {
+            indegree: 0,
+            "in": [],
+            out: [],
+            vs: [entry.v],
+            i: i
+        };
+        if ((undefined !== entry.barycenter)) {
+            tmp.barycenter = entry.barycenter;
+            tmp.weight = entry.weight;
+        }
+    }
+    for (var e of cg.edges()) {
+        var entryV = mappedEntries[e.v];
+        var entryW = mappedEntries[e.w];
+        if ((undefined !== entryV) && (undefined !== entryW)) {
+            entryW.indegree++;
+            entryV.out.push(mappedEntries[e.w]);
+        }
+    }
+    var sourceSet = values(mappedEntries).filter((e) => !e.indegree);
+    return doResolveConflicts(sourceSet);
+}
+function doResolveConflicts(sourceSet) {
+    var entries = [];
+    function handleIn(vEntry) {
+        return function (uEntry) {
+            if (uEntry.merged) {
+                return;
+            }
+            if ((undefined === uEntry.barycenter) ||
+                (undefined === vEntry.barycenter) ||
+                uEntry.barycenter >= vEntry.barycenter) {
+                mergeEntries(vEntry, uEntry);
+            }
+        };
+    }
+    function handleOut(vEntry) {
+        return function (wEntry) {
+            wEntry["in"].push(vEntry);
+            if (--wEntry.indegree === 0) {
+                sourceSet.push(wEntry);
+            }
+        };
+    }
+    while (sourceSet.length) {
+        var entry = sourceSet.pop();
+        entries.push(entry);
+        entry["in"].reverse().forEach(handleIn(entry));
+        entry.out.forEach(handleOut(entry));
+    }
+    return entries.filter((e) => !e.merged).map(function (entry) {
+        var xentry = { vs: entry.vs, i: entry.i };
+        if ('barycenter' in entry)
+            xentry.barycenter = entry.barycenter;
+        if ('weight' in entry)
+            xentry.weight = entry.weight;
+        return xentry;
+    });
+}
+function mergeEntries(target, source) {
+    var sum = 0;
+    var weight = 0;
+    if (target.weight) {
+        sum += target.barycenter * target.weight;
+        weight += target.weight;
+    }
+    if (source.weight) {
+        sum += source.barycenter * source.weight;
+        weight += source.weight;
+    }
+    target.vs = source.vs.concat(target.vs);
+    target.barycenter = sum / weight;
+    target.weight = weight;
+    target.i = Math.min(source.i, target.i);
+    source.merged = true;
+}
+
+var DEFAULT_EDGE_NAME = "\x00";
+var GRAPH_NODE = "\x00";
+var EDGE_KEY_DELIM = "\x01";
+class Graph {
+    constructor(opts = {}) {
+        this._label = undefined;
+        this._nodeCount = 0;
+        this._edgeCount = 0;
+        this._isDirected = has(opts, "directed") ? opts.directed : true;
+        this._isMultigraph = has(opts, "multigraph") ? opts.multigraph : false;
+        this._isCompound = has(opts, "compound") ? opts.compound : false;
+        this._defaultNodeLabelFn = () => (undefined);
+        this._defaultEdgeLabelFn = () => (undefined);
+        this._nodes = {};
+        if (this._isCompound) {
+            this._parent = {};
+            this._children = {};
+            this._children[GRAPH_NODE] = {};
+        }
+        this._in = {};
+        this._preds = {};
+        this._out = {};
+        this._sucs = {};
+        this._edgeObjs = {};
+        this._edgeLabels = {};
+    }
+    isDirected() {
+        return this._isDirected;
+    }
+    isMultigraph() {
+        return this._isMultigraph;
+    }
+    isCompound() {
+        return this._isCompound;
+    }
+    setGraph(label) {
+        this._label = label;
+        return this;
+    }
+    graph() {
+        return this._label;
+    }
+    ;
+    setDefaultNodeLabel(newDefault) {
+        function isConstant(x) { return 'function' !== typeof x; }
+        if (isConstant(newDefault)) {
+            this._defaultNodeLabelFn = () => (newDefault);
+        }
+        else {
+            this._defaultNodeLabelFn = newDefault;
+        }
+        return this;
+    }
+    nodeCount() {
+        return this._nodeCount;
+    }
+    nodes() {
+        return Object.keys(this._nodes);
+    }
+    sources() {
+        var self = this;
+        return this.nodes().filter(function (v) {
+            return isEmpty(self._in[v]);
+        });
+    }
+    sinks() {
+        var self = this;
+        return this.nodes().filter((v) => isEmpty(self._out[v]));
+    }
+    setNodes(vs, value) {
+        var self = this;
+        for (var v of vs) {
+            if (value !== undefined) {
+                self.setNode(v, value);
+            }
+            else {
+                self.setNode(v);
+            }
+        }
+        return this;
+    }
+    setNode(v, value) {
+        if (has(this._nodes, v)) {
+            if (arguments.length > 1) {
+                this._nodes[v] = value;
+            }
+            return this;
+        }
+        this._nodes[v] = arguments.length > 1 ? value : this._defaultNodeLabelFn(v);
+        if (this._isCompound) {
+            this._parent[v] = GRAPH_NODE;
+            this._children[v] = {};
+            this._children[GRAPH_NODE][v] = true;
+        }
+        this._in[v] = {};
+        this._preds[v] = {};
+        this._out[v] = {};
+        this._sucs[v] = {};
+        ++this._nodeCount;
+        return this;
+    }
+    node(v) {
+        return this._nodes[v];
+    }
+    hasNode(v) {
+        return has(this._nodes, v);
+    }
+    removeNode(v) {
+        var self = this;
+        if (has(this._nodes, v)) {
+            var removeEdge = (e) => { self.removeEdge(this._edgeObjs[e]); };
+            delete this._nodes[v];
+            if (this._isCompound) {
+                this._removeFromParentsChildList(v);
+                delete this._parent[v];
+                for (var child of this.children(v)) {
+                    self.setParent(child);
+                }
+                delete this._children[v];
+            }
+            for (var key of Object.keys(this._in[v]))
+                removeEdge(key);
+            delete this._in[v];
+            delete this._preds[v];
+            for (var key of Object.keys(this._out[v]))
+                removeEdge(key);
+            delete this._out[v];
+            delete this._sucs[v];
+            --this._nodeCount;
+        }
+        return this;
+    }
+    setParent(v, parent) {
+        if (!this._isCompound) {
+            throw new Error("Cannot set parent in a non-compound graph");
+        }
+        if (undefined === parent) {
+            parent = GRAPH_NODE;
+        }
+        else {
+            parent += "";
+            for (var ancestor = parent; !isUndefined(ancestor); ancestor = this.parent(ancestor)) {
+                if (ancestor === v) {
+                    throw new Error(`Setting ${parent} as parent of ${v} would create a cycle`);
+                }
+            }
+            this.setNode(parent);
+        }
+        this.setNode(v);
+        this._removeFromParentsChildList(v);
+        this._parent[v] = parent;
+        this._children[parent][v] = true;
+        return this;
+    }
+    _removeFromParentsChildList(v) {
+        delete this._children[this._parent[v]][v];
+    }
+    parent(v) {
+        if (this._isCompound) {
+            var parent = this._parent[v];
+            if (parent !== GRAPH_NODE) {
+                return parent;
+            }
+        }
+        return undefined;
+    }
+    children(v) {
+        if (isUndefined(v)) {
+            v = GRAPH_NODE;
+        }
+        if (this._isCompound) {
+            var children = this._children[v];
+            if (children) {
+                return Object.keys(children);
+            }
+            return undefined;
+        }
+        else if (v === GRAPH_NODE) {
+            return this.nodes();
+        }
+        else if (this.hasNode(v)) {
+            return [];
+        }
+        return undefined;
+    }
+    predecessors(v) {
+        var predsV = this._preds[v];
+        if (predsV) {
+            return Object.keys(predsV);
+        }
+        return undefined;
+    }
+    successors(v) {
+        var sucsV = this._sucs[v];
+        if (sucsV) {
+            return Object.keys(sucsV);
+        }
+        return undefined;
+    }
+    neighbors(v) {
+        var preds = this.predecessors(v);
+        if (preds) {
+            return union(preds, this.successors(v));
+        }
+        return undefined;
+    }
+    isLeaf(v) {
+        var neighbors;
+        if (this.isDirected()) {
+            neighbors = this.successors(v);
+        }
+        else {
+            neighbors = this.neighbors(v);
+        }
+        return neighbors.length === 0;
+    }
+    filterNodes(filter) {
+        var copy = new Graph({
+            directed: this._isDirected,
+            multigraph: this._isMultigraph,
+            compound: this._isCompound
+        });
+        copy.setGraph(this.graph());
+        var self = this;
+        each(this._nodes, function (value, v) {
+            if (filter(v)) {
+                copy.setNode(v, value);
+            }
+        });
+        each(this._edgeObjs, function (e) {
+            if (copy.hasNode(e.v) && copy.hasNode(e.w)) {
+                copy.setEdge(e, self.edge(e));
+            }
+        });
+        var parents = {};
+        function findParent(v) {
+            var parent = self.parent(v);
+            if (parent === undefined || copy.hasNode(parent)) {
+                parents[v] = parent;
+                return parent;
+            }
+            else if (parent in parents) {
+                return parents[parent];
+            }
+            else {
+                return findParent(parent);
+            }
+        }
+        if (this._isCompound) {
+            for (var v of copy.nodes()) {
+                copy.setParent(v, findParent(v));
+            }
+        }
+        return copy;
+    }
+    ;
+    setDefaultEdgeLabel(newDefault) {
+        function isConstant(x) { return 'function' !== typeof x; }
+        if (isConstant(newDefault)) {
+            this._defaultEdgeLabelFn = () => (newDefault);
+        }
+        else {
+            this._defaultEdgeLabelFn = newDefault;
+        }
+        return this;
+    }
+    edgeCount() {
+        return this._edgeCount;
+    }
+    edges() {
+        return Object.values(this._edgeObjs);
+    }
+    setPath(vs, value) {
+        var self = this;
+        var args = arguments;
+        vs.reduce(function (v, w) {
+            if (args.length > 1) {
+                self.setEdge(v, w, value);
+            }
+            else {
+                self.setEdge(v, w);
+            }
+            return w;
+        });
+        return this;
+    }
+    ;
+    setEdge(v, w, value, name) {
+        var valueSpecified = false;
+        var arg0 = v;
+        if (typeof arg0 === "object" && arg0 !== null && "v" in arg0) {
+            v = arg0.v;
+            w = arg0.w;
+            name = arg0.name;
+            if (arguments.length === 2) {
+                value = arguments[1];
+                valueSpecified = true;
+            }
+        }
+        else {
+            v = arg0;
+            w = arguments[1];
+            name = arguments[3];
+            if (arguments.length > 2) {
+                value = arguments[2];
+                valueSpecified = true;
+            }
+        }
+        v = "" + v;
+        w = "" + w;
+        if (!isUndefined(name)) {
+            name = "" + name;
+        }
+        var e = edgeArgsToId(this._isDirected, v, w, name);
+        if (has(this._edgeLabels, e)) {
+            if (valueSpecified) {
+                this._edgeLabels[e] = value;
+            }
+            return this;
+        }
+        if (!isUndefined(name) && !this._isMultigraph) {
+            throw new Error("Cannot set a named edge when isMultigraph = false");
+        }
+        this.setNode(v);
+        this.setNode(w);
+        this._edgeLabels[e] = valueSpecified ? value : this._defaultEdgeLabelFn(v, w, name);
+        var edgeObj = edgeArgsToObj(this._isDirected, v, w, name);
+        v = edgeObj.v;
+        w = edgeObj.w;
+        Object.freeze(edgeObj);
+        this._edgeObjs[e] = edgeObj;
+        incrementOrInitEntry(this._preds[w], v);
+        incrementOrInitEntry(this._sucs[v], w);
+        this._in[w][e] = edgeObj;
+        this._out[v][e] = edgeObj;
+        this._edgeCount++;
+        return this;
+    }
+    edge(v, w, name) {
+        var e = (('object' === typeof v)
+            ? edgeObjToId(this._isDirected, v)
+            : edgeArgsToId(this._isDirected, v, w, name));
+        return this._edgeLabels[e];
+    }
+    hasEdge(v, w, name) {
+        var e = (arguments.length === 1
+            ? edgeObjToId(this._isDirected, arguments[0])
+            : edgeArgsToId(this._isDirected, v, w, name));
+        return has(this._edgeLabels, e);
+    }
+    removeEdge(v, w, name) {
+        var e = (('object' === typeof v)
+            ? edgeObjToId(this._isDirected, v)
+            : edgeArgsToId(this._isDirected, v, w, name));
+        var edge = this._edgeObjs[e];
+        if (edge) {
+            v = edge.v;
+            w = edge.w;
+            delete this._edgeLabels[e];
+            delete this._edgeObjs[e];
+            decrementOrRemoveEntry(this._preds[w], v);
+            decrementOrRemoveEntry(this._sucs[v], w);
+            delete this._in[w][e];
+            delete this._out[v][e];
+            this._edgeCount--;
+        }
+        return this;
+    }
+    inEdges(v, u) {
+        var inV = this._in[v];
+        if (inV) {
+            var edges = Object.values(inV);
+            if (!u) {
+                return edges;
+            }
+            return edges.filter(function (edge) { return edge.v === u; });
+        }
+        return undefined;
+    }
+    outEdges(v, w) {
+        var outV = this._out[v];
+        if (outV) {
+            var edges = Object.values(outV);
+            if (!w) {
+                return edges;
+            }
+            return edges.filter(function (edge) { return edge.w === w; });
+        }
+        return undefined;
+    }
+    nodeEdges(v, w) {
+        var inEdges = this.inEdges(v, w);
+        if (inEdges) {
+            return inEdges.concat(this.outEdges(v, w));
+        }
+        return undefined;
+    }
+    ;
+}
+class GraphLike extends Graph {
+}
+function incrementOrInitEntry(map, k) {
+    if (map[k]) {
+        map[k]++;
+    }
+    else {
+        map[k] = 1;
+    }
+}
+function decrementOrRemoveEntry(map, k) {
+    if (!--map[k]) {
+        delete map[k];
+    }
+}
+function edgeArgsToId(isDirected, v_, w_, name) {
+    var v = "" + v_;
+    var w = "" + w_;
+    if (!isDirected && v > w) {
+        var tmp = v;
+        v = w;
+        w = tmp;
+    }
+    return v + EDGE_KEY_DELIM + w + EDGE_KEY_DELIM +
+        (isUndefined(name) ? DEFAULT_EDGE_NAME : name);
+}
+function edgeArgsToObj(isDirected, v_, w_, name) {
+    var v = "" + v_;
+    var w = "" + w_;
+    if (!isDirected && v > w) {
+        var tmp = v;
+        v = w;
+        w = tmp;
+    }
+    var edgeObj = { v: v, w: w };
+    if (name) {
+        edgeObj.name = name;
+    }
+    return edgeObj;
+}
+function edgeObjToId(isDirected, edgeObj) {
+    return edgeArgsToId(isDirected, edgeObj.v, edgeObj.w, edgeObj.name);
+}
+
+function addDummyNode(g, type, attrs, name) {
+    var v;
+    do {
+        v = uniqueId(name);
+    } while (g.hasNode(v));
+    attrs.dummy = type;
+    g.setNode(v, attrs);
+    return v;
+}
+function simplify(g) {
+    var simplified = new Graph().setGraph(g.graph());
+    for (var v of g.nodes()) {
+        simplified.setNode(v, g.node(v));
+    }
+    for (var e of g.edges()) {
+        var simpleLabel = simplified.edge(e.v, e.w) || { weight: 0, minlen: 1 };
+        var label = g.edge(e);
+        simplified.setEdge(e.v, e.w, {
+            weight: simpleLabel.weight + label.weight,
+            minlen: Math.max(simpleLabel.minlen, label.minlen)
+        });
+    }
+    return simplified;
+}
+function asNonCompoundGraph(g) {
+    var simplified = new Graph({ multigraph: g.isMultigraph() }).setGraph(g.graph());
+    for (var v of g.nodes()) {
+        if (!g.children(v).length) {
+            simplified.setNode(v, g.node(v));
+        }
+    }
+    for (var e of g.edges()) {
+        simplified.setEdge(e, g.edge(e));
+    }
+    return simplified;
+}
+function successorWeights(g) {
+    var result = {};
+    for (var v of g.nodes()) {
+        var sucs = {};
+        for (var e of g.outEdges(v)) {
+            sucs[e.w] = (sucs[e.w] || 0) + g.edge(e).weight;
+        }
+        result[v] = sucs;
+    }
+    return result;
+}
+function predecessorWeights(g) {
+    var result = {};
+    for (var v of g.nodes()) {
+        var preds = {};
+        for (var e of g.inEdges(v)) {
+            preds[e.v] = (preds[e.v] || 0) + g.edge(e).weight;
+        }
+        result[v] = preds;
+    }
+    return result;
+}
+function intersectRect(rect, point) {
+    var x = rect.x;
+    var y = rect.y;
+    var dx = point.x - x;
+    var dy = point.y - y;
+    var w = rect.width / 2;
+    var h = rect.height / 2;
+    if (!dx && !dy) {
+        throw new Error("Not possible to find intersection inside of the rectangle");
+    }
+    var sx, sy;
+    if (Math.abs(dy) * w > Math.abs(dx) * h) {
+        if (dy < 0) {
+            h = -h;
+        }
+        sx = h * dx / dy;
+        sy = h;
+    }
+    else {
+        if (dx < 0) {
+            w = -w;
+        }
+        sx = w;
+        sy = w * dy / dx;
+    }
+    return { x: x + sx, y: y + sy };
+}
+function buildLayerMatrix(g) {
+    var layering = array(maxRank(g) + 1, () => []);
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        var rank = node.rank;
+        if ((undefined !== rank)) {
+            layering[rank][node.order] = v;
+        }
+    }
+    return layering;
+}
+function normalizeRanks(g) {
+    var min = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        if (has(node, "rank")) {
+            node.rank -= min;
+        }
+    }
+}
+function removeEmptyRanks(g) {
+    var offset = Math.min(...g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e));
+    var layers = [];
+    for (var v of g.nodes()) {
+        var rank = g.node(v).rank - offset;
+        if (!layers[rank]) {
+            layers[rank] = [];
+        }
+        layers[rank].push(v);
+    }
+    var delta = 0;
+    var nodeRankFactor = g.graph().nodeRankFactor;
+    for (var i = 0; i < layers.length; i++) {
+        var vs = layers[i];
+        if ((undefined === vs) && i % nodeRankFactor !== 0) {
+            --delta;
+        }
+        else if (delta && (vs != undefined)) {
+            for (var v of vs) {
+                g.node(v).rank += delta;
+            }
+        }
+    }
+}
+function addBorderNode(g, prefix, rank, order) {
+    var node = {
+        width: 0,
+        height: 0
+    };
+    if (arguments.length >= 4) {
+        node.rank = rank;
+        node.order = order;
+    }
+    return addDummyNode(g, "border", node, prefix);
+}
+function maxRank(g) {
+    var ranks = g.nodes().map(v => g.node(v).rank).filter(e => undefined !== e);
+    return Math.max(...ranks);
+}
+function partition(collection, fn) {
+    var lhs = [];
+    var rhs = [];
+    for (var value of collection) {
+        if (fn(value)) {
+            lhs.push(value);
+        }
+        else {
+            rhs.push(value);
+        }
+    }
+    return { lhs, rhs };
+}
+function time(name, fn) {
+    var start = Date.now();
+    try {
+        return fn();
+    }
+    finally {
+        console.log(name + " time: " + (Date.now() - start) + "ms");
+    }
+}
+function notime(name, fn) {
+    return fn();
+}
+
+var util = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    addDummyNode: addDummyNode,
+    simplify: simplify,
+    asNonCompoundGraph: asNonCompoundGraph,
+    successorWeights: successorWeights,
+    predecessorWeights: predecessorWeights,
+    intersectRect: intersectRect,
+    buildLayerMatrix: buildLayerMatrix,
+    normalizeRanks: normalizeRanks,
+    removeEmptyRanks: removeEmptyRanks,
+    addBorderNode: addBorderNode,
+    maxRank: maxRank,
+    partition: partition,
+    time: time,
+    notime: notime
+});
+
+function sort(entries, biasRight) {
+    var parts = partition(entries, function (entry) {
+        return has(entry, "barycenter");
+    });
+    var sortable = parts.lhs;
+    var unsortable = sortBy(parts.rhs, (entry) => -entry.i);
+    var vss = [];
+    var sum = 0;
+    var weight = 0;
+    var vsIndex = 0;
+    sortable.sort(compareWithBias(!!biasRight));
+    vsIndex = consumeUnsortable(vss, unsortable, vsIndex);
+    for (var entry of sortable) {
+        vsIndex += entry.vs.length;
+        vss.push(entry.vs);
+        sum += entry.barycenter * entry.weight;
+        weight += entry.weight;
+        vsIndex = consumeUnsortable(vss, unsortable, vsIndex);
+    }
+    var result = { vs: flattenDeep(vss) };
+    if (weight) {
+        result.barycenter = sum / weight;
+        result.weight = weight;
+    }
+    return result;
+}
+function consumeUnsortable(vs, unsortable, index) {
+    var lastItem;
+    while (unsortable.length && (lastItem = last(unsortable)).i <= index) {
+        unsortable.pop();
+        vs.push(lastItem.vs);
+        index++;
+    }
+    return index;
+}
+function compareWithBias(bias) {
+    return function (entryV, entryW) {
+        if (entryV.barycenter < entryW.barycenter) {
+            return -1;
+        }
+        else if (entryV.barycenter > entryW.barycenter) {
+            return 1;
+        }
+        return !bias ? entryV.i - entryW.i : entryW.i - entryV.i;
+    };
+}
+
+function sortSubgraph(g, v, cg, biasRight) {
+    var movable = g.children(v);
+    var node = g.node(v);
+    var bl = node ? node.borderLeft : undefined;
+    var br = node ? node.borderRight : undefined;
+    var subgraphs = {};
+    if (bl) {
+        movable = movable.filter((w) => w !== bl && w !== br);
+    }
+    var barycenters = barycenter(g, movable);
+    for (var entry of barycenters) {
+        if (g.children(entry.v).length) {
+            var subgraphResult = sortSubgraph(g, entry.v, cg, biasRight);
+            subgraphs[entry.v] = subgraphResult;
+            if (has(subgraphResult, "barycenter")) {
+                mergeBarycenters(entry, subgraphResult);
+            }
+        }
+    }
+    var entries = resolveConflicts(barycenters, cg);
+    expandSubgraphs(entries, subgraphs);
+    var result = sort(entries, biasRight);
+    if (bl) {
+        result.vs = ([bl, ...result.vs, br]);
+        if (g.predecessors(bl).length) {
+            var blPred = g.node(g.predecessors(bl)[0]);
+            var brPred = g.node(g.predecessors(br)[0]);
+            if (!has(result, "barycenter")) {
+                result.barycenter = 0;
+                result.weight = 0;
+            }
+            result.barycenter = (result.barycenter * result.weight +
+                blPred.order + brPred.order) / (result.weight + 2);
+            result.weight += 2;
+        }
+    }
+    return result;
+}
+function expandSubgraphs(entries, subgraphs) {
+    for (var entry of entries) {
+        entry.vs = flattenDeep(entry.vs.map(function (v) {
+            if (subgraphs[v]) {
+                return subgraphs[v].vs;
+            }
+            return [v];
+        }));
+    }
+}
+function mergeBarycenters(target, other) {
+    if ((undefined !== target.barycenter)) {
+        target.barycenter = (target.barycenter * target.weight +
+            other.barycenter * other.weight) /
+            (target.weight + other.weight);
+        target.weight += other.weight;
+    }
+    else {
+        target.barycenter = other.barycenter;
+        target.weight = other.weight;
+    }
+}
+
+function buildLayerGraph(g, rank, relationship) {
+    var root = createRootNode(g);
+    var result = new Graph({ compound: true }).setGraph({ root: root })
+        .setDefaultNodeLabel(v => g.node(v));
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        var parent = g.parent(v);
+        if (node.rank === rank || node.minRank <= rank && rank <= node.maxRank) {
+            result.setNode(v);
+            result.setParent(v, parent || root);
+            for (var e of g[relationship](v)) {
+                var u = e.v === v ? e.w : e.v;
+                var edge = result.edge(u, v);
+                var weight = (undefined !== edge) ? edge.weight : 0;
+                result.setEdge(u, v, { weight: g.edge(e).weight + weight });
+            }
+            if (has(node, "minRank")) {
+                result.setNode(v, {
+                    borderLeft: node.borderLeft[rank],
+                    borderRight: node.borderRight[rank]
+                });
+            }
+        }
+    }
+    return result;
+}
+function createRootNode(g) {
+    var v;
+    while (g.hasNode((v = uniqueId("_root"))))
+        ;
+    return v;
+}
+
+function addSubgraphConstraints(g, cg, vs) {
+    var prev = {};
+    var rootPrev;
+    for (var v of vs) {
+        (function () {
+            var child = g.parent(v);
+            var prevChild;
+            while (child) {
+                var parent = g.parent(child);
+                if (parent) {
+                    prevChild = prev[parent];
+                    prev[parent] = child;
+                }
+                else {
+                    prevChild = rootPrev;
+                    rootPrev = child;
+                }
+                if (prevChild && prevChild !== child) {
+                    cg.setEdge(prevChild, child);
+                    return;
+                }
+                child = parent;
+            }
+        })();
+    }
+}
+
+function order(g) {
+    var maximumRank = maxRank(g);
+    var downLayerGraphs = buildLayerGraphs(g, range(1, maximumRank + 1), "inEdges");
+    var upLayerGraphs = buildLayerGraphs(g, range(maximumRank - 1, -1), "outEdges");
+    var layering = initOrder(g);
+    assignOrder(g, layering);
+    var bestCC = Number.POSITIVE_INFINITY;
+    var best;
+    for (var i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
+        sweepLayerGraphs(i % 2 ? downLayerGraphs : upLayerGraphs, i % 4 >= 2);
+        layering = buildLayerMatrix(g);
+        var cc = crossCount(g, layering);
+        if (cc < bestCC) {
+            lastBest = 0;
+            best = layering.map(layer => layer.slice(0));
+            bestCC = cc;
+        }
+    }
+    assignOrder(g, best);
+}
+function buildLayerGraphs(g, ranks, relationship) {
+    return ranks.map(rank => buildLayerGraph(g, rank, relationship));
+}
+function sweepLayerGraphs(layerGraphs, biasRight) {
+    var cg = new Graph();
+    for (var lg of layerGraphs) {
+        var root = lg.graph().root;
+        var sorted = sortSubgraph(lg, root, cg, biasRight);
+        sorted.vs.map(function (v, i) {
+            lg.node(v).order = i;
+        });
+        addSubgraphConstraints(lg, cg, sorted.vs);
+    }
+}
+function assignOrder(g, layering) {
+    for (var layer of layering) {
+        layer.map(function (v, i) {
+            g.node(v).order = i;
+        });
+    }
+}
+
+var index = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    order: order,
+    addSubgraphConstraints: addSubgraphConstraints,
+    barycenter: barycenter,
+    buildLayerGraph: buildLayerGraph,
+    crossCount: crossCount,
+    initOrder: initOrder,
+    resolveConflicts: resolveConflicts,
+    sortSubgraph: sortSubgraph,
+    sort: sort
+});
+
+function findType1Conflicts(g, layering) {
+    var conflicts = {};
+    function visitLayer(prevLayer, layer) {
+        var k0 = 0;
+        var scanPos = 0;
+        var prevLayerLength = prevLayer.length;
+        var lastNode = last(layer);
+        for (var i = 0; i < layer.length; i++) {
+            var v = layer[i];
+            var w = findOtherInnerSegmentNode(g, v);
+            var k1 = w ? g.node(w).order : prevLayerLength;
+            if (w || v === lastNode) {
+                for (var scanNode of layer.slice(scanPos, i + 1)) {
+                    for (var u of g.predecessors(scanNode)) {
+                        var uLabel = g.node(u);
+                        var uPos = uLabel.order;
+                        if ((uPos < k0 || k1 < uPos) && !(uLabel.dummy && g.node(scanNode).dummy)) {
+                            addConflict(conflicts, u, scanNode);
+                        }
+                    }
+                }
+                scanPos = i + 1;
+                k0 = k1;
+            }
+        }
+        return layer;
+    }
+    layering.reduce(visitLayer);
+    return conflicts;
+}
+function findType2Conflicts(g, layering) {
+    var conflicts = {};
+    function scan(south, southPos, southEnd, prevNorthBorder, nextNorthBorder) {
+        var v;
+        for (var i of range(southPos, southEnd)) {
+            v = south[i];
+            if (g.node(v).dummy) {
+                for (var u of g.predecessors(v)) {
+                    var uNode = g.node(u);
+                    if (uNode.dummy &&
+                        (uNode.order < prevNorthBorder || uNode.order > nextNorthBorder)) {
+                        addConflict(conflicts, u, v);
+                    }
+                }
+            }
+        }
+    }
+    function visitLayer(north, south) {
+        var prevNorthPos = -1;
+        var nextNorthPos;
+        var southPos = 0;
+        for (var i = 0; i < south.length; i++) {
+            var southLookahead = i;
+            var v = south[i];
+            if (v === undefined)
+                continue;
+            if (g.node(v).dummy === "border") {
+                var predecessors = g.predecessors(v);
+                if (predecessors.length) {
+                    nextNorthPos = g.node(predecessors[0]).order;
+                    scan(south, southPos, southLookahead, prevNorthPos, nextNorthPos);
+                    southPos = southLookahead;
+                    prevNorthPos = nextNorthPos;
+                }
+            }
+            scan(south, southPos, south.length, nextNorthPos, north.length);
+        }
+        return south;
+    }
+    layering.reduce(visitLayer);
+    return conflicts;
+}
+function findOtherInnerSegmentNode(g, v) {
+    if (g.node(v).dummy) {
+        for (var u of g.predecessors(v)) {
+            if (g.node(u).dummy) {
+                return u;
+            }
+        }
+    }
+    return undefined;
+}
+function addConflict(conflicts, v, w) {
+    if (v > w) {
+        var tmp = v;
+        v = w;
+        w = tmp;
+    }
+    var conflictsV = conflicts[v];
+    if (!conflictsV) {
+        conflicts[v] = conflictsV = {};
+    }
+    conflictsV[w] = true;
+}
+function hasConflict(conflicts, v, w) {
+    if (v > w) {
+        var tmp = v;
+        v = w;
+        w = tmp;
+    }
+    return has(conflicts[v], w);
+}
+function verticalAlignment(g, layering, conflicts, neighborFn) {
+    var root = {};
+    var align = {};
+    var pos = {};
+    for (var layer of layering) {
+        for (var order = 0; order < layer.length; order++) {
+            var v = layer[order];
+            root[v] = v;
+            align[v] = v;
+            pos[v] = order;
+        }
+    }
+    for (var layer of layering) {
+        var prevIdx = -1;
+        for (var v of layer) {
+            var ws = neighborFn(v);
+            if (ws.length) {
+                ws = sortBy(ws, w => pos[w]);
+                var mp = (ws.length - 1) / 2;
+                for (var i = Math.floor(mp), il = Math.ceil(mp); i <= il; ++i) {
+                    var w = ws[i];
+                    if (align[v] === v &&
+                        prevIdx < pos[w] &&
+                        !hasConflict(conflicts, v, w)) {
+                        align[w] = v;
+                        align[v] = root[v] = root[w];
+                        prevIdx = pos[w];
+                    }
+                }
+            }
+        }
+    }
+    return { root: root, align: align };
+}
+function horizontalCompaction(g, layering, root, align, reverseSep) {
+    var xs = {};
+    var blockG = buildBlockGraph(g, layering, root, reverseSep);
+    var borderType = reverseSep ? "borderLeft" : "borderRight";
+    function iterate(setXsFunc, nextNodesFunc) {
+        var stack = blockG.nodes();
+        var elem = stack.pop();
+        var visited = {};
+        while (elem) {
+            if (visited[elem]) {
+                setXsFunc(elem);
+            }
+            else {
+                visited[elem] = true;
+                stack.push(elem);
+                stack = stack.concat(nextNodesFunc(elem));
+            }
+            elem = stack.pop();
+        }
+    }
+    function pass1(elem) {
+        xs[elem] = blockG.inEdges(elem).reduce(function (acc, e) {
+            return Math.max(acc, xs[e.v] + blockG.edge(e));
+        }, 0);
+    }
+    function pass2(elem) {
+        var min = blockG.outEdges(elem).reduce(function (acc, e) {
+            return Math.min(acc, xs[e.w] - blockG.edge(e));
+        }, Number.POSITIVE_INFINITY);
+        var node = g.node(elem);
+        if (min !== Number.POSITIVE_INFINITY && node.borderType !== borderType) {
+            xs[elem] = Math.max(xs[elem], min);
+        }
+    }
+    iterate(pass1, (s) => blockG.predecessors(s));
+    iterate(pass2, (s) => blockG.successors(s));
+    for (var key of Object.keys(align)) {
+        var v = align[key];
+        xs[v] = xs[root[v]];
+    }
+    return xs;
+}
+function buildBlockGraph(g, layering, root, reverseSep) {
+    var blockGraph = new Graph();
+    var graphLabel = g.graph();
+    var sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
+    for (var layer of layering) {
+        var u = null;
+        for (var v of layer) {
+            var vRoot = root[v];
+            blockGraph.setNode(vRoot);
+            if (u) {
+                var uRoot = root[u];
+                var prevMax = blockGraph.edge(uRoot, vRoot);
+                blockGraph.setEdge(uRoot, vRoot, Math.max(sepFn(g, v, u), prevMax || 0));
+            }
+            u = v;
+        }
+    }
+    return blockGraph;
+}
+function findSmallestWidthAlignment(g, xss) {
+    return minBy(values(xss), function (xs) {
+        var max = Number.NEGATIVE_INFINITY;
+        var min = Number.POSITIVE_INFINITY;
+        for (var v in xs) {
+            var x = xs[v];
+            var halfWidth = width(g, v) / 2;
+            max = Math.max(x + halfWidth, max);
+            min = Math.min(x - halfWidth, min);
+        }
+        return max - min;
+    });
+}
+function alignCoordinates(xss, alignTo) {
+    var alignToVals = values(alignTo);
+    var alignToMin = Math.min(...alignToVals);
+    var alignToMax = Math.max(...alignToVals);
+    for (var alignment of ['ul', 'ur', 'dl', 'dr']) {
+        var horiz = alignment[1];
+        var xs = xss[alignment];
+        if (xs === alignTo)
+            continue;
+        var xsVals = values(xs);
+        var delta = horiz === "l" ? alignToMin - Math.min(...xsVals) : alignToMax - Math.max(...xsVals);
+        if (delta) {
+            xss[alignment] = mapValues(xs, x => x + delta);
+        }
+    }
+}
+function balance(xss, align) {
+    return mapValues(xss.ul, function (ignore, v) {
+        if (align) {
+            return xss[align.toLowerCase()][v];
+        }
+        else {
+            var xs = sortBy([xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v]], e => e);
+            return (xs[1] + xs[2]) / 2;
+        }
+    });
+}
+function positionX(g) {
+    var layering = buildLayerMatrix(g);
+    var conflicts = Object.assign(Object.assign({}, findType1Conflicts(g, layering)), findType2Conflicts(g, layering));
+    var xss = { ul: {}, ur: {}, dl: {}, dr: {} };
+    var adjustedLayering;
+    for (var vert of ["u", "d"]) {
+        adjustedLayering = vert === "u" ? layering : layering.map(e => e).reverse();
+        for (var horiz of ["l", "r"]) {
+            if (horiz === "r") {
+                adjustedLayering = adjustedLayering.map((inner) => inner.map(e => e).reverse());
+            }
+            var neighborFn = (vert === "u" ? g.predecessors : g.successors).bind(g);
+            var align = verticalAlignment(g, adjustedLayering, conflicts, neighborFn);
+            var xs = horizontalCompaction(g, adjustedLayering, align.root, align.align, horiz === "r");
+            if (horiz === "r") {
+                xs = mapValues(xs, (x) => -x);
+            }
+            xss[(vert + horiz)] = xs;
+        }
+    }
+    var smallestWidth = findSmallestWidthAlignment(g, xss);
+    alignCoordinates(xss, smallestWidth);
+    return balance(xss, g.graph().align);
+}
+function sep(nodeSep, edgeSep, reverseSep) {
+    return function (g, v, w) {
+        var vLabel = g.node(v);
+        var wLabel = g.node(w);
+        var sum = 0;
+        var delta;
+        sum += vLabel.width / 2;
+        if (has(vLabel, "labelpos")) {
+            switch (vLabel.labelpos.toLowerCase()) {
+                case "l":
+                    delta = -vLabel.width / 2;
+                    break;
+                case "r":
+                    delta = vLabel.width / 2;
+                    break;
+            }
+        }
+        if (delta) {
+            sum += reverseSep ? delta : -delta;
+        }
+        delta = 0;
+        sum += (vLabel.dummy ? edgeSep : nodeSep) / 2;
+        sum += (wLabel.dummy ? edgeSep : nodeSep) / 2;
+        sum += wLabel.width / 2;
+        if (has(wLabel, "labelpos")) {
+            switch (wLabel.labelpos.toLowerCase()) {
+                case "l":
+                    delta = wLabel.width / 2;
+                    break;
+                case "r":
+                    delta = -wLabel.width / 2;
+                    break;
+            }
+        }
+        if (delta) {
+            sum += reverseSep ? delta : -delta;
+        }
+        delta = 0;
+        return sum;
+    };
+}
+function width(g, v) {
+    return g.node(v).width;
+}
+
+var bk = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    findType1Conflicts: findType1Conflicts,
+    findType2Conflicts: findType2Conflicts,
+    findOtherInnerSegmentNode: findOtherInnerSegmentNode,
+    addConflict: addConflict,
+    hasConflict: hasConflict,
+    verticalAlignment: verticalAlignment,
+    horizontalCompaction: horizontalCompaction,
+    findSmallestWidthAlignment: findSmallestWidthAlignment,
+    alignCoordinates: alignCoordinates,
+    balance: balance,
+    positionX: positionX,
+    sep: sep,
+    width: width
+});
+
+function position(g) {
+    g = asNonCompoundGraph(g);
+    positionY(g);
+    var posx = positionX(g);
+    for (var v in posx) {
+        g.node(v).x = posx[v];
+    }
+}
+function positionY(g) {
+    var layering = buildLayerMatrix(g);
+    var rankSep = g.graph().ranksep;
+    var prevY = 0;
+    for (var layer of layering) {
+        var maxHeight = Math.max(...layer.map(v => g.node(v).height));
+        for (var v of layer) {
+            g.node(v).y = prevY + maxHeight / 2;
+        }
+        prevY += maxHeight + rankSep;
+    }
+}
+
+var index$1 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    bk: bk,
+    position: position
+});
+
+function longestPath(g) {
+    var visited = {};
+    function dfs(v) {
+        var label = g.node(v);
+        if (has(visited, v)) {
+            return label.rank;
+        }
+        visited[v] = true;
+        var rank = Math.min(...g.outEdges(v).map((e) => dfs(e.w) - g.edge(e).minlen));
+        if (rank === Number.POSITIVE_INFINITY ||
+            rank === undefined ||
+            rank === null) {
+            rank = 0;
+        }
+        return (label.rank = rank);
+    }
+    g.sources().forEach(dfs);
+}
+function slack(g, e) {
+    return g.node(e.w).rank - g.node(e.v).rank - g.edge(e).minlen;
+}
+
+function feasibleTree(g) {
+    var t = new Graph({ directed: false });
+    var start = g.nodes()[0];
+    var size = g.nodeCount();
+    t.setNode(start, {});
+    var edge, delta;
+    while (tightTree(g) < size) {
+        edge = findMinSlackEdge(g);
+        delta = t.hasNode(edge.v) ? slack(g, edge) : -slack(g, edge);
+        shiftRanks(g, delta);
+    }
+    return t;
+    function tightTree(g) {
+        function dfs(v) {
+            for (var e of g.nodeEdges(v)) {
+                var edgeV = e.v;
+                var w = (v === edgeV) ? e.w : edgeV;
+                if (!t.hasNode(w) && !slack(g, e)) {
+                    t.setNode(w, {});
+                    t.setEdge(v, w, {});
+                    dfs(w);
+                }
+            }
+        }
+        t.nodes().forEach(dfs);
+        return t.nodeCount();
+    }
+    function findMinSlackEdge(g) {
+        return minBy(g.edges(), function (e) {
+            if (t.hasNode(e.v) !== t.hasNode(e.w)) {
+                return slack(g, e);
+            }
+            return undefined;
+        });
+    }
+    function shiftRanks(g, delta) {
+        for (var v of t.nodes()) {
+            g.node(v).rank += delta;
+        }
+    }
+}
+
+function components(g) {
+    var visited = {};
+    var cmpts = [];
+    var cmpt;
+    function dfs(v) {
+        if (v in visited)
+            return;
+        visited[v] = true;
+        cmpt.push(v);
+        for (var a of g.successors(v))
+            dfs(a);
+        for (var b of g.predecessors(v))
+            dfs(b);
+    }
+    for (var v of g.nodes()) {
+        cmpt = [];
+        dfs(v);
+        if (cmpt.length) {
+            cmpts.push(cmpt);
+        }
+    }
+    return cmpts;
+}
+
+class PriorityQueue {
+    constructor() {
+        this._arr = [];
+        this._keyIndices = {};
+    }
+    size() {
+        return this._arr.length;
+    }
+    ;
+    keys() {
+        return this._arr.map(function (x) { return x.key; });
+    }
+    ;
+    has(key) {
+        return (key in this._keyIndices);
+    }
+    ;
+    priority(key) {
+        var index = this._keyIndices[key];
+        if (index !== undefined) {
+            return this._arr[index].priority;
+        }
+        return undefined;
+    }
+    ;
+    min() {
+        if (this.size() === 0) {
+            throw new Error("Queue underflow");
+        }
+        return this._arr[0].key;
+    }
+    ;
+    add(key, priority) {
+        var keyIndices = this._keyIndices;
+        key = String(key);
+        if (!(key in keyIndices)) {
+            var arr = this._arr;
+            var index = arr.length;
+            keyIndices[key] = index;
+            arr.push({ key: key, priority: priority });
+            this._decrease(index);
+            return true;
+        }
+        return false;
+    }
+    ;
+    removeMin() {
+        this._swap(0, this._arr.length - 1);
+        var min = this._arr.pop();
+        delete this._keyIndices[min.key];
+        this._heapify(0);
+        return min.key;
+    }
+    ;
+    decrease(key, priority) {
+        var index = this._keyIndices[key];
+        if (priority > this._arr[index].priority) {
+            throw new Error("New priority is greater than current priority. " +
+                "Key: " + key + " Old: " + this._arr[index].priority + " New: " + priority);
+        }
+        this._arr[index].priority = priority;
+        this._decrease(index);
+    }
+    ;
+    _heapify(i) {
+        var arr = this._arr;
+        var l = 2 * i;
+        var r = l + 1;
+        var largest = i;
+        if (l < arr.length) {
+            largest = arr[l].priority < arr[largest].priority ? l : largest;
+            if (r < arr.length) {
+                largest = arr[r].priority < arr[largest].priority ? r : largest;
+            }
+            if (largest !== i) {
+                this._swap(i, largest);
+                this._heapify(largest);
+            }
+        }
+    }
+    ;
+    _decrease(index) {
+        var arr = this._arr;
+        var priority = arr[index].priority;
+        var parent;
+        while (index !== 0) {
+            parent = index >> 1;
+            if (arr[parent].priority < priority) {
+                break;
+            }
+            this._swap(index, parent);
+            index = parent;
+        }
+    }
+    ;
+    _swap(i, j) {
+        var arr = this._arr;
+        var keyIndices = this._keyIndices;
+        var origArrI = arr[i];
+        var origArrJ = arr[j];
+        arr[i] = origArrJ;
+        arr[j] = origArrI;
+        keyIndices[origArrJ.key] = i;
+        keyIndices[origArrI.key] = j;
+    }
+    ;
+}
+
+var DEFAULT_WEIGHT_FUNC = () => 1;
+function dijkstra(g, source, weightFn, edgeFn) {
+    return runDijkstra(g, String(source), weightFn || DEFAULT_WEIGHT_FUNC, edgeFn || function (v) { return g.outEdges(v); });
+}
+function runDijkstra(g, source, weightFn, edgeFn) {
+    var results = {};
+    var pq = new PriorityQueue();
+    var v;
+    var vEntry;
+    var updateNeighbors = function (edge) {
+        var w = edge.v !== v ? edge.v : edge.w;
+        var wEntry = results[w];
+        var weight = weightFn(edge);
+        var distance = vEntry.distance + weight;
+        if (weight < 0) {
+            throw new Error("dijkstra does not allow negative edge weights. " +
+                "Bad edge: " + edge + " Weight: " + weight);
+        }
+        if (distance < wEntry.distance) {
+            wEntry.distance = distance;
+            wEntry.predecessor = v;
+            pq.decrease(w, distance);
+        }
+    };
+    g.nodes().forEach(function (v) {
+        var distance = v === source ? 0 : Number.POSITIVE_INFINITY;
+        results[v] = { distance: distance };
+        pq.add(v, distance);
+    });
+    while (pq.size() > 0) {
+        v = pq.removeMin();
+        vEntry = results[v];
+        if (vEntry.distance === Number.POSITIVE_INFINITY) {
+            break;
+        }
+        edgeFn(v).forEach(updateNeighbors);
+    }
+    return results;
+}
+
+function dijkstraAll(g, weightFunc, edgeFunc) {
+    var acc = {};
+    for (var item of g.nodes()) {
+        acc[item] = dijkstra(g, item, weightFunc, edgeFunc);
+    }
+    return acc;
+}
+
+function tarjan(g) {
+    var index = 0;
+    var stack = [];
+    var visited = {};
+    var results = [];
+    function dfs(v) {
+        var entry = visited[v] = {
+            onStack: true,
+            lowlink: index,
+            index: index++
+        };
+        stack.push(v);
+        g.successors(v).forEach(function (w) {
+            if (!(w in visited)) {
+                dfs(w);
+                entry.lowlink = Math.min(entry.lowlink, visited[w].lowlink);
+            }
+            else if (visited[w].onStack) {
+                entry.lowlink = Math.min(entry.lowlink, visited[w].index);
+            }
+        });
+        if (entry.lowlink === entry.index) {
+            var cmpt = [];
+            var w;
+            do {
+                w = stack.pop();
+                visited[w].onStack = false;
+                cmpt.push(w);
+            } while (v !== w);
+            results.push(cmpt);
+        }
+    }
+    g.nodes().forEach(function (v) {
+        if (!(v in visited)) {
+            dfs(v);
+        }
+    });
+    return results;
+}
+
+function findCycles(g) {
+    return tarjan(g).filter(function (cmpt) {
+        return cmpt.length > 1 || (cmpt.length === 1 && g.hasEdge(cmpt[0], cmpt[0]));
+    });
+}
+
+var DEFAULT_WEIGHT_FUNC$1 = () => 1;
+function floydWarshall(g, weightFn, edgeFn) {
+    return runFloydWarshall(g, weightFn || DEFAULT_WEIGHT_FUNC$1, edgeFn || function (v) { return g.outEdges(v); });
+}
+function runFloydWarshall(g, weightFn, edgeFn) {
+    var results = {};
+    var nodes = g.nodes();
+    nodes.forEach(function (v) {
+        results[v] = {};
+        results[v][v] = { distance: 0 };
+        nodes.forEach(function (w) {
+            if (v !== w) {
+                results[v][w] = { distance: Number.POSITIVE_INFINITY };
+            }
+        });
+        edgeFn(v).forEach(function (edge) {
+            var w = edge.v === v ? edge.w : edge.v;
+            var d = weightFn(edge);
+            results[v][w] = { distance: d, predecessor: v };
+        });
+    });
+    nodes.forEach(function (k) {
+        var rowK = results[k];
+        nodes.forEach(function (i) {
+            var rowI = results[i];
+            nodes.forEach(function (j) {
+                var ik = rowI[k];
+                var kj = rowK[j];
+                var ij = rowI[j];
+                var altDistance = ik.distance + kj.distance;
+                if (altDistance < ij.distance) {
+                    ij.distance = altDistance;
+                    ij.predecessor = kj.predecessor;
+                }
+            });
+        });
+    });
+    return results;
+}
+
+class CycleException extends Error {
+}
+function topsort(g) {
+    var visited = {};
+    var stack = {};
+    var results = [];
+    function visit(node) {
+        if (node in stack) {
+            throw new CycleException();
+        }
+        if (!(node in visited)) {
+            stack[node] = true;
+            visited[node] = true;
+            for (var item of g.predecessors(node)) {
+                visit(item);
+            }
+            delete stack[node];
+            results.push(node);
+        }
+    }
+    for (var item of g.sinks()) {
+        visit(item);
+    }
+    if (Object.keys(visited).length !== g.nodeCount()) {
+        throw new CycleException();
+    }
+    return results;
+}
+
+function isAcyclic(g) {
+    try {
+        topsort(g);
+    }
+    catch (e) {
+        if (e instanceof CycleException) {
+            return false;
+        }
+        throw e;
+    }
+    return true;
+}
+
+function dfs(g, vs, order) {
+    var nodes = (!Array.isArray(vs)) ? [vs] : vs;
+    var navigation = (g.isDirected() ? g.successors : g.neighbors).bind(g);
+    var acc = [];
+    var visited = {};
+    for (var v of nodes) {
+        if (!g.hasNode(v)) {
+            throw new Error("Graph does not have node: " + v);
+        }
+        doDfs(g, v, order === "post", visited, navigation, acc);
+    }
+    return acc;
+}
+function doDfs(g, v, postorder, visited, navigation, acc) {
+    if (!(v in visited)) {
+        visited[v] = true;
+        if (!postorder) {
+            acc.push(v);
+        }
+        for (var w of navigation(v)) {
+            doDfs(g, w, postorder, visited, navigation, acc);
+        }
+        if (postorder) {
+            acc.push(v);
+        }
+    }
+}
+
+function postorder(g, vs) {
+    return dfs(g, vs, "post");
+}
+
+function preorder(g, vs) {
+    return dfs(g, vs, "pre");
+}
+
+function prim(g, weightFunc) {
+    var result = new GraphLike({});
+    var parents = {};
+    var pq = new PriorityQueue();
+    var v;
+    function updateNeighbors(edge) {
+        var w = edge.v === v ? edge.w : edge.v;
+        var pri = pq.priority(w);
+        if (pri !== undefined) {
+            var edgeWeight = weightFunc(edge);
+            if (edgeWeight < pri) {
+                parents[w] = v;
+                pq.decrease(w, edgeWeight);
+            }
+        }
+    }
+    if (g.nodeCount() === 0) {
+        return result;
+    }
+    for (v of g.nodes()) {
+        pq.add(v, Number.POSITIVE_INFINITY);
+        result.setNode(v);
+    }
+    pq.decrease(g.nodes()[0], 0);
+    var init = false;
+    while (pq.size() > 0) {
+        v = pq.removeMin();
+        if ((v in parents)) {
+            result.setEdge(v, parents[v]);
+        }
+        else if (init) {
+            throw new Error("Input graph is not connected: " + g);
+        }
+        else {
+            init = true;
+        }
+        g.nodeEdges(v).forEach(updateNeighbors);
+    }
+    return result;
+}
+
+var alg = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    components: components,
+    dijkstra: dijkstra,
+    dijkstraAll: dijkstraAll,
+    findCycles: findCycles,
+    floydWarshall: floydWarshall,
+    isAcyclic: isAcyclic,
+    postorder: postorder,
+    preorder: preorder,
+    prim: prim,
+    tarjan: tarjan,
+    topsort: topsort
+});
+
+networkSimplex.initLowLimValues = initLowLimValues;
+networkSimplex.initCutValues = initCutValues;
+networkSimplex.calcCutValue = calcCutValue;
+networkSimplex.leaveEdge = leaveEdge;
+networkSimplex.enterEdge = enterEdge;
+networkSimplex.exchangeEdges = exchangeEdges;
+function networkSimplex(g) {
+    g = simplify(g);
+    longestPath(g);
+    var t = feasibleTree(g);
+    initLowLimValues(t);
+    initCutValues(t, g);
+    var e, f;
+    while ((e = leaveEdge(t))) {
+        f = enterEdge(t, g, e);
+        exchangeEdges(t, g, e, f);
+    }
+}
+function initCutValues(t, g) {
+    var vs = postorder(t, t.nodes());
+    vs = vs.slice(0, vs.length - 1);
+    for (var v of vs) {
+        assignCutValue(t, g, v);
+    }
+}
+function assignCutValue(t, g, child) {
+    var childLab = t.node(child);
+    var parent = childLab.parent;
+    t.edge(child, parent).cutvalue = calcCutValue(t, g, child);
+}
+function calcCutValue(t, g, child) {
+    var childLab = t.node(child);
+    var parent = childLab.parent;
+    var childIsTail = true;
+    var graphEdge = g.edge(child, parent);
+    var cutValue = 0;
+    if (!graphEdge) {
+        childIsTail = false;
+        graphEdge = g.edge(parent, child);
+    }
+    cutValue = graphEdge.weight;
+    for (var e of g.nodeEdges(child)) {
+        var isOutEdge = e.v === child;
+        var other = isOutEdge ? e.w : e.v;
+        if (other !== parent) {
+            var pointsToHead = isOutEdge === childIsTail;
+            var otherWeight = g.edge(e).weight;
+            cutValue += pointsToHead ? otherWeight : -otherWeight;
+            if (isTreeEdge(t, child, other)) {
+                var otherCutValue = t.edge(child, other).cutvalue;
+                cutValue += pointsToHead ? -otherCutValue : otherCutValue;
+            }
+        }
+    }
+    return cutValue;
+}
+function initLowLimValues(tree, root) {
+    if (arguments.length < 2) {
+        root = tree.nodes()[0];
+    }
+    dfsAssignLowLim(tree, {}, 1, root);
+}
+function dfsAssignLowLim(tree, visited, nextLim, v, parent) {
+    var low = nextLim;
+    var label = tree.node(v);
+    visited[v] = true;
+    for (var w of tree.neighbors(v)) {
+        if (!has(visited, w)) {
+            nextLim = dfsAssignLowLim(tree, visited, nextLim, w, v);
+        }
+    }
+    label.low = low;
+    label.lim = nextLim++;
+    if (parent) {
+        label.parent = parent;
+    }
+    else {
+        delete label.parent;
+    }
+    return nextLim;
+}
+function leaveEdge(tree) {
+    for (var e of tree.edges()) {
+        if (tree.edge(e).cutvalue < 0) {
+            return e;
+        }
+    }
+    return undefined;
+}
+function enterEdge(t, g, edge) {
+    var v = edge.v;
+    var w = edge.w;
+    if (!g.hasEdge(v, w)) {
+        v = edge.w;
+        w = edge.v;
+    }
+    var vLabel = t.node(v);
+    var wLabel = t.node(w);
+    var tailLabel = vLabel;
+    var flip = false;
+    if (vLabel.lim > wLabel.lim) {
+        tailLabel = wLabel;
+        flip = true;
+    }
+    var candidates = g.edges().filter(function (edge) {
+        return flip === isDescendant(t, t.node(edge.v), tailLabel) &&
+            flip !== isDescendant(t, t.node(edge.w), tailLabel);
+    });
+    return minBy(candidates, (edge) => slack(g, edge));
+}
+function exchangeEdges(t, g, e, f) {
+    var v = e.v;
+    var w = e.w;
+    t.removeEdge(v, w);
+    t.setEdge(f.v, f.w, {});
+    initLowLimValues(t);
+    initCutValues(t, g);
+    updateRanks(t, g);
+}
+function findRoot(t, g) {
+    for (var v of t.nodes())
+        if (!g.node(v).parent)
+            return v;
+    return undefined;
+}
+function updateRanks(t, g) {
+    var root = findRoot(t, g);
+    var vs = preorder(t, root);
+    vs = vs.slice(1);
+    for (var v of vs) {
+        var parent = t.node(v).parent;
+        var edge = g.edge(v, parent);
+        var flipped = false;
+        if (!edge) {
+            edge = g.edge(parent, v);
+            flipped = true;
+        }
+        g.node(v).rank = g.node(parent).rank + (flipped ? edge.minlen : -edge.minlen);
+    }
+}
+function isTreeEdge(tree, u, v) {
+    return tree.hasEdge(u, v);
+}
+function isDescendant(tree, vLabel, rootLabel) {
+    return rootLabel.low <= vLabel.lim && vLabel.lim <= rootLabel.lim;
+}
+
+function rank(g) {
+    switch (g.graph().ranker) {
+        case "network-simplex":
+            networkSimplexRanker(g);
+            break;
+        case "tight-tree":
+            tightTreeRanker(g);
+            break;
+        case "longest-path":
+            longestPathRanker(g);
+            break;
+        default: networkSimplexRanker(g);
+    }
+}
+var longestPathRanker = longestPath;
+function tightTreeRanker(g) {
+    longestPath(g);
+    feasibleTree(g);
+}
+function networkSimplexRanker(g) {
+    networkSimplex(g);
+}
+
+var index$2 = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    rank: rank,
+    tightTreeRanker: tightTreeRanker,
+    networkSimplexRanker: networkSimplexRanker,
+    networkSimplex: networkSimplex,
+    feasibleTree: feasibleTree,
+    longestPath: longestPath
+});
+
+var DEFAULT_WEIGHT_FN = (e) => (1);
+function greedyFAS(g, weightFn) {
+    if (g.nodeCount() <= 1) {
+        return [];
+    }
+    var state = buildState(g, weightFn || DEFAULT_WEIGHT_FN);
+    var results = doGreedyFAS(state.graph, state.buckets, state.zeroIdx);
+    return flattenDeep(results.map((e) => g.outEdges(e.v, e.w)));
+}
+function doGreedyFAS(g, buckets, zeroIdx) {
+    var results = [];
+    var sources = buckets[buckets.length - 1];
+    var sinks = buckets[0];
+    var entry;
+    while (g.nodeCount()) {
+        while ((entry = sinks.dequeue())) {
+            removeNode(g, buckets, zeroIdx, entry);
+        }
+        while ((entry = sources.dequeue())) {
+            removeNode(g, buckets, zeroIdx, entry);
+        }
+        if (g.nodeCount()) {
+            for (var i = buckets.length - 2; i > 0; --i) {
+                entry = buckets[i].dequeue();
+                if (entry) {
+                    results = results.concat(removeNode(g, buckets, zeroIdx, entry, true));
+                    break;
+                }
+            }
+        }
+    }
+    return results;
+}
+function removeNode(g, buckets, zeroIdx, entry, collectPredecessors) {
+    var results = collectPredecessors ? [] : undefined;
+    for (var edge of g.inEdges(entry.v)) {
+        var weight = g.edge(edge);
+        var uEntry = g.node(edge.v);
+        if (collectPredecessors) {
+            results.push({ v: edge.v, w: edge.w });
+        }
+        uEntry.out -= weight;
+        assignBucket(buckets, zeroIdx, uEntry);
+    }
+    for (var edge of g.outEdges(entry.v)) {
+        var weight = g.edge(edge);
+        var w = edge.w;
+        var wEntry = g.node(w);
+        wEntry["in"] -= weight;
+        assignBucket(buckets, zeroIdx, wEntry);
+    }
+    g.removeNode(entry.v);
+    return results;
+}
+function buildState(g, weightFn) {
+    var fasGraph = new Graph();
+    var maxIn = 0;
+    var maxOut = 0;
+    for (var v of g.nodes()) {
+        fasGraph.setNode(v, { v: v, "in": 0, out: 0 });
+    }
+    for (var e of g.edges()) {
+        var prevWeight = fasGraph.edge(e.v, e.w) || 0;
+        var weight = weightFn(e);
+        var edgeWeight = prevWeight + weight;
+        fasGraph.setEdge(e.v, e.w, edgeWeight);
+        maxOut = Math.max(maxOut, fasGraph.node(e.v).out += weight);
+        maxIn = Math.max(maxIn, fasGraph.node(e.w)["in"] += weight);
+    }
+    var buckets = array(maxOut + maxIn + 3, () => new List());
+    var zeroIdx = maxIn + 1;
+    for (var v of fasGraph.nodes()) {
+        assignBucket(buckets, zeroIdx, fasGraph.node(v));
+    }
+    return { graph: fasGraph, buckets: buckets, zeroIdx: zeroIdx };
+}
+function assignBucket(buckets, zeroIdx, entry) {
+    if (!entry.out) {
+        buckets[0].enqueue(entry);
+    }
+    else if (!entry["in"]) {
+        buckets[buckets.length - 1].enqueue(entry);
+    }
+    else {
+        buckets[entry.out - entry["in"] + zeroIdx].enqueue(entry);
+    }
+}
+
+var acyclic = { run, undo };
+function run(g) {
+    var fas = (g.graph().acyclicer === "greedy"
+        ? greedyFAS(g, weightFn(g))
+        : dfsFAS(g));
+    for (var e of fas) {
+        var label = g.edge(e);
+        g.removeEdge(e);
+        label.forwardName = e.name;
+        label.reversed = true;
+        g.setEdge(e.w, e.v, label, uniqueId("rev"));
+    }
+    function weightFn(g) {
+        return function (e) {
+            return g.edge(e).weight;
+        };
+    }
+}
+function dfsFAS(g) {
+    var fas = [];
+    var stack = {};
+    var visited = {};
+    function dfs(v) {
+        if (has(visited, v)) {
+            return;
+        }
+        visited[v] = true;
+        stack[v] = true;
+        for (var e of g.outEdges(v)) {
+            if (has(stack, e.w)) {
+                fas.push(e);
+            }
+            else {
+                dfs(e.w);
+            }
+        }
+        delete stack[v];
+    }
+    g.nodes().forEach(dfs);
+    return fas;
+}
+function undo(g) {
+    for (var e of g.edges()) {
+        var label = g.edge(e);
+        if (label.reversed) {
+            g.removeEdge(e);
+            var forwardName = label.forwardName;
+            delete label.reversed;
+            delete label.forwardName;
+            g.setEdge(e.w, e.v, label, forwardName);
+        }
+    }
+}
+
+function addBorderSegments(g) {
+    function dfs(v) {
+        var children = g.children(v);
+        var node = g.node(v);
+        if (children.length) {
+            children.forEach(dfs);
+        }
+        if (has(node, "minRank")) {
+            node.borderLeft = [];
+            node.borderRight = [];
+            for (var rank = node.minRank, maxRank = node.maxRank + 1; rank < maxRank; ++rank) {
+                addBorderNode$1(g, "borderLeft", "_bl", v, node, rank);
+                addBorderNode$1(g, "borderRight", "_br", v, node, rank);
+            }
+        }
+    }
+    g.children().forEach(dfs);
+}
+function addBorderNode$1(g, prop, prefix, sg, sgNode, rank) {
+    var label = { width: 0, height: 0, rank: rank, borderType: prop };
+    var prev = sgNode[prop][rank - 1];
+    var curr = addDummyNode(g, "border", label, prefix);
+    sgNode[prop][rank] = curr;
+    g.setParent(curr, sg);
+    if (prev) {
+        g.setEdge(prev, curr, { weight: 1 });
+    }
+}
+
+var coordinateSystem = { adjust, undo: undo$1 };
+function adjust(g) {
+    var rankDir = g.graph().rankdir.toLowerCase();
+    if (rankDir === "lr" || rankDir === "rl") {
+        swapWidthHeight(g);
+    }
+}
+function undo$1(g) {
+    var rankDir = g.graph().rankdir.toLowerCase();
+    if (rankDir === "bt" || rankDir === "rl") {
+        reverseY(g);
+    }
+    if (rankDir === "lr" || rankDir === "rl") {
+        swapXY(g);
+        swapWidthHeight(g);
+    }
+}
+function swapWidthHeight(g) {
+    for (var v of g.nodes()) {
+        swapWidthHeightOne(g.node(v));
+    }
+    for (var e of g.edges()) {
+        swapWidthHeightOne(g.edge(e));
+    }
+}
+function swapWidthHeightOne(attrs) {
+    var w = attrs.width;
+    attrs.width = attrs.height;
+    attrs.height = w;
+}
+function reverseY(g) {
+    for (var v of g.nodes()) {
+        reverseYOne(g.node(v));
+    }
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        edge.points.forEach(reverseYOne);
+        if (has(edge, "y")) {
+            reverseYOne(edge);
+        }
+    }
+}
+function reverseYOne(attrs) {
+    attrs.y = -attrs.y;
+}
+function swapXY(g) {
+    for (var v of g.nodes()) {
+        swapXYOne(g.node(v));
+    }
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        edge.points.forEach(swapXYOne);
+        if (has(edge, "x")) {
+            swapXYOne(edge);
+        }
+    }
+}
+function swapXYOne(attrs) {
+    var x = attrs.x;
+    attrs.x = attrs.y;
+    attrs.y = x;
+}
+
+function debugOrdering(g) {
+    var layerMatrix = buildLayerMatrix(g);
+    var h = new Graph({ compound: true, multigraph: true }).setGraph({});
+    for (var v of g.nodes()) {
+        h.setNode(v, { label: v });
+        h.setParent(v, "layer" + g.node(v).rank);
+    }
+    for (var e of g.edges()) {
+        h.setEdge(e.v, e.w, {}, e.name);
+    }
+    var i = 0;
+    for (var layer of layerMatrix) {
+        var layerV = "layer" + i;
+        i++;
+        h.setNode(layerV, { rank: "same" });
+        layer.reduce(function (u, v) {
+            h.setEdge(u.toString(), v, { style: "invis" });
+            return v;
+        });
+    }
+    return h;
+}
+
+var debug = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    debugOrdering: debugOrdering
+});
+
+var normalize = { run: run$1, undo: undo$2 };
+function run$1(g) {
+    g.graph().dummyChains = [];
+    for (var edge of g.edges()) {
+        normalizeEdge(g, edge);
+    }
+}
+function normalizeEdge(g, e) {
+    var v = e.v;
+    var vRank = g.node(v).rank;
+    var w = e.w;
+    var wRank = g.node(w).rank;
+    var name = e.name;
+    var edgeLabel = g.edge(e);
+    var labelRank = edgeLabel.labelRank;
+    if (wRank === vRank + 1)
+        return;
+    g.removeEdge(e);
+    var dummy;
+    var attrs;
+    var i;
+    for (i = 0, ++vRank; vRank < wRank; ++i, ++vRank) {
+        edgeLabel.points = [];
+        attrs = {
+            width: 0,
+            height: 0,
+            edgeLabel: edgeLabel,
+            edgeObj: e,
+            rank: vRank
+        };
+        dummy = addDummyNode(g, "edge", attrs, "_d");
+        if (vRank === labelRank) {
+            attrs.width = edgeLabel.width;
+            attrs.height = edgeLabel.height;
+            attrs.dummy = "edge-label";
+            attrs.labelpos = edgeLabel.labelpos;
+        }
+        g.setEdge(v, dummy, { weight: edgeLabel.weight }, name);
+        if (i === 0) {
+            g.graph().dummyChains.push(dummy);
+        }
+        v = dummy;
+    }
+    g.setEdge(v, w, { weight: edgeLabel.weight }, name);
+}
+function undo$2(g) {
+    for (var v of g.graph().dummyChains) {
+        var node = g.node(v);
+        var origLabel = node.edgeLabel;
+        var w;
+        g.setEdge(node.edgeObj, origLabel);
+        while (node.dummy) {
+            w = g.successors(v)[0];
+            g.removeNode(v);
+            origLabel.points.push({ x: node.x, y: node.y });
+            if (node.dummy === "edge-label") {
+                origLabel.x = node.x;
+                origLabel.y = node.y;
+                origLabel.width = node.width;
+                origLabel.height = node.height;
+            }
+            v = w;
+            node = g.node(v);
+        }
+    }
+}
+
+function parentDummyChains(g) {
+    var postorderNums = postorder$1(g);
+    for (var v of g.graph().dummyChains) {
+        var node = g.node(v);
+        var edgeObj = node.edgeObj;
+        var pathData = findPath(g, postorderNums, edgeObj.v, edgeObj.w);
+        var path = pathData.path;
+        var lca = pathData.lca;
+        var pathIdx = 0;
+        var pathV = path[pathIdx];
+        var ascending = true;
+        while (v !== edgeObj.w) {
+            node = g.node(v);
+            if (ascending) {
+                while ((pathV = path[pathIdx]) !== lca &&
+                    g.node(pathV).maxRank < node.rank) {
+                    pathIdx++;
+                }
+                if (pathV === lca) {
+                    ascending = false;
+                }
+            }
+            if (!ascending) {
+                while (pathIdx < path.length - 1 &&
+                    g.node(pathV = path[pathIdx + 1]).minRank <= node.rank) {
+                    pathIdx++;
+                }
+                pathV = path[pathIdx];
+            }
+            g.setParent(v, pathV);
+            v = g.successors(v)[0];
+        }
+    }
+}
+function findPath(g, postorderNums, v, w) {
+    var vPath = [];
+    var wPath = [];
+    var low = Math.min(postorderNums[v].low, postorderNums[w].low);
+    var lim = Math.max(postorderNums[v].lim, postorderNums[w].lim);
+    var parent;
+    var lca;
+    parent = v;
+    do {
+        parent = g.parent(parent);
+        vPath.push(parent);
+    } while (parent &&
+        (postorderNums[parent].low > low || lim > postorderNums[parent].lim));
+    lca = parent;
+    parent = w;
+    while ((parent = g.parent(parent)) !== lca) {
+        wPath.push(parent);
+    }
+    return { path: vPath.concat(wPath.reverse()), lca: lca };
+}
+function postorder$1(g) {
+    var result = {};
+    var lim = 0;
+    function dfs(v) {
+        var low = lim;
+        g.children(v).forEach(dfs);
+        result[v] = { low: low, lim: lim++ };
+    }
+    g.children().forEach(dfs);
+    return result;
+}
+
+var nestingGraph = { run: run$2, cleanup };
+function run$2(g) {
+    var root = addDummyNode(g, "root", {}, "_root");
+    var depths = treeDepths(g);
+    var height = Math.max(...values(depths)) - 1;
+    var nodeSep = 2 * height + 1;
+    g.graph().nestingRoot = root;
+    for (var e of g.edges()) {
+        g.edge(e).minlen *= nodeSep;
+    }
+    var weight = sumWeights(g) + 1;
+    for (var child of g.children()) {
+        dfs$1(g, root, nodeSep, weight, height, depths, child);
+    }
+    g.graph().nodeRankFactor = nodeSep;
+}
+function dfs$1(g, root, nodeSep, weight, height, depths, v) {
+    var children = g.children(v);
+    if (!children.length) {
+        if (v !== root) {
+            g.setEdge(root, v, { weight: 0, minlen: nodeSep });
+        }
+        return;
+    }
+    var top = addBorderNode(g, "_bt");
+    var bottom = addBorderNode(g, "_bb");
+    var label = g.node(v);
+    g.setParent(top, v);
+    label.borderTop = top;
+    g.setParent(bottom, v);
+    label.borderBottom = bottom;
+    for (var child of children) {
+        dfs$1(g, root, nodeSep, weight, height, depths, child);
+        var childNode = g.node(child);
+        var childTop = childNode.borderTop ? childNode.borderTop : child;
+        var childBottom = childNode.borderBottom ? childNode.borderBottom : child;
+        var thisWeight = childNode.borderTop ? weight : 2 * weight;
+        var minlen = childTop !== childBottom ? 1 : height - depths[v] + 1;
+        g.setEdge(top, childTop, {
+            weight: thisWeight,
+            minlen: minlen,
+            nestingEdge: true
+        });
+        g.setEdge(childBottom, bottom, {
+            weight: thisWeight,
+            minlen: minlen,
+            nestingEdge: true
+        });
+    }
+    if (!g.parent(v)) {
+        g.setEdge(root, top, { weight: 0, minlen: height + depths[v] });
+    }
+}
+function treeDepths(g) {
+    var depths = {};
+    function dfs(v, depth) {
+        var children = g.children(v);
+        if (children && children.length) {
+            for (var child of children) {
+                dfs(child, depth + 1);
+            }
+        }
+        depths[v] = depth;
+    }
+    for (var child of g.children()) {
+        dfs(child, 1);
+    }
+    return depths;
+}
+function sumWeights(g) {
+    return g.edges().reduce((acc, e) => acc + g.edge(e).weight, 0);
+}
+function cleanup(g) {
+    var graphLabel = g.graph();
+    g.removeNode(graphLabel.nestingRoot);
+    delete graphLabel.nestingRoot;
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        if (edge.nestingEdge) {
+            g.removeEdge(e);
+        }
+    }
+}
+
+function isEdgeProxy(node) {
+    return node.dummy == 'edge-proxy';
+}
+function isSelfEdge(node) {
+    return node.dummy == 'selfedge';
+}
+function layout(g, opts) {
+    var time$1 = opts && opts.debugTiming ? time : notime;
+    time$1("layout", function () {
+        var layoutGraph = time$1("  buildLayoutGraph", function () { return buildLayoutGraph(g); });
+        time$1("  runLayout", function () { runLayout(layoutGraph, time$1); });
+        time$1("  updateInputGraph", function () { updateInputGraph(g, layoutGraph); });
+    });
+}
+function runLayout(g, time) {
+    time("    makeSpaceForEdgeLabels", function () { makeSpaceForEdgeLabels(g); });
+    time("    removeSelfEdges", function () { removeSelfEdges(g); });
+    time("    acyclic", function () { acyclic.run(g); });
+    time("    nestingGraph.run", function () { nestingGraph.run(g); });
+    time("    rank", function () { rank(asNonCompoundGraph(g)); });
+    time("    injectEdgeLabelProxies", function () { injectEdgeLabelProxies(g); });
+    time("    removeEmptyRanks", function () { removeEmptyRanks(g); });
+    time("    nestingGraph.cleanup", function () { nestingGraph.cleanup(g); });
+    time("    normalizeRanks", function () { normalizeRanks(g); });
+    time("    assignRankMinMax", function () { assignRankMinMax(g); });
+    time("    removeEdgeLabelProxies", function () { removeEdgeLabelProxies(g); });
+    time("    normalize.run", function () { normalize.run(g); });
+    time("    parentDummyChains", function () { parentDummyChains(g); });
+    time("    addBorderSegments", function () { addBorderSegments(g); });
+    time("    order", function () { order(g); });
+    time("    insertSelfEdges", function () { insertSelfEdges(g); });
+    time("    adjustCoordinateSystem", function () { coordinateSystem.adjust(g); });
+    time("    position", function () { position(g); });
+    time("    positionSelfEdges", function () { positionSelfEdges(g); });
+    time("    removeBorderNodes", function () { removeBorderNodes(g); });
+    time("    normalize.undo", function () { normalize.undo(g); });
+    time("    fixupEdgeLabelCoords", function () { fixupEdgeLabelCoords(g); });
+    time("    undoCoordinateSystem", function () { coordinateSystem.undo(g); });
+    time("    translateGraph", function () { translateGraph(g); });
+    time("    assignNodeIntersects", function () { assignNodeIntersects(g); });
+    time("    reversePoints", function () { reversePointsForReversedEdges(g); });
+    time("    acyclic.undo", function () { acyclic.undo(g); });
+}
+function updateInputGraph(inputGraph, layoutGraph) {
+    for (var v of inputGraph.nodes()) {
+        var inputLabel = inputGraph.node(v);
+        var layoutLabel = layoutGraph.node(v);
+        if (inputLabel) {
+            inputLabel.x = layoutLabel.x;
+            inputLabel.y = layoutLabel.y;
+            if (layoutGraph.children(v).length) {
+                inputLabel.width = layoutLabel.width;
+                inputLabel.height = layoutLabel.height;
+            }
+        }
+    }
+    for (var e of inputGraph.edges()) {
+        var inputEdgeLabel = inputGraph.edge(e);
+        var layoutEdgeLabel = layoutGraph.edge(e);
+        inputEdgeLabel.points = layoutEdgeLabel.points;
+        if (has(layoutEdgeLabel, "x")) {
+            inputEdgeLabel.x = layoutEdgeLabel.x;
+            inputEdgeLabel.y = layoutEdgeLabel.y;
+        }
+    }
+    inputGraph.graph().width = layoutGraph.graph().width;
+    inputGraph.graph().height = layoutGraph.graph().height;
+}
+var tb = 'tb';
+var graphDefaults = { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: tb };
+var edgeDefaults = {
+    minlen: 1, weight: 1, width: 0, height: 0,
+    labeloffset: 10, labelpos: "r"
+};
+function buildLayoutGraph(inputGraph) {
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+    var g = new Graph({ multigraph: true, compound: true });
+    var graph = canonicalize(inputGraph.graph());
+    var layoutGraphConfig = {
+        nodesep: ((_a = graph.nodesep) !== null && _a !== void 0 ? _a : graphDefaults.nodesep),
+        edgesep: ((_b = graph.edgesep) !== null && _b !== void 0 ? _b : graphDefaults.edgesep),
+        ranksep: ((_c = graph.ranksep) !== null && _c !== void 0 ? _c : graphDefaults.ranksep),
+        marginx: +((_d = graph.marginx) !== null && _d !== void 0 ? _d : 0),
+        marginy: +((_e = graph.marginy) !== null && _e !== void 0 ? _e : 0),
+        acyclicer: graph.acyclicer,
+        ranker: (_f = graph.ranker) !== null && _f !== void 0 ? _f : 'network-simplex',
+        rankdir: (_g = graph.rankdir) !== null && _g !== void 0 ? _g : graphDefaults.rankdir,
+        align: graph.align,
+    };
+    g.setGraph(layoutGraphConfig);
+    for (var v of inputGraph.nodes()) {
+        var node = canonicalize(inputGraph.node(v));
+        var layoutNode = {
+            width: +((_h = (node && node.width)) !== null && _h !== void 0 ? _h : 0),
+            height: +((_j = (node && node.height)) !== null && _j !== void 0 ? _j : 0)
+        };
+        g.setNode(v, layoutNode);
+        g.setParent(v, inputGraph.parent(v));
+    }
+    for (var e of inputGraph.edges()) {
+        var edge = canonicalize(inputGraph.edge(e));
+        var layoutEdge = {
+            minlen: ((_k = edge.minlen) !== null && _k !== void 0 ? _k : edgeDefaults.minlen),
+            weight: ((_l = edge.weight) !== null && _l !== void 0 ? _l : edgeDefaults.weight),
+            width: ((_m = edge.width) !== null && _m !== void 0 ? _m : edgeDefaults.width),
+            height: ((_o = edge.height) !== null && _o !== void 0 ? _o : edgeDefaults.height),
+            labeloffset: ((_p = edge.labeloffset) !== null && _p !== void 0 ? _p : edgeDefaults.labeloffset),
+            labelpos: (_q = edge.labelpos) !== null && _q !== void 0 ? _q : edgeDefaults.labelpos
+        };
+        g.setEdge(e, layoutEdge);
+    }
+    return g;
+}
+function makeSpaceForEdgeLabels(g) {
+    var graph = g.graph();
+    graph.ranksep /= 2;
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        edge.minlen *= 2;
+        if (edge.labelpos.toLowerCase() !== "c") {
+            if (graph.rankdir === "TB" || graph.rankdir === "BT") {
+                edge.width += edge.labeloffset;
+            }
+            else {
+                edge.height += edge.labeloffset;
+            }
+        }
+    }
+}
+function injectEdgeLabelProxies(g) {
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        if (edge.width && edge.height) {
+            var v = g.node(e.v);
+            var w = g.node(e.w);
+            var label = { rank: (w.rank - v.rank) / 2 + v.rank, e: e };
+            addDummyNode(g, "edge-proxy", label, "_ep");
+        }
+    }
+}
+function assignRankMinMax(g) {
+    var maxRank = 0;
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        if (node.borderTop) {
+            node.minRank = g.node(node.borderTop).rank;
+            node.maxRank = g.node(node.borderBottom).rank;
+            maxRank = Math.max(maxRank, node.maxRank);
+        }
+    }
+    g.graph().maxRank = maxRank;
+}
+function removeEdgeLabelProxies(g) {
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        if (isEdgeProxy(node)) {
+            g.edge(node.e).labelRank = node.rank;
+            g.removeNode(v);
+        }
+    }
+}
+function translateGraph(g) {
+    var _a, _b, _c;
+    var minX = Number.POSITIVE_INFINITY;
+    var maxX = 0;
+    var minY = Number.POSITIVE_INFINITY;
+    var maxY = 0;
+    var graphLabel = g.graph();
+    var marginX = (_a = graphLabel.marginx) !== null && _a !== void 0 ? _a : 0;
+    var marginY = (_b = graphLabel.marginy) !== null && _b !== void 0 ? _b : 0;
+    function getExtremes(attrs) {
+        var x = attrs.x;
+        var y = attrs.y;
+        var w = attrs.width;
+        var h = attrs.height;
+        minX = Math.min(minX, x - w / 2);
+        maxX = Math.max(maxX, x + w / 2);
+        minY = Math.min(minY, y - h / 2);
+        maxY = Math.max(maxY, y + h / 2);
+    }
+    for (var v of g.nodes()) {
+        getExtremes(g.node(v));
+    }
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        if (has(edge, "x")) {
+            getExtremes(edge);
+        }
+    }
+    minX -= marginX;
+    minY -= marginY;
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        node.x -= minX;
+        node.y -= minY;
+    }
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        for (var p of (_c = edge.points) !== null && _c !== void 0 ? _c : []) {
+            p.x -= minX;
+            p.y -= minY;
+        }
+        if (edge.hasOwnProperty("x")) {
+            edge.x -= minX;
+        }
+        if (edge.hasOwnProperty("y")) {
+            edge.y -= minY;
+        }
+    }
+    graphLabel.width = maxX - minX + marginX;
+    graphLabel.height = maxY - minY + marginY;
+}
+function assignNodeIntersects(g) {
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        var nodeV = g.node(e.v);
+        var nodeW = g.node(e.w);
+        var p1;
+        var p2;
+        if (!edge.points) {
+            edge.points = [];
+            p1 = nodeW;
+            p2 = nodeV;
+        }
+        else {
+            p1 = edge.points[0];
+            p2 = edge.points[edge.points.length - 1];
+        }
+        edge.points.unshift(intersectRect(nodeV, p1));
+        edge.points.push(intersectRect(nodeW, p2));
+    }
+}
+function fixupEdgeLabelCoords(g) {
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        if (has(edge, "x")) {
+            if (edge.labelpos === "l" || edge.labelpos === "r") {
+                edge.width -= edge.labeloffset;
+            }
+            switch (edge.labelpos) {
+                case "l":
+                    edge.x -= edge.width / 2 + edge.labeloffset;
+                    break;
+                case "r":
+                    edge.x += edge.width / 2 + edge.labeloffset;
+                    break;
+            }
+        }
+    }
+}
+function reversePointsForReversedEdges(g) {
+    for (var e of g.edges()) {
+        var edge = g.edge(e);
+        if (edge.reversed) {
+            edge.points.reverse();
+        }
+    }
+}
+function removeBorderNodes(g) {
+    for (var v of g.nodes()) {
+        if (g.children(v).length) {
+            var node = g.node(v);
+            var t = g.node(node.borderTop);
+            var b = g.node(node.borderBottom);
+            var l = g.node(last(node.borderLeft));
+            var r = g.node(last(node.borderRight));
+            node.width = Math.abs(r.x - l.x);
+            node.height = Math.abs(b.y - t.y);
+            node.x = l.x + node.width / 2;
+            node.y = t.y + node.height / 2;
+        }
+    }
+    for (var v of g.nodes()) {
+        if (g.node(v).dummy === "border") {
+            g.removeNode(v);
+        }
+    }
+}
+function removeSelfEdges(g) {
+    for (var e of g.edges()) {
+        if (e.v === e.w) {
+            var node = g.node(e.v);
+            if (!node.selfEdges) {
+                node.selfEdges = [];
+            }
+            node.selfEdges.push({ e: e, label: g.edge(e) });
+            g.removeEdge(e);
+        }
+    }
+}
+function insertSelfEdges(g) {
+    var _a;
+    var layers = buildLayerMatrix(g);
+    for (var layer of layers) {
+        var orderShift = 0;
+        for (var i = 0; i < layer.length; i++) {
+            var v = layer[i];
+            var node = g.node(v);
+            node.order = i + orderShift;
+            for (var selfEdge of (_a = node.selfEdges) !== null && _a !== void 0 ? _a : []) {
+                addDummyNode(g, "selfedge", {
+                    width: selfEdge.label.width,
+                    height: selfEdge.label.height,
+                    rank: node.rank,
+                    order: i + (++orderShift),
+                    e: selfEdge.e,
+                    label: selfEdge.label
+                }, "_se");
+            }
+            delete node.selfEdges;
+        }
+    }
+}
+function positionSelfEdges(g) {
+    for (var v of g.nodes()) {
+        var node = g.node(v);
+        if (isSelfEdge(node)) {
+            var selfNode = g.node(node.e.v);
+            var x = selfNode.x + selfNode.width / 2;
+            var y = selfNode.y;
+            var dx = node.x - x;
+            var dy = selfNode.height / 2;
+            g.setEdge(node.e, node.label);
+            g.removeNode(v);
+            node.label.points = [
+                { x: x + 2 * dx / 3, y: y - dy },
+                { x: x + 5 * dx / 6, y: y - dy },
+                { x: x + dx, y: y },
+                { x: x + 5 * dx / 6, y: y + dy },
+                { x: x + 2 * dx / 3, y: y + dy }
+            ];
+            node.label.x = node.x;
+            node.label.y = node.y;
+        }
+    }
+}
+function canonicalize(attrs = {}) {
+    var newAttrs = {};
+    for (var key of Object.keys(attrs)) {
+        newAttrs[key.toLowerCase()] = attrs[key];
+    }
+    return newAttrs;
+}
+
+var version = "0.1.3";
+
+function write(g) {
+    var json = {
+        options: {
+            directed: g.isDirected(),
+            multigraph: g.isMultigraph(),
+            compound: g.isCompound()
+        },
+        nodes: writeNodes(g),
+        edges: writeEdges(g)
+    };
+    if (!(undefined === g.graph())) {
+        json.value = JSON.parse(JSON.stringify(g.graph()));
+    }
+    return json;
+}
+function writeNodes(g) {
+    return g.nodes().map(function (v) {
+        var nodeValue = g.node(v);
+        var parent = g.parent(v);
+        var node = { v: v };
+        if (!(undefined === nodeValue)) {
+            node.value = nodeValue;
+        }
+        if (!(undefined === parent)) {
+            node.parent = parent;
+        }
+        return node;
+    });
+}
+function writeEdges(g) {
+    return g.edges().map(function (e) {
+        var edgeValue = g.edge(e);
+        var edge = { v: e.v, w: e.w };
+        if (!(undefined === e.name)) {
+            edge.name = e.name;
+        }
+        if (!(undefined === edgeValue)) {
+            edge.value = edgeValue;
+        }
+        return edge;
+    });
+}
+function read(json) {
+    var g = new Graph(json.options).setGraph(json.value);
+    for (var entry of json.nodes) {
+        g.setNode(entry.v, entry.value);
+        if (entry.parent) {
+            g.setParent(entry.v, entry.parent);
+        }
+    }
+    for (var entry of json.edges) {
+        g.setEdge({ v: entry.v, w: entry.w, name: entry.name }, entry.value);
+    }
+    return g;
+}
+
+var json = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    write: write,
+    read: read
+});
+
+var graphlib = {
+    Graph,
+    GraphLike,
+    alg,
+    json,
+    PriorityQueue
+};
+
+exports.Graph = Graph;
+exports.GraphLike = GraphLike;
+exports.PriorityQueue = PriorityQueue;
+exports.acyclic = acyclic;
+exports.addBorderSegments = addBorderSegments;
+exports.alg = alg;
+exports.coordinateSystem = coordinateSystem;
+exports.data = list;
+exports.debug = debug;
+exports.graphlib = graphlib;
+exports.greedyFAS = greedyFAS;
+exports.json = json;
+exports.layout = layout;
+exports.nestingGraph = nestingGraph;
+exports.normalize = normalize;
+exports.order = index;
+exports.parentDummyChains = parentDummyChains;
+exports.position = index$1;
+exports.rank = index$2;
+exports.util = util;
+exports.version = version;
