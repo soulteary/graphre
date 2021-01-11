@@ -1,4 +1,6 @@
+var graphre = (function(){
 'use strict';
+
 
 
 
@@ -3054,24 +3056,28 @@ var graphlib = {
     PriorityQueue
 };
 
-module.exports.Graph = Graph;
-module.exports.GraphLike = GraphLike;
-module.exports.PriorityQueue = PriorityQueue;
-module.exports.acyclic = acyclic;
-module.exports.addBorderSegments = addBorderSegments;
-module.exports.alg = alg;
-module.exports.coordinateSystem = coordinateSystem;
-module.exports.data = list;
-module.exports.debug = debug;
-module.exports.graphlib = graphlib;
-module.exports.greedyFAS = greedyFAS;
-module.exports.json = json;
-module.exports.layout = layout;
-module.exports.nestingGraph = nestingGraph;
-module.exports.normalize = normalize;
-module.exports.order = index;
-module.exports.parentDummyChains = parentDummyChains;
-module.exports.position = index$1;
-module.exports.rank = index$2;
-module.exports.util = util;
-module.exports.version = version;
+return {
+	Graph: Graph,
+	GraphLike: GraphLike,
+	PriorityQueue: PriorityQueue,
+	acyclic: acyclic,
+	addBorderSegments: addBorderSegments,
+	alg: alg,
+	coordinateSystem: coordinateSystem,
+	data: list,
+	debug: debug,
+	graphlib: graphlib,
+	greedyFAS: greedyFAS,
+	json: json,
+	layout: layout,
+	nestingGraph: nestingGraph,
+	normalize: normalize,
+	order: index,
+	parentDummyChains: parentDummyChains,
+	position: index$1,
+	rank: index$2,
+	util: util,
+	version: version,
+};
+
+})();
