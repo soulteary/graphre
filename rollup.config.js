@@ -6,7 +6,7 @@ export default {
   input: 'build/index.js',
   output: {
     file: 'dist/graphre.js',
-    format: 'umd',
+    format: 'cjs',
     name: 'graphre'
   },
   plugins: [nodeResolve(), commonjs(), process.env.MINIFY ? terser() : null]
