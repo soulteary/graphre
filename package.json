@@ -19,7 +19,9 @@
     "build": "tsc && rollup -c && npm run test",
     "postbuild": "node post-build.js",
     "pack": "tsc && MINIFY=1 rollup -c && npm run test",
-    "test": "mocha --recursive --reporter progress"
+    "test": "mocha --recursive --reporter progress",
+    "es5": "webpack",
+    "postes5": "node post-es5.js"
   },
   "dependencies": {},
   "devDependencies": {
@@ -33,7 +35,12 @@
     "rollup-plugin-terser": "^7.0.2",
     "sprintf": "^0.1.5",
     "terser": "^5.3.8",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "@babel/core": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
+    "babel-loader": "^8.2.2",
+    "webpack": "^5.12.3",
+    "webpack-cli": "^4.3.1"
   },
   "repository": {
     "type": "git",
